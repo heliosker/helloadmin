@@ -14,7 +14,7 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 			code := e.ERROR_TOKEN_FAIL
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code":    code,
-				"message": e.GetMessage(code),
+				"message": e.Message(code),
 			})
 		}
 
@@ -22,7 +22,7 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 		if ok != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code":    e.ERROR_TOKEN_FAIL,
-				"message": e.GetMessage(e.ERROR_TOKEN_FAIL),
+				"message": e.Message(e.ERROR_TOKEN_FAIL),
 			})
 			c.Abort()
 			return

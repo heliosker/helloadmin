@@ -18,9 +18,10 @@ func AuthLogin(c *gin.Context) {
 
 	if !models.CheckAdminUser(username, password) {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    e.SUCCESS,
-			"message": "用户名或密码错误",
+			"code":    e.ERROR_PASSWORD_FAIL,
+			"message": e.Message(e.ERROR_PASSWORD_FAIL),
 		})
+		return
 	}
 
 	token, err := utils.GetToken(username)
@@ -29,7 +30,7 @@ func AuthLogin(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    e.SUCCESS,
-		"message": e.GetMessage(e.SUCCESS),
+		"message": e.Message(e.SUCCESS),
 		"data":    token,
 	})
 }
