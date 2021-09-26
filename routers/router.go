@@ -3,7 +3,7 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 	"helloadmin/middleware"
-	"helloadmin/routers/api"
+	"helloadmin/routers/api/v1"
 )
 
 func InitRouter() *gin.Engine {
@@ -13,7 +13,7 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	apiv1 := r.Group("/api/v1")
-	apiv1.POST("/auth", api.AuthLogin)
+	apiv1.POST("/auth", v1.AuthLogin)
 
 	apiv1.Use(middleware.JWTAuthMiddleware())
 	{

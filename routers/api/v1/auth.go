@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,7 @@ func AuthLogin(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
-	if !models.CheckAdminUser(username, password) {
+	if !models.AdminUserExist(username, password) {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"code":    e.ERROR_PASSWORD_FAIL,
 			"message": e.Message(e.ERROR_PASSWORD_FAIL),
