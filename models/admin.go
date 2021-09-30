@@ -8,9 +8,13 @@ type AdminUser struct {
 	Password string `json:"password"`
 }
 
+func (AdminUser) TableName() string {
+	return "hi_admin_users"
+}
+
 func AdminUserExist(username, password string) bool {
 	var admin AdminUser
-	db.Select("id").Where(AdminUser{Username: username, Password: password}).First(&admin)
+	DB.Select("id").Where(AdminUser{Username: username, Password: password}).First(&admin)
 	if admin.ID > 0 {
 		return true
 	}

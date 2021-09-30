@@ -17,11 +17,13 @@ func InitRouter() *gin.Engine {
 
 	apiv1.Use(middleware.JWTAuthMiddleware())
 	{
+		apiv1.GET("/version", v1.VersionIndex)
+		apiv1.POST("/version", v1.VersionStore)
 
 		apiv1.GET("/test", func(c *gin.Context) {
 			c.JSON(200, gin.H{
 				"message": "test",
-				"data":"tEST",
+				"data":    "tEST",
 			})
 		})
 	}

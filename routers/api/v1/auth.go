@@ -17,20 +17,12 @@ func AuthLogin(c *gin.Context) {
 	password := c.PostForm("password")
 
 	if !models.AdminUserExist(username, password) {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    e.ERROR_PASSWORD_FAIL,
-			"message": e.Message(e.ERROR_PASSWORD_FAIL),
-		})
+		c.JSON(utils.Error(http.StatusUnauthorized, e.ERROR_PASSWORD_FAIL))
 		return
 	}
 
 	token, err := utils.GetToken(username)
 	if err != nil {
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    e.SUCCESS,
-		"message": e.Message(e.SUCCESS),
-		"data":    token,
-	})
+	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, map[string]string{"token": token}, nil))
 }

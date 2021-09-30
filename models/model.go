@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 
 func init() {
 	var (
@@ -33,7 +33,7 @@ func init() {
 		host,
 		dbName,
 	)
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Println(err)
 	}
