@@ -18,6 +18,7 @@ func VersionIndex(c *gin.Context) {
 	ret := models.DB.Scopes(utils.Paginate(page, size)).Find(&version)
 	if ret.Error != nil {
 		c.JSON(utils.Error(http.StatusOK, e.ERROR_CREATED_FAIL))
+		return
 	}
 	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, version, &utils.Meta{Page: page, Size: size, Total: count}))
 }

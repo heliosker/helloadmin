@@ -7,7 +7,7 @@ import (
 )
 
 func Load() *ini.File {
-	app, err := ini.Load("./config/app.ini")
+	app, err := ini.Load("./app.ini")
 	if err != nil {
 		fmt.Printf("Fail to read file: %v", err)
 		os.Exit(1)
