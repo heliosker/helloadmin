@@ -13,16 +13,20 @@ type Profile struct {
 }
 
 func AuthLogin(c *gin.Context) {
-	username := c.PostForm("username")
+	email := c.PostForm("email")
 	password := c.PostForm("password")
 
-	if !models.AdminUserExist(username, password) {
+	if !models.AdminUserExist(email, password) {
 		c.JSON(utils.Error(http.StatusUnauthorized, e.ERROR_PASSWORD_FAIL))
 		return
 	}
 
-	token, err := utils.GetToken(username)
+	token, err := utils.GetToken(email)
 	if err != nil {
 	}
 	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, map[string]string{"token": token}, nil))
+}
+
+func AuthLogout(c *gin.Context) {
+	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
 }
