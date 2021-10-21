@@ -1,0 +1,4 @@
+FROM alpine:3.10
+COPY release/linux/amd64/helloadmin /usr/local/bin/helloadmin
+EXPOSE 9010
+ENTRYPOINT ["/usr/local/bin/helloadmin"]
