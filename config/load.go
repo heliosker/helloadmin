@@ -11,7 +11,7 @@ func Load() *ini.File {
 	fmt.Println(dir)
 	fmt.Println(e)
 	fmt.Println("-----------")
-	app, err := ini.Load(".env")
+	app, err := ini.Load("/.env")
 	if err != nil {
 		fmt.Printf("Fail to read file: %v", err)
 		os.Exit(1)
