@@ -1,5 +1,4 @@
 FROM alpine:3.10
-MAINTAINER bing "codingibing@163.com"
 COPY release/linux/amd64/helloadmin /usr/local/bin/helloadmin
 EXPOSE 9010
 ENTRYPOINT ["/usr/local/bin/helloadmin"]
