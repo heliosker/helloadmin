@@ -1,10 +1,12 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type AdminUser struct {
 	gorm.Model
-	Username string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -12,9 +14,9 @@ func (AdminUser) TableName() string {
 	return "hi_admin_users"
 }
 
-func AdminUserExist(username, password string) bool {
+func AdminUserExist(email, password string) bool {
 	var admin AdminUser
-	DB.Select("id").Where(AdminUser{Username: username, Password: password}).First(&admin)
+	DB.Select("id").Where(AdminUser{Email: email, Password: password}).First(&admin)
 	if admin.ID > 0 {
 		return true
 	}

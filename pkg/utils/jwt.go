@@ -7,7 +7,7 @@ import (
 )
 
 type MyClaims struct {
-	Username string `json:"username"`
+	Email string `json:"email"`
 	jwt.StandardClaims
 }
 
@@ -15,9 +15,9 @@ const TokenExpireDuartion = time.Hour * 24
 
 var Secret = []byte("hello_admin")
 
-func GetToken(username string) (string, error) {
+func GetToken(email string) (string, error) {
 	c := MyClaims{
-		username,
+		email,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(TokenExpireDuartion).Unix(),
 			Issuer:    "helloadmin.cn",
