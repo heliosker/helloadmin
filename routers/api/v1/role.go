@@ -18,7 +18,7 @@ func RoleIndex(c *gin.Context) {
 	models.DB.Model(&roles).Count(&count)
 	ret := models.DB.Scopes(utils.Paginate(p, s)).Find(&roles)
 	if ret.Error != nil {
-		c.JSON(utils.Error(http.StatusOK, e.ERROR_FIND_FAIL))
+		c.JSON(utils.Error(http.StatusOK, e.ERROR_SELECT_FAIL))
 		return
 	}
 	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, roles, &utils.Meta{Page: p, Size: s}))
@@ -39,14 +39,23 @@ func RoleShow(c *gin.Context) {
 	id := c.Param("id")
 	var role models.Role
 	ret := models.DB.Where("id", id).Find(&role)
-	if ret.Error != nil {
-		c.JSON(utils.Error(http.StatusOK, e.ERROR_FIND_FAIL))
+	if ret.Error != nil || role.ID == 0 {
+		c.JSON(utils.Error(http.StatusOK, e.ERROR_SELECT_FAIL))
 		return
 	}
 	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, role, nil))
 }
 
 func RoleUpdate(c *gin.Context) {
+	id := c.Param("id")
+	var role models.Role
+	_ = c.ShouldBindJSON(&role)
+	ret := models.DB.Where("id", id).Updates(role)
+	if ret.Error != nil {
+		c.JSON(utils.Error(http.StatusOK, e.ERROR_SELECT_FAIL))
+		return
+	}
+
 	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
 }
 
@@ -55,7 +64,7 @@ func RoleDestroy(c *gin.Context) {
 	var role models.Role
 	ret := models.DB.Where("id", id).Delete(&role)
 	if ret.Error != nil {
-		c.JSON(utils.Error(http.StatusOK, e.ERROR_FIND_FAIL))
+		c.JSON(utils.Error(http.StatusOK, e.ERROR_SELECT_FAIL))
 		return
 	}
 	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
