@@ -21,7 +21,7 @@ func RoleIndex(c *gin.Context) {
 		c.JSON(utils.Error(http.StatusOK, e.ERROR_SELECT_FAIL))
 		return
 	}
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, roles, &utils.Meta{Page: p, Size: s}))
+	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, roles, &utils.Meta{Page: p, Size: s, Total: count}))
 }
 
 func RoleStore(c *gin.Context) {
@@ -52,7 +52,7 @@ func RoleUpdate(c *gin.Context) {
 	_ = c.ShouldBindJSON(&role)
 	ret := models.DB.Where("id", id).Updates(role)
 	if ret.Error != nil {
-		c.JSON(utils.Error(http.StatusOK, e.ERROR_SELECT_FAIL))
+		c.JSON(utils.Error(http.StatusOK, e.ERROR_UPDATED_FAIL))
 		return
 	}
 
@@ -64,7 +64,7 @@ func RoleDestroy(c *gin.Context) {
 	var role models.Role
 	ret := models.DB.Where("id", id).Delete(&role)
 	if ret.Error != nil {
-		c.JSON(utils.Error(http.StatusOK, e.ERROR_SELECT_FAIL))
+		c.JSON(utils.Error(http.StatusOK, e.ERROR_DELETED_FAIL))
 		return
 	}
 	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
