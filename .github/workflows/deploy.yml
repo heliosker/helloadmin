@@ -45,5 +45,5 @@ jobs:
           #          script: whoami
           script_stop: true
           script: |
-            /root/golang/helloadmin/docker-compose pull
-            /root/golang/helloadmin/docker-compose up -d
+            /usr/local/bin/docker-compose --project-directory=/root/golang/helloadmin pull
+            /usr/local/bin/docker-compose --project-directory=/root/golang/helloadmin up -d
