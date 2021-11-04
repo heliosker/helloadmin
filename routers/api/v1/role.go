@@ -2,27 +2,80 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	e "helloadmin/pkg/error"
+	"helloadmin/models"
+	"helloadmin/pkg/app"
+	"helloadmin/pkg/errcode"
 	"helloadmin/pkg/utils"
-	"net/http"
+	"strconv"
 )
 
-func RoleIndex(c *gin.Context) {
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
+type Role struct {
 }
 
-func RoleStore(c *gin.Context) {
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
+func NewRole() Role {
+	return Role{}
 }
 
-func RoleShow(c *gin.Context) {
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
+func (r Role) Index(c *gin.Context) {
+	p, _ := strconv.Atoi(c.Query("page"))
+	s, _ := strconv.Atoi(c.Query("size"))
+	var count int64
+	var roles []models.Role
+
+	models.DB.Model(&roles).Count(&count)
+	ret := models.DB.Scopes(utils.Paginate(p, s)).Find(&roles)
+	if ret.Error != nil {
+		app.NewResponse(c).Error(errcode.SelectedFail.WithDetails(ret.Error.Error()))
+		return
+	}
+	app.NewResponse(c).Success(roles, count)
 }
 
-func RoleUpdate(c *gin.Context) {
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
+func (r Role) Store(c *gin.Context) {
+	var role models.Role
+	_ = c.ShouldBindJSON(&role)
+	err := models.DB.Create(&role).Error
+	rsp := app.NewResponse(c)
+	if err != nil {
+		rsp.Error(errcode.CreatedFail.WithDetails(err.Error()))
+		return
+	}
+	rsp.Success(role, app.NoMeta)
 }
 
-func RoleDestroy(c *gin.Context) {
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
+func (r Role) Show(c *gin.Context) {
+	id := c.Param("id")
+	var role models.Role
+	_ = models.DB.Where("id", id).Find(&role)
+	rsp := app.NewResponse(c)
+	if role.ID == 0 {
+		rsp.Error(errcode.NotFound)
+		return
+	}
+	rsp.Success(role, app.NoMeta)
+}
+
+func (r Role) Update(c *gin.Context) {
+	id := c.Param("id")
+	var role models.Role
+	_ = c.ShouldBindJSON(&role)
+	ret := models.DB.Where("id", id).Updates(role)
+	rsp := app.NewResponse(c)
+	if ret.Error != nil {
+		rsp.Error(errcode.UpdatedFail.WithDetails(ret.Error.Error()))
+		return
+	}
+	rsp.Success(nil, app.NoMeta)
+}
+
+func (r Role) Destroy(c *gin.Context) {
+	id := c.Param("id")
+	var role models.Role
+	ret := models.DB.Where("id", id).Delete(&role)
+	rsp := app.NewResponse(c)
+	if ret.Error != nil {
+		rsp.Error(errcode.DeletedFail.WithDetails(ret.Error.Error()))
+		return
+	}
+	rsp.Success(nil, app.NoMeta)
 }

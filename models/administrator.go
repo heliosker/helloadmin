@@ -1,13 +1,13 @@
 package models
 
-import (
-	"gorm.io/gorm"
-)
-
 type AdminUser struct {
-	gorm.Model
+	Model
 	Email    string `json:"email"`
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+	Status   int8   `json:"status"`
 	Password string `json:"password"`
+	RoleId   int64  `json:"role_id"`
 }
 
 func (AdminUser) TableName() string {

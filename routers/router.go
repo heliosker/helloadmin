@@ -16,26 +16,30 @@ func InitRouter() *gin.Engine {
 	apiv1.POST("/auth/login", v1.AuthLogin)
 	apiv1.DELETE("/auth/logout", v1.AuthLogout)
 
+	role := v1.NewRole()
+	ver := v1.NewVersion()
 	apiv1.Use(middleware.JWTAuthMiddleware())
 	{
-		apiv1.GET("/version", v1.VersionIndex)
-		apiv1.POST("/version", v1.VersionStore)
+		// Upload file
+		apiv1.POST("/upload", NewUpload().UploadFile)
 
-		// 角色
-		apiv1.GET("/roles", v1.RoleIndex)
-		apiv1.GET("/roles/:id", v1.RoleShow)
-		apiv1.POST("/roles", v1.RoleStore)
-		apiv1.PUT("/roles/:id", v1.RoleUpdate)
-		apiv1.DELETE("/roles/:id", v1.RoleDestroy)
+		apiv1.GET("/version", ver.Index)
+		apiv1.POST("/version", ver.Store)
 
+		// Role
+		apiv1.GET("/roles", role.Index)
+		apiv1.GET("/roles/:id", role.Show)
+		apiv1.POST("/roles", role.Store)
+		apiv1.PUT("/roles/:id", role.Update)
+		apiv1.DELETE("/roles/:id", role.Destroy)
 
+		// Administrators
+		apiv1.GET("/administrators", v1.AdminIndex)
+		apiv1.GET("/administrators/:id", v1.AdminShow)
+		apiv1.POST("/administrators", v1.AdminStore)
+		apiv1.PUT("/administrators/:id", v1.AdminUpdate)
+		apiv1.DELETE("/administrators/:id", v1.AdminDelete)
 
-		apiv1.GET("/test", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"message": "test",
-				"data":    "tEST",
-			})
-		})
 	}
 
 	return r

@@ -3,9 +3,9 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"helloadmin/models"
-	e "helloadmin/pkg/error"
+	"helloadmin/pkg/app"
+	"helloadmin/pkg/errcode"
 	"helloadmin/pkg/utils"
-	"net/http"
 )
 
 type Profile struct {
@@ -17,16 +17,17 @@ func AuthLogin(c *gin.Context) {
 	password := c.PostForm("password")
 
 	if !models.AdminUserExist(email, password) {
-		c.JSON(utils.Error(http.StatusUnauthorized, e.ERROR_PASSWORD_FAIL))
+		app.NewResponse(c).Error(errcode.PasswordFail)
 		return
 	}
-
 	token, err := utils.GetToken(email)
 	if err != nil {
+		app.NewResponse(c).Error(errcode.GenerateTokenError)
+		return
 	}
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, map[string]string{"token": token}, nil))
+	app.NewResponse(c).Success(gin.H{"token": token}, app.NoMeta)
 }
 
 func AuthLogout(c *gin.Context) {
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
+	app.NewResponse(c).Success(nil, app.NoMeta)
 }
