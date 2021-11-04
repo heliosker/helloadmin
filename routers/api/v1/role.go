@@ -3,13 +3,20 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"helloadmin/models"
-	e "helloadmin/pkg/error"
+	"helloadmin/pkg/app"
+	"helloadmin/pkg/errcode"
 	"helloadmin/pkg/utils"
-	"net/http"
 	"strconv"
 )
 
-func RoleIndex(c *gin.Context) {
+type Role struct {
+}
+
+func NewRole() Role {
+	return Role{}
+}
+
+func (r Role) Index(c *gin.Context) {
 	p, _ := strconv.Atoi(c.Query("page"))
 	s, _ := strconv.Atoi(c.Query("size"))
 	var count int64
@@ -18,54 +25,57 @@ func RoleIndex(c *gin.Context) {
 	models.DB.Model(&roles).Count(&count)
 	ret := models.DB.Scopes(utils.Paginate(p, s)).Find(&roles)
 	if ret.Error != nil {
-		c.JSON(utils.Error(http.StatusOK, e.ERROR_SELECT_FAIL))
+		app.NewResponse(c).Error(errcode.SelectedFail.WithDetails(ret.Error.Error()))
 		return
 	}
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, roles, &utils.Meta{Page: p, Size: s, Total: count}))
+	app.NewResponse(c).Success(roles, count)
 }
 
-func RoleStore(c *gin.Context) {
+func (r Role) Store(c *gin.Context) {
 	var role models.Role
 	_ = c.ShouldBindJSON(&role)
 	err := models.DB.Create(&role).Error
+	rsp := app.NewResponse(c)
 	if err != nil {
-		c.JSON(utils.Error(http.StatusOK, e.ERROR_CREATED_FAIL))
+		rsp.Error(errcode.CreatedFail.WithDetails(err.Error()))
 		return
 	}
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, role, nil))
+	rsp.Success(role, app.NoMeta)
 }
 
-func RoleShow(c *gin.Context) {
+func (r Role) Show(c *gin.Context) {
 	id := c.Param("id")
 	var role models.Role
-	ret := models.DB.Where("id", id).Find(&role)
-	if ret.Error != nil || role.ID == 0 {
-		c.JSON(utils.Error(http.StatusOK, e.ERROR_SELECT_FAIL))
+	_ = models.DB.Where("id", id).Find(&role)
+	rsp := app.NewResponse(c)
+	if role.ID == 0 {
+		rsp.Error(errcode.NotFound)
 		return
 	}
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, role, nil))
+	rsp.Success(role, app.NoMeta)
 }
 
-func RoleUpdate(c *gin.Context) {
+func (r Role) Update(c *gin.Context) {
 	id := c.Param("id")
 	var role models.Role
 	_ = c.ShouldBindJSON(&role)
 	ret := models.DB.Where("id", id).Updates(role)
+	rsp := app.NewResponse(c)
 	if ret.Error != nil {
-		c.JSON(utils.Error(http.StatusOK, e.ERROR_UPDATED_FAIL))
+		rsp.Error(errcode.UpdatedFail.WithDetails(ret.Error.Error()))
 		return
 	}
-
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
+	rsp.Success(nil, app.NoMeta)
 }
 
-func RoleDestroy(c *gin.Context) {
+func (r Role) Destroy(c *gin.Context) {
 	id := c.Param("id")
 	var role models.Role
 	ret := models.DB.Where("id", id).Delete(&role)
+	rsp := app.NewResponse(c)
 	if ret.Error != nil {
-		c.JSON(utils.Error(http.StatusOK, e.ERROR_DELETED_FAIL))
+		rsp.Error(errcode.DeletedFail.WithDetails(ret.Error.Error()))
 		return
 	}
-	c.JSON(utils.Success(http.StatusOK, e.SUCCESS, nil, nil))
+	rsp.Success(nil, app.NoMeta)
 }
