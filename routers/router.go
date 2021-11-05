@@ -18,6 +18,7 @@ func InitRouter() *gin.Engine {
 
 	role := v1.NewRole()
 	ver := v1.NewVersion()
+	menu := v1.NewMenu()
 	apiv1.Use(middleware.JWTAuthMiddleware())
 	{
 		// Upload file
@@ -39,6 +40,13 @@ func InitRouter() *gin.Engine {
 		apiv1.POST("/administrators", v1.AdminStore)
 		apiv1.PUT("/administrators/:id", v1.AdminUpdate)
 		apiv1.DELETE("/administrators/:id", v1.AdminDelete)
+
+		// Menu
+		apiv1.GET("/menus", menu.Index)
+		apiv1.GET("/menus/:id", menu.Show)
+		apiv1.POST("/menus", menu.Store)
+		apiv1.PUT("/menus/:id", menu.Update)
+		apiv1.DELETE("/menus/:id", menu.Delete)
 
 	}
 

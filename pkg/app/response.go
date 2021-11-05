@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"helloadmin/pkg/errcode"
 	"net/http"
@@ -52,7 +51,6 @@ func (r *Response) Success(data interface{}, totalRows int64) {
 
 func (r *Response) Error(err *errcode.Error) {
 	response := gin.H{"code": err.Code(), "message": err.Message()}
-	fmt.Println(response)
 	details := err.Details()
 	if len(details) > 0 {
 		response["details"] = details

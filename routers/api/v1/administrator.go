@@ -58,7 +58,7 @@ func AdminUpdate(c *gin.Context) {
 func AdminDelete(c *gin.Context) {
 	id := c.Param("id")
 	var admin models.AdminUser
-	if ret := models.DB.Unscoped().Where("id", id).Delete(&admin); ret.Error != nil {
+	if ret := models.DB.Where("id", id).Delete(&admin); ret.Error != nil {
 		app.NewResponse(c).Error(errcode.DeletedFail)
 		return
 	}
