@@ -23,7 +23,7 @@ func (r Role) Index(c *gin.Context) {
 	var roles []models.Role
 	if c.Query("options") != "" {
 		models.DB.Find(&roles)
-		var result = map[uint]string{}
+		var result = make(map[uint]string)
 		for i := 0; i < len(roles); i++ {
 			result[roles[i].ID] = roles[i].Name
 		}

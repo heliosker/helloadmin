@@ -50,6 +50,4 @@ func (m Menu) Options(db *gorm.DB) (map[uint]string, error) {
 	return options, nil
 }
 
-func (m Menu) Store(db *gorm.DB) (*Menu, error) {
-	db.Create()
-}
+
