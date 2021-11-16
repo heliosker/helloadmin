@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"helloadmin/models"
+	"helloadmin/app/models"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/errcode"
 	"helloadmin/pkg/utils"
@@ -21,6 +21,15 @@ func (r Role) Index(c *gin.Context) {
 	s, _ := strconv.Atoi(c.Query("size"))
 	var count int64
 	var roles []models.Role
+	if c.Query("options") != "" {
+		models.DB.Find(&roles)
+		var result = map[uint]string{}
+		for i := 0; i < len(roles); i++ {
+			result[roles[i].ID] = roles[i].Name
+		}
+		app.NewResponse(c).Success(result, app.NoMeta)
+		return
+	}
 
 	models.DB.Model(&roles).Count(&count)
 	ret := models.DB.Scopes(utils.Paginate(p, s)).Find(&roles)

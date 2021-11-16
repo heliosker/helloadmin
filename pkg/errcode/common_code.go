@@ -2,8 +2,9 @@ package errcode
 
 var (
 	Success                     = NewError(0, "成功")
-	PasswordFail                = NewError(300000, "账号或密码错误")
-	GenerateTokenError          = NewError(300110, "生成 Token 失败")
+	PasswordFail                = NewError(300000, "哦豁，账号或密码错误")
+	AccountIsLocked             = NewError(300001, "哦豁，该账号已被锁定")
+	GenerateTokenError          = NewError(300110, "哦豁，生成 Token 失败")
 	UnauthorizedTokenIsNotExist = NewError(300120, "鉴权失败，Token 不存在")
 	UnauthorizedTokenError      = NewError(300100, "鉴权失败，Token 错误")
 	UnauthorizedTokenTimeOut    = NewError(300200, "鉴权失败，Token 超时")

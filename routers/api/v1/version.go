@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"helloadmin/models"
+	"helloadmin/app/models"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/errcode"
 	"helloadmin/pkg/utils"

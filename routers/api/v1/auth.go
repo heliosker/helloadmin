@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"helloadmin/models"
+	"helloadmin/app/models"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/errcode"
 	"helloadmin/pkg/utils"
@@ -15,9 +15,8 @@ type Profile struct {
 func AuthLogin(c *gin.Context) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
-
-	if !models.AdminUserExist(email, password) {
-		app.NewResponse(c).Error(errcode.PasswordFail)
+	if err := models.AdminUserLogin(email, password); err != nil {
+		app.NewResponse(c).Error(err)
 		return
 	}
 	token, err := utils.GetToken(email)

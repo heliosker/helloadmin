@@ -2,26 +2,23 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"helloadmin/models"
+	"helloadmin/app/models"
+	"helloadmin/app/service"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/errcode"
-	"helloadmin/pkg/utils"
-	"strconv"
 )
 
 func AdminIndex(c *gin.Context) {
-	p, _ := strconv.Atoi(c.Query("page"))
-	s, _ := strconv.Atoi(c.Query("size"))
-	var count int64
-	var admin []models.AdminUser
-	models.DB.Model(&admin).Count(&count)
-
-	ret := models.DB.Scopes(utils.Paginate(p, s)).Find(&admin)
-	if ret.Error != nil {
-		app.NewResponse(c).Error(errcode.SelectedFail)
+	params := service.GetAdminReq{}
+	svc := service.New(c.Request.Context())
+	// 验证 Todo
+	count, _ := svc.CountAdministrators(params)
+	users, e := svc.GetAdministrators(params, app.Meta{Count: count})
+	if e != nil {
+		app.NewResponse(c).Error(errcode.SelectedFail.WithDetails(e.Error()))
 		return
 	}
-	app.NewResponse(c).Success(admin, count)
+	app.NewResponse(c).Success(users, count)
 }
 
 func AdminShow(c *gin.Context) {

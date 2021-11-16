@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"helloadmin/models"
+	"helloadmin/app/models"
+	"helloadmin/app/service"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/errcode"
 )
@@ -16,8 +16,25 @@ func NewMenu() Menu {
 }
 
 func (m Menu) Index(c *gin.Context) {
-
-	app.NewResponse(c).Success(nil, 5)
+	params := service.MenuListReq{}
+	// 验证 Todo
+	svc := service.New(c.Request.Context())
+	rsp := app.NewResponse(c)
+	if c.Query("options") != "" {
+		option, e := svc.GetOptions()
+		if e != nil {
+			rsp.Error(errcode.SelectedFail.WithDetails(e.Error()))
+			return
+		}
+		rsp.Success(option, app.NoMeta)
+	} else {
+		menus, e := svc.GetMenuList(&params, app.Meta{Page: 1, Size: 10})
+		if e != nil {
+			rsp.Error(errcode.SelectedFail.WithDetails(e.Error()))
+			return
+		}
+		rsp.Success(menus, app.NoMeta)
+	}
 }
 
 func (m Menu) Show(c *gin.Context) {
@@ -35,9 +52,9 @@ func (m Menu) Show(c *gin.Context) {
 func (m Menu) Store(c *gin.Context) {
 	var menu models.Menu
 	_ = c.ShouldBindJSON(&menu)
-	fmt.Println(menu)
 	if err := models.DB.Create(&menu).Error; err != nil {
 		app.NewResponse(c).Error(errcode.CreatedFail.WithDetails(err.Error()))
+		return
 	}
 	app.NewResponse(c).Success(menu, app.NoMeta)
 }
