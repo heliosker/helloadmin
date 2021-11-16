@@ -37,17 +37,16 @@ func (m Menu) List(db *gorm.DB, offset, size int) ([]*Menu, error) {
 	return menu, nil
 }
 
-func (m Menu) Options(db *gorm.DB) (map[uint]string, error) {
+func (m Menu) Options(db *gorm.DB) ([]map[string]interface{}, error) {
 	var menu []*Menu
 	var err error
-	var options = make(map[uint]string)
 	if err = db.Order("sort DESC").Find(&menu).Error; err != nil {
 		return nil, err
 	}
+	var options = make([]map[string]interface{}, 0, len(menu))
 	for i := 0; i < len(menu); i++ {
-		options[menu[i].ID] = menu[i].Title
+		ops := map[string]interface{}{"key": menu[i].ID, "value": menu[i].Title}
+		options = append(options, ops)
 	}
 	return options, nil
 }
-
-

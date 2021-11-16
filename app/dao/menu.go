@@ -11,7 +11,7 @@ func (d Dao) GetTreeMenu(title string, page, size int) ([]*models.Menu, error) {
 	return menu.List(d.engine, offset, size)
 }
 
-func (d Dao) GetOptions() (map[uint]string, error) {
+func (d Dao) GetOptions() ([]map[string]interface{}, error) {
 	menu := models.Menu{}
 	return menu.Options(d.engine)
 }

@@ -13,6 +13,6 @@ func (svc *Service) GetMenuList(param *MenuListReq, meta app.Meta) ([]*models.Me
 	return svc.dao.GetTreeMenu(param.Name, meta.Page, meta.Size)
 }
 
-func (svc *Service) GetOptions() (map[uint]string, error) {
+func (svc *Service) GetOptions() ([]map[string]interface{}, error) {
 	return svc.dao.GetOptions()
 }
