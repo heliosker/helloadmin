@@ -13,31 +13,27 @@ func JWT() gin.HandlerFunc {
 			token string
 			ecode = errcode.Success
 		)
-		if s, exist := c.GetQuery("Authorization"); exist {
-			token = s
-		} else {
-			token = c.GetHeader("Authorization")
-		}
+		rsp := app.NewResponse(c)
+		token = c.GetHeader("Authorization")
+
 		if token == "" {
 			ecode = errcode.InvalidParams
-		} else {
-			mc, e := app.ParseToken(token)
-			c.Set("username", mc.Username)
-			if e != nil {
-				switch e.(*jwt.ValidationError).Errors {
-				case jwt.ValidationErrorExpired:
-					ecode = errcode.UnauthorizedTokenTimeOut
-				default:
-					ecode = errcode.UnauthorizedTokenError
-				}
+		}
+		mc, e := app.ParseToken(token)
+		if e != nil {
+			switch e.(*jwt.ValidationError).Errors {
+			case jwt.ValidationErrorExpired:
+				ecode = errcode.UnauthorizedTokenTimeOut
+			default:
+				ecode = errcode.UnauthorizedTokenError
 			}
 		}
 		if ecode != errcode.Success {
-			rsp := app.NewResponse(c)
 			rsp.Error(ecode)
 			c.Abort()
 			return
 		}
+		c.Set("username", mc.Username)
 		c.Next()
 	}
 }
