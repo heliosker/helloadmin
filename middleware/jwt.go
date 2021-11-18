@@ -1,12 +1,12 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/errcode"
 )
+
 func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
@@ -23,7 +23,6 @@ func JWT() gin.HandlerFunc {
 		} else {
 			mc, e := app.ParseToken(token)
 			c.Set("username", mc.Username)
-			fmt.Println(mc.Username)
 			if e != nil {
 				switch e.(*jwt.ValidationError).Errors {
 				case jwt.ValidationErrorExpired:

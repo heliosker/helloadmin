@@ -20,7 +20,7 @@ func (a Auth) Get(db *gorm.DB) (Auth, error) {
 	var admin Auth
 	err := db.Debug().Where(AdminUser{Username: a.Username, Password: a.Password}).First(&admin).Error
 	if admin.Status == 1 {
-		return admin, errcode.AccountIsLocked
+		return admin, errcode.UnauthorizedAccountIsLocked
 	}
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return admin, err

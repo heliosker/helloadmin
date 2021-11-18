@@ -10,8 +10,9 @@ import (
 
 func AdminMe(c *gin.Context) {
 	rsp := app.NewResponse(c)
+	username, _ := c.Get("username")
 	var admin models.AdminUser
-	if err := models.DB.Where("username=?", c.Get("username")).Find(&admin).Error; err != nil {
+	if err := models.DB.Where("username=?", username).Find(&admin).Error; err != nil {
 		rsp.Error(errcode.SelectedFail.WithDetails(err.Error()))
 		return
 	}
