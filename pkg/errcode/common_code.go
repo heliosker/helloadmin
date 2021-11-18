@@ -8,6 +8,8 @@ var (
 	UnauthorizedTokenIsNotExist = NewError(300120, "鉴权失败，Token 不存在")
 	UnauthorizedTokenError      = NewError(300100, "鉴权失败，Token 错误")
 	UnauthorizedTokenTimeOut    = NewError(300200, "鉴权失败，Token 超时")
+	UnauthorizedAuthNotExist    = NewError(300300, "哦豁，账号或密码不正确")
+	UnauthorizedTokenGenerate   = NewError(300400, "哦豁，生成令牌 Token 失败")
 	TooManyRequests             = NewError(400100, "啊哦，请求过多")
 	NotFound                    = NewError(400200, "啊哦，资源不存在")
 	InvalidParams               = NewError(400300, "啊哦，请不要瞎填")

@@ -8,6 +8,16 @@ import (
 	"helloadmin/pkg/errcode"
 )
 
+func AdminMe(c *gin.Context) {
+	rsp := app.NewResponse(c)
+	var admin models.AdminUser
+	if err := models.DB.Where("username=?", c.Get("username")).Find(&admin).Error; err != nil {
+		rsp.Error(errcode.SelectedFail.WithDetails(err.Error()))
+		return
+	}
+	rsp.Success(admin, app.NoMeta)
+}
+
 func AdminIndex(c *gin.Context) {
 	params := service.GetAdminReq{}
 	svc := service.New(c.Request.Context())
@@ -35,7 +45,7 @@ func AdminStore(c *gin.Context) {
 	var admin models.AdminUser
 	_ = c.ShouldBindJSON(&admin)
 	if err := models.DB.Create(&admin).Error; err != nil {
-		app.NewResponse(c).Error(errcode.CreatedFail)
+		app.NewResponse(c).Error(errcode.CreatedFail.WithDetails(err.Error()))
 		return
 	}
 	app.NewResponse(c).Success(admin, app.NoMeta)

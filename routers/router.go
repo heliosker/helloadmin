@@ -19,10 +19,11 @@ func InitRouter() *gin.Engine {
 	role := v1.NewRole()
 	ver := v1.NewVersion()
 	menu := v1.NewMenu()
-	apiv1.Use(middleware.JWTAuthMiddleware())
+	apiv1.Use(middleware.JWT())
 	{
 		// Upload file
 		apiv1.POST("/upload", NewUpload().UploadFile)
+		apiv1.GET("/me", v1.AdminMe)
 
 		apiv1.GET("/version", ver.Index)
 		apiv1.POST("/version", ver.Store)

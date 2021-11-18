@@ -1,27 +1,44 @@
 package middleware
 
 import (
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/errcode"
-	"helloadmin/pkg/utils"
 )
-
-func JWTAuthMiddleware() func(c *gin.Context) {
+func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.Request.Header.Get("Authorization")
-		if authHeader == "" {
-			app.NewResponse(c).Error(errcode.UnauthorizedTokenIsNotExist)
+		var (
+			token string
+			ecode = errcode.Success
+		)
+		if s, exist := c.GetQuery("Authorization"); exist {
+			token = s
+		} else {
+			token = c.GetHeader("Authorization")
+		}
+		if token == "" {
+			ecode = errcode.InvalidParams
+		} else {
+			mc, e := app.ParseToken(token)
+			c.Set("username", mc.Username)
+			fmt.Println(mc.Username)
+			if e != nil {
+				switch e.(*jwt.ValidationError).Errors {
+				case jwt.ValidationErrorExpired:
+					ecode = errcode.UnauthorizedTokenTimeOut
+				default:
+					ecode = errcode.UnauthorizedTokenError
+				}
+			}
+		}
+		if ecode != errcode.Success {
+			rsp := app.NewResponse(c)
+			rsp.Error(ecode)
 			c.Abort()
 			return
 		}
-		mc, ok := utils.ParseToken(authHeader)
-		if ok != nil {
-			app.NewResponse(c).Error(errcode.UnauthorizedTokenError)
-			c.Abort()
-			return
-		}
-		c.Set("username", mc.Email)
 		c.Next()
 	}
 }

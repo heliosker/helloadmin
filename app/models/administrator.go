@@ -2,7 +2,6 @@ package models
 
 import (
 	"gorm.io/gorm"
-	"helloadmin/pkg/errcode"
 )
 
 type AdminUser struct {
@@ -15,22 +14,8 @@ type AdminUser struct {
 	RoleId   int64  `json:"role_id"`
 }
 
-const isLocked = 1
-
 func (AdminUser) TableName() string {
 	return "hi_admin_users"
-}
-
-func AdminUserLogin(email, password string) *errcode.Error {
-	var admin AdminUser
-	DB.Select("id").Where(AdminUser{Email: email, Password: password}).First(&admin)
-	if admin.ID == 0 {
-		return errcode.PasswordFail
-	}
-	if admin.Status == isLocked {
-		return errcode.AccountIsLocked
-	}
-	return nil
 }
 
 func (au AdminUser) Pagination(db *gorm.DB, offset, size int) ([]*AdminUser, error) {
