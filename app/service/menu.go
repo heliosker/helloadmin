@@ -2,15 +2,48 @@ package service
 
 import (
 	"helloadmin/app/models"
-	"helloadmin/pkg/app"
 )
 
 type MenuListReq struct {
 	Name string `form:"name" binding:"max=100"`
 }
 
-func (svc *Service) GetMenuList(param *MenuListReq, meta app.Meta) ([]*models.Menu, error) {
-	return svc.dao.GetTreeMenu(param.Name, meta.Page, meta.Size)
+type MenuTreeMap struct {
+	models.Menu
+	Children []models.Menu `json:"children" gorm:"-"`
+}
+
+func (svc *Service) GetTreeMenu(param *MenuListReq) ([]MenuTreeMap, error) {
+
+	var menuTree = make([]MenuTreeMap, svc.dao.Count(0))
+	menus, e := svc.dao.GetTreeMenu(param.Name)
+	if e != nil {
+		return menuTree, e
+	}
+	for k, v := range menus {
+		if v.ParentId == 0 {
+			menuTree[k].ID = v.ID
+			menuTree[k].ParentId = v.ParentId
+			menuTree[k].Title = v.Title
+			menuTree[k].Sort = v.Sort
+			menuTree[k].Icon = v.Icon
+			menuTree[k].Uri = v.Uri
+			menuTree[k].Extension = v.Extension
+			menuTree[k].IsShow = v.IsShow
+			menuTree[k].Children = svc.GetChildren(v.ID, menus)
+		}
+	}
+	return menuTree, e
+}
+
+func (svc *Service) GetChildren(id uint, menu []*models.Menu) []models.Menu {
+	menus := []models.Menu{}
+	for _, v := range menu {
+		if v.ParentId == id {
+			menus = append(menus, *v)
+		}
+	}
+	return menus
 }
 
 func (svc *Service) GetOptions() ([]map[string]interface{}, error) {

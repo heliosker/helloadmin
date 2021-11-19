@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Menu struct {
 	Model
-	ParentId  int    `json:"parent_id"`
+	ParentId  uint   `json:"parent_id"`
 	Sort      int    `json:"sort"`
 	Title     string `json:"title"`
 	Icon      string `json:"icon"`
@@ -22,12 +22,9 @@ type MenuTree struct {
 	Children []Menu
 }
 
-func (m Menu) List(db *gorm.DB, offset, size int) ([]*Menu, error) {
+func (m Menu) Tree(db *gorm.DB) ([]*Menu, error) {
 	var menu []*Menu
 	var err error
-	if offset >= 0 && size >= 0 {
-		db = db.Offset(offset).Limit(size)
-	}
 	if m.Title != "" {
 		db = db.Where("title = ?", m.Title)
 	}
@@ -49,4 +46,10 @@ func (m Menu) Options(db *gorm.DB) ([]map[string]interface{}, error) {
 		options = append(options, ops)
 	}
 	return options, nil
+}
+
+func (m Menu) Count(db *gorm.DB) int64 {
+	var count int64
+	db.Model(m).Where("parent_id = ?", m.ParentId).Count(&count)
+	return count
 }

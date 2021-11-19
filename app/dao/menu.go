@@ -2,16 +2,19 @@ package dao
 
 import (
 	"helloadmin/app/models"
-	"helloadmin/pkg/app"
 )
 
-func (d Dao) GetTreeMenu(title string, page, size int) ([]*models.Menu, error) {
+func (d Dao) GetTreeMenu(title string) ([]*models.Menu, error) {
 	menu := models.Menu{Title: title}
-	offset := app.GetPageOffset(page, size)
-	return menu.List(d.engine, offset, size)
+	return menu.Tree(d.engine)
 }
 
 func (d Dao) GetOptions() ([]map[string]interface{}, error) {
 	menu := models.Menu{}
 	return menu.Options(d.engine)
+}
+
+func (d Dao) Count(parentId uint) int64 {
+	menu := models.Menu{ParentId: parentId}
+	return menu.Count(d.engine)
 }

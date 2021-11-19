@@ -28,12 +28,12 @@ func (m Menu) Index(c *gin.Context) {
 		}
 		rsp.Success(option, app.NoMeta)
 	} else {
-		menus, e := svc.GetMenuList(&params, app.Meta{Page: 1, Size: 10})
-		if e != nil {
+		//boo, errors := app.BindAndValid(c, &params)
+		if menus, e := svc.GetTreeMenu(&params); e != nil {
 			rsp.Error(errcode.SelectedFail.WithDetails(e.Error()))
-			return
+		} else {
+			rsp.Success(menus, app.NoMeta)
 		}
-		rsp.Success(menus, app.NoMeta)
 	}
 }
 

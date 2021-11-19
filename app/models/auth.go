@@ -18,7 +18,7 @@ func (a Auth) TableName() string {
 
 func (a Auth) Get(db *gorm.DB) (Auth, error) {
 	var admin Auth
-	err := db.Debug().Where(AdminUser{Username: a.Username, Password: a.Password}).First(&admin).Error
+	err := db.Where(AdminUser{Username: a.Username, Password: a.Password}).First(&admin).Error
 	if admin.Status == 1 {
 		return admin, errcode.UnauthorizedAccountIsLocked
 	}

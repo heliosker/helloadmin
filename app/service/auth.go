@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 )
 
 type AuthReq struct {
@@ -11,8 +10,6 @@ type AuthReq struct {
 }
 
 func (svc *Service) CheckAuth(param *AuthReq) error {
-	fmt.Println(param.Username)
-	fmt.Println("-------")
 	auth, err := svc.dao.GetAuth(param.Username, param.Password)
 	if err != nil {
 		return err

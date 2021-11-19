@@ -43,4 +43,6 @@ jobs:
           port: ${{ secrets.DEV_SSH_PORT }}
           script_stop: true
           script: |
+            whoami
+            tmux
             cd golang/helloadmin && docker-compose pull && docker-compose up -d
