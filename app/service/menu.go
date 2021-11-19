@@ -10,13 +10,12 @@ type MenuListReq struct {
 
 type MenuTreeMap struct {
 	models.Menu
-	Children []models.Menu `json:"children" gorm:"-"`
+	Children []*models.Menu `json:"children" gorm:"-"`
 }
 
 func (svc *Service) GetTreeMenu(param *MenuListReq) ([]MenuTreeMap, error) {
-
-	var menuTree = make([]MenuTreeMap, svc.dao.Count(0))
-	menus, e := svc.dao.GetTreeMenu(param.Name)
+	menus, e := svc.dao.GetChildren(0)
+	var menuTree = make([]MenuTreeMap, len(menus))
 	if e != nil {
 		return menuTree, e
 	}
@@ -30,20 +29,13 @@ func (svc *Service) GetTreeMenu(param *MenuListReq) ([]MenuTreeMap, error) {
 			menuTree[k].Uri = v.Uri
 			menuTree[k].Extension = v.Extension
 			menuTree[k].IsShow = v.IsShow
-			menuTree[k].Children = svc.GetChildren(v.ID, menus)
+			if children, e := svc.dao.GetChildren(v.ID); e != nil {
+			} else {
+				menuTree[k].Children = children
+			}
 		}
 	}
 	return menuTree, e
-}
-
-func (svc *Service) GetChildren(id uint, menu []*models.Menu) []models.Menu {
-	menus := []models.Menu{}
-	for _, v := range menu {
-		if v.ParentId == id {
-			menus = append(menus, *v)
-		}
-	}
-	return menus
 }
 
 func (svc *Service) GetOptions() ([]map[string]interface{}, error) {

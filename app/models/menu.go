@@ -25,9 +25,7 @@ type MenuTree struct {
 func (m Menu) Tree(db *gorm.DB) ([]*Menu, error) {
 	var menu []*Menu
 	var err error
-	if m.Title != "" {
-		db = db.Where("title = ?", m.Title)
-	}
+	db = db.Where("parent_id = ?", m.ParentId)
 	if err = db.Order("sort DESC").Find(&menu).Error; err != nil {
 		return nil, err
 	}

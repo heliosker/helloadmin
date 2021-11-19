@@ -4,8 +4,8 @@ import (
 	"helloadmin/app/models"
 )
 
-func (d Dao) GetTreeMenu(title string) ([]*models.Menu, error) {
-	menu := models.Menu{Title: title}
+func (d Dao) GetChildren(parentId uint) ([]*models.Menu, error) {
+	menu := models.Menu{ParentId: parentId}
 	return menu.Tree(d.engine)
 }
 
