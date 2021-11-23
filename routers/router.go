@@ -22,6 +22,7 @@ func InitRouter() *gin.Engine {
 	apiv1.Use(middleware.JWT())
 	{
 		// Upload file
+		apiv1.POST("/upload/qiniu", NewUpload().UploadQiniuOss)
 		apiv1.POST("/upload", NewUpload().UploadFile)
 		apiv1.GET("/me", v1.AdminMe)
 

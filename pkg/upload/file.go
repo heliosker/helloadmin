@@ -3,7 +3,9 @@ package upload
 import (
 	"helloadmin/pkg/utils"
 	"path"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type FileType int
@@ -17,10 +19,13 @@ func GetFileName(name string) string {
 	return filename + ext
 }
 
+
 func GetFileExt(name string) string {
 	return path.Ext(name)
 }
 
-func GetSavePath() string {
-	return "storage/uploads/"
+func SavePath() string {
+	year, month, _ := time.Now().Date()
+	y := strconv.Itoa(year)
+	return "storage/uploads/" + y + "/" + month.String() + "/"
 }

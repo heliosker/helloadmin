@@ -18,7 +18,7 @@ func GetJWTSecret() []byte {
 
 func GenerateToken(username, password string) (string, error) {
 	nowTime := time.Now()
-	expireTime := nowTime.Add(time.Hour * 24)
+	expireTime := nowTime.Add(time.Minute * 2)
 	claims := Claims{
 		Username: username,
 		Password: utils.EncodeMD5(password),
