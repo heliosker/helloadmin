@@ -75,7 +75,7 @@ func (m Menu) Delete(c *gin.Context) {
 	id := c.Param("id")
 	var menu models.Menu
 	rsp := app.NewResponse(c)
-	if err := models.DB.Debug().Where("id", id).Delete(&menu).Error; err != nil {
+	if err := models.DB.Where("id", id).Delete(&menu).Error; err != nil {
 		rsp.Error(errcode.DeletedFail.WithDetails(err.Error()))
 		return
 	}

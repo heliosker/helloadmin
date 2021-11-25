@@ -4,13 +4,14 @@ import "gorm.io/gorm"
 
 type Menu struct {
 	Model
-	ParentId  uint   `json:"parent_id"`
-	Sort      int    `json:"sort"`
-	Title     string `json:"title"`
-	Icon      string `json:"icon"`
-	Uri       string `json:"uri"`
-	Extension string `json:"extension"`
-	IsShow    int8   `json:"is_show"`
+	ParentId uint   `json:"parent_id"`
+	Label    string `json:"label"`
+	Name     string `json:"name"`
+	Icon     string `json:"icon"`
+	Path     string `json:"path"`
+	Redirect string `json:"redirect"`
+	Sort     int    `json:"sort"`
+	Show     int8   `json:"show"`
 }
 
 func (Menu) TableName() string {
@@ -40,7 +41,7 @@ func (m Menu) Options(db *gorm.DB) ([]map[string]interface{}, error) {
 	}
 	var options = make([]map[string]interface{}, 0, len(menu))
 	for i := 0; i < len(menu); i++ {
-		ops := map[string]interface{}{"key": menu[i].ID, "value": menu[i].Title}
+		ops := map[string]interface{}{"key": menu[i].ID, "value": menu[i].Label}
 		options = append(options, ops)
 	}
 	return options, nil

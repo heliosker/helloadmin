@@ -5,7 +5,7 @@ import (
 )
 
 type MenuListReq struct {
-	Name string `form:"name" binding:"max=100"`
+	Label string `form:"label" binding:"max=100"`
 }
 
 type MenuTreeMap struct {
@@ -23,12 +23,12 @@ func (svc *Service) GetTreeMenu(param *MenuListReq) ([]MenuTreeMap, error) {
 		if v.ParentId == 0 {
 			menuTree[k].ID = v.ID
 			menuTree[k].ParentId = v.ParentId
-			menuTree[k].Title = v.Title
+			menuTree[k].Label = v.Label
 			menuTree[k].Sort = v.Sort
 			menuTree[k].Icon = v.Icon
-			menuTree[k].Uri = v.Uri
-			menuTree[k].Extension = v.Extension
-			menuTree[k].IsShow = v.IsShow
+			menuTree[k].Path = v.Path
+			menuTree[k].Redirect = v.Redirect
+			menuTree[k].Show = v.Show
 			if children, e := svc.dao.GetChildren(v.ID); e != nil {
 			} else {
 				menuTree[k].Children = children

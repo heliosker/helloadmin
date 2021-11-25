@@ -2,7 +2,6 @@ package routers
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
@@ -36,7 +35,6 @@ func (u Upload) UploadFile(c *gin.Context) {
 }
 
 func (u Upload) UploadQiniuOss(c *gin.Context) {
-
 	config, err := config.Load().GetSection("app")
 	var (
 		accessKey = config.Key("QINIU_ACCESS_KEY").String()
@@ -70,7 +68,6 @@ func (u Upload) UploadQiniuOss(c *gin.Context) {
 	err = formUploader.Put(context.Background(), &ret, upToken, key, data, file.Size, &putExtra)
 	rsp := app.NewResponse(c)
 	if err != nil {
-		fmt.Println(err)
 		rsp.Error(errcode.UploadFileFail.WithDetails(err.Error()))
 		return
 	}
