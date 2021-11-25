@@ -1,18 +1,13 @@
 package config
 
 import (
-	"fmt"
-	"gopkg.in/ini.v1"
-	"os"
+	"github.com/joho/godotenv"
+	"log"
 )
 
-func Load() *ini.File {
-	app, err := ini.Load("./.env")
+func Load() {
+	err := godotenv.Load()
 	if err != nil {
-		fmt.Printf("Fail to read file: %v", err)
-		os.Exit(1)
+		log.Fatal("Error loading .env file")
 	}
-
-	//version = app.Section("").Key("APP_VERSION").String()
-	return app
 }

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"helloadmin/config"
 	"log"
+	"os"
 	"time"
 )
 
@@ -23,23 +23,16 @@ type DeletedAt struct {
 
 func init() {
 	var (
-		err                          error
-		dbName, user, password, host string
+		err                              error
+		dbName, username, password, host string
 	)
-
-	cfg, err := config.Load().GetSection("database")
-	if err != nil {
-		fmt.Println("Fail to get section 'database': %v", err)
-	}
-
-	dbName = cfg.Key("NAME").String()
-	user = cfg.Key("USER").String()
-	password = cfg.Key("PASSWORD").String()
-	host = cfg.Key("HOST").String()
+	dbName = os.Getenv("DB_NAME")
+	username = os.Getenv("USERNAME")
+	password = os.Getenv("PASSWORD")
+	host = os.Getenv("HOST")
 	//tablePrefix = cfg.Key("TABLE_PREFIX").String()
-
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		user,
+		username,
 		password,
 		host,
 		dbName,

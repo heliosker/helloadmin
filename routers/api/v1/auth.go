@@ -33,5 +33,5 @@ func AuthLogin(c *gin.Context) {
 	if err != nil {
 		rsp.Error(errcode.UnauthorizedTokenGenerate.WithDetails(err.Error()))
 	}
-	rsp.Success(gin.H{"token": token}, app.NoMeta)
+	rsp.Success(gin.H{"access_token": token}, app.NoMeta)
 }

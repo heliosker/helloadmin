@@ -5,10 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
-	"helloadmin/config"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/errcode"
 	"helloadmin/pkg/upload"
+	"os"
 	"strconv"
 	"time"
 )
@@ -35,11 +35,11 @@ func (u Upload) UploadFile(c *gin.Context) {
 }
 
 func (u Upload) UploadQiniuOss(c *gin.Context) {
-	config, err := config.Load().GetSection("app")
+
 	var (
-		accessKey = config.Key("QINIU_ACCESS_KEY").String()
-		secretKey = config.Key("QINIU_SECRET_KEY").String()
-		bucket    = config.Key("QINIU_TEST_BUCKET").String()
+		accessKey = os.Getenv("QINIU_ACCESS_KEY")
+		secretKey = os.Getenv("QINIU_SECRET_KEY")
+		bucket    = os.Getenv("QINIU_TEST_BUCKET")
 	)
 	file, _ := c.FormFile("file")
 	putPolicy := storage.PutPolicy{
@@ -65,13 +65,11 @@ func (u Upload) UploadQiniuOss(c *gin.Context) {
 	}
 	data, _ := file.Open()
 	key := upload.SavePath() + strconv.FormatInt(time.Now().Unix(), 10)
-	err = formUploader.Put(context.Background(), &ret, upToken, key, data, file.Size, &putExtra)
+	err := formUploader.Put(context.Background(), &ret, upToken, key, data, file.Size, &putExtra)
 	rsp := app.NewResponse(c)
 	if err != nil {
 		rsp.Error(errcode.UploadFileFail.WithDetails(err.Error()))
 		return
 	}
-	//fmt.Println(ret.Key, ret.Hash)
 	rsp.Success(gin.H{"key": ret.Key, "hash": ret.Hash, "host": "http://oss.helloadmin.cn"}, app.NoMeta)
-
 }

@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"helloadmin/config"
 	"helloadmin/routers"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 )
 
 func main() {
 	r := routers.InitRouter()
-	port, _ := config.Load().Section("server").Key("HTTP_PORT").Int()
+	port, _ := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%d", port),
 		Handler:        r,
