@@ -1,8 +1,5 @@
 name: hello-admin
-on:
-  push:
-    branches:
-      - dev
+on: push
 jobs:
   test:
     runs-on: ubuntu-latest
