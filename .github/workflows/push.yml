@@ -21,7 +21,7 @@ deploy:
       run: |
         echo "##[set-output name=version;]VERSION=${GITHUB_REF#$"refs/tags/v"}"
         echo "##[set-output name=version_tag;]$GITHUB_REPOSITORY:${GITHUB_REF#$"refs/tags/v"}"
-        echo "##[set-output name=latest_tag;]$GITHUB_REPOSITORY:latest"
+#        echo "##[set-output name=latest_tag;]$GITHUB_REPOSITORY:latest"
   - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
   - name: Set up Docker Buildx
