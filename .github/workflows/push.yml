@@ -33,11 +33,11 @@ deploy:
         password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Build and push
       id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: |
-            ${{steps.version_step.outputs.version_tag}}
-            ${{steps.version_step.outputs.latest_tag}}
-          build-args: |
-            ${{steps.version_step.outputs.version}}
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: |
+          ${{steps.version_step.outputs.version_tag}}
+          ${{steps.version_step.outputs.latest_tag}}
+        build-args: |
+          ${{steps.version_step.outputs.version}}
