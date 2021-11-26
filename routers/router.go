@@ -13,6 +13,9 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	apiv1 := r.Group("/api/v1")
+	apiv1.GET("/test", func(c *gin.Context) {
+		c.JSON(200, gin.H{"Test": "test"})
+	})
 	apiv1.POST("/auth/login", v1.AuthLogin)
 	apiv1.DELETE("/auth/logout", v1.AuthLogout)
 
