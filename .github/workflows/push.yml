@@ -7,7 +7,7 @@ on:
     branches:
       - main
     tags:
-      - v*
+      - *
 jobs:
   test:
     runs-on: ubuntu-latest
