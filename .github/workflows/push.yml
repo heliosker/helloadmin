@@ -6,6 +6,8 @@ on:
   pull_request:
     branches:
       - main
+    tags:
+      - v*
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -50,4 +52,4 @@ jobs:
           port: ${{ secrets.DEV_SSH_PORT }}
           script_stop: true
           script: |
-            cd golang/helloadmin && docker-compose down && docker-compose up
+            cd golang/helloadmin && docker-compose down && docker-compose up -d
