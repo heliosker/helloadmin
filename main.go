@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/joho/godotenv/autoload"
 	"helloadmin/routers"
 	"log"
 	"net/http"
