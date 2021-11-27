@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"helloadmin/middleware"
 	"helloadmin/routers/api/v1"
@@ -13,9 +14,7 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	apiv1 := r.Group("/api/v1")
-	apiv1.GET("/test", func(c *gin.Context) {
-		c.JSON(200, gin.H{"Test": "test action 5"})
-	})
+	apiv1.Use(cors.Default())
 	apiv1.POST("/auth/login", v1.AuthLogin)
 	apiv1.DELETE("/auth/logout", v1.AuthLogout)
 
