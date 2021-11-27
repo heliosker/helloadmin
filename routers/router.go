@@ -14,13 +14,14 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	apiv1 := r.Group("/api/v1")
+
 	apiv1.Use(cors.Default())
 	apiv1.POST("/auth/login", v1.AuthLogin)
 	apiv1.DELETE("/auth/logout", v1.AuthLogout)
-
 	role := v1.NewRole()
 	ver := v1.NewVersion()
 	menu := v1.NewMenu()
+	cfg := v1.NewConfig()
 	apiv1.Use(middleware.JWT())
 	{
 		// Upload file
@@ -54,6 +55,8 @@ func InitRouter() *gin.Engine {
 		apiv1.PUT("/menus/:id", menu.Update)
 		apiv1.DELETE("/menus/:id", menu.Delete)
 
+		apiv1.GET("/config", cfg.Index)
+		apiv1.PUT("/config", cfg.Save)
 	}
 
 	return r
