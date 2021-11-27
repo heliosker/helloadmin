@@ -17,6 +17,7 @@ func InitRouter() *gin.Engine {
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://test.helloadmin.cn"}
+	config.AddAllowHeaders("Access-Control-Allow-Origin")
 	apiv1.Use(cors.New(config))
 	apiv1.POST("/auth/login", v1.AuthLogin)
 	apiv1.DELETE("/auth/logout", v1.AuthLogout)
