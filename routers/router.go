@@ -1,7 +1,6 @@
 package routers
 
 import (
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"helloadmin/middleware"
 	"helloadmin/routers/api/v1"
@@ -14,11 +13,10 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	apiv1 := r.Group("/api/v1")
-
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://test.helloadmin.cn"}
-	config.AddAllowHeaders("Access-Control-Allow-Origin")
-	apiv1.Use(cors.New(config))
+	apiv1.Use(middleware.CORS())
+	apiv1.GET("/test", func(c *gin.Context) {
+		c.JSON(200, gin.H{"test": "1111"})
+	})
 	apiv1.POST("/auth/login", v1.AuthLogin)
 	apiv1.DELETE("/auth/logout", v1.AuthLogout)
 	role := v1.NewRole()
