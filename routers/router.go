@@ -14,9 +14,14 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
 	config.AddAllowHeaders("x-requested-with")
 	r.Use(cors.New(config))
+
 	apiv1 := r.Group("/api/v1")
+	apiv1.GET("/test", func(c *gin.Context) {
+		c.JSON(200, gin.H{"test": "5"})
+	})
 	apiv1.POST("/auth/login", v1.AuthLogin)
 	apiv1.DELETE("/auth/logout", v1.AuthLogout)
 	role := v1.NewRole()
