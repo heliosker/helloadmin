@@ -11,9 +11,12 @@ func InitRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(middleware.Cors())
 
 	apiv1 := r.Group("/api/v1")
-	apiv1.Use(middleware.Cors())
+	apiv1.GET("/test", func(c *gin.Context) {
+		c.JSON(200, gin.H{"test": "222"})
+	})
 	apiv1.POST("/auth/login", v1.AuthLogin)
 	apiv1.DELETE("/auth/logout", v1.AuthLogout)
 	role := v1.NewRole()
