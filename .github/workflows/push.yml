@@ -52,4 +52,4 @@ jobs:
           port: ${{ secrets.DEV_SSH_PORT }}
           script_stop: true
           script: |
-            cd golang/helloadmin && docker-compose down && docker-compose pull && docker-compose up -d
+            cd golang/helloadmin && docker-compose down --rmi all && docker-compose up -d
