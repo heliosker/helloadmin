@@ -19,6 +19,7 @@ func InitRouter() *gin.Engine {
 	r.Use(cors.New(config))
 
 	apiv1 := r.Group("/api/v1")
+	apiv1.GET("/test", v1.Test)
 	apiv1.POST("/auth/login", v1.AuthLogin)
 	apiv1.DELETE("/auth/logout", v1.AuthLogout)
 	role := v1.NewRole()
