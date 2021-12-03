@@ -1,11 +1,12 @@
 package v1
 
 import (
-	"github.com/gin-gonic/gin"
 	"helloadmin/app/models"
 	"helloadmin/app/service"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/errcode"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Config struct {
@@ -39,7 +40,7 @@ func (f Config) Save(c *gin.Context) {
 		rsp.Error(errcode.InvalidParams.WithDetails(errors.Error()))
 		return
 	}
-	if err := svc.StoreConfig(req); err != nil {
+	if err := svc.StoreMultiConfig(req); err != nil {
 		rsp.Error(errcode.InvalidParams.WithDetails(err.Error()))
 		return
 	}

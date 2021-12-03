@@ -2,15 +2,16 @@ package routers
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"github.com/qiniu/go-sdk/v7/auth/qbox"
-	"github.com/qiniu/go-sdk/v7/storage"
+	"helloadmin/app/service"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/errcode"
 	"helloadmin/pkg/upload"
-	"os"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/qiniu/go-sdk/v7/auth/qbox"
+	"github.com/qiniu/go-sdk/v7/storage"
 )
 
 type Upload struct {
@@ -36,10 +37,11 @@ func (u Upload) UploadFile(c *gin.Context) {
 
 func (u Upload) UploadQiniuOss(c *gin.Context) {
 
+	svc := service.New(c)
 	var (
-		accessKey = os.Getenv("QINIU_ACCESS_KEY")
-		secretKey = os.Getenv("QINIU_SECRET_KEY")
-		bucket    = os.Getenv("QINIU_TEST_BUCKET")
+		accessKey = svc.GetValByKey("QINIU_ACCESS_KEY")
+		secretKey = svc.GetValByKey("QINIU_SECRET_KEY")
+		bucket    = svc.GetValByKey("QINIU_BUCKET")
 	)
 	file, _ := c.FormFile("file")
 	putPolicy := storage.PutPolicy{

@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+
 	"gorm.io/gorm"
 )
 
@@ -54,4 +55,12 @@ func (c Config) Store(db *gorm.DB) (int64, error) {
 		return ret.RowsAffected, err
 	}
 	return ret.RowsAffected, nil
+}
+
+func (c Config) Val(db *gorm.DB) (string, error) {
+	var cfg Config
+	if err := db.Where("`key` = ?", c.Key).Find(&cfg).Error; err != nil {
+		return "", err
+	}
+	return cfg.Value, nil
 }

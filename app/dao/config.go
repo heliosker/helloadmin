@@ -31,3 +31,8 @@ func (d Dao) StoreConfig(items models.ConfigStore) error {
 	}
 	return nil
 }
+
+func (d Dao) GetValue(key string) (string, error) {
+	var cfg = models.Config{Key: key}
+	return cfg.Val(d.engine)
+}
