@@ -39,9 +39,9 @@ func (u Upload) UploadQiniuOss(c *gin.Context) {
 
 	svc := service.New(c)
 	var (
-		accessKey = svc.GetValByKey("QINIU_ACCESS_KEY")
-		secretKey = svc.GetValByKey("QINIU_SECRET_KEY")
-		bucket    = svc.GetValByKey("QINIU_BUCKET")
+		accessKey = svc.GetConfigValue("QINIU_ACCESS_KEY")
+		secretKey = svc.GetConfigValue("QINIU_SECRET_KEY")
+		bucket    = svc.GetConfigValue("QINIU_BUCKET")
 	)
 	file, _ := c.FormFile("file")
 	putPolicy := storage.PutPolicy{

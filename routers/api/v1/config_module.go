@@ -8,68 +8,67 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Config struct {
+type ConfigModule struct {
 }
 
-func NewConfig() Config {
-	return Config{}
+func NewConfigModule() ConfigModule {
+	return ConfigModule{}
 }
 
-func (f Config) Index(c *gin.Context) {
-	req := service.ConfigListReq{}
+func (cm ConfigModule) Index(c *gin.Context) {
 	rsp := app.NewResponse(c)
-	if valid, errors := app.BindAndValid(c, &req); !valid {
-		rsp.Error(errcode.InvalidParams.WithDetails(errors.Error()))
-		return
-	}
 	svc := service.New(c.Request.Context())
-	config, err := svc.GetConfig(req)
+
+	ret, err := svc.GetConfigModules()
 	if err != nil {
 		rsp.Error(errcode.SelectedFail.WithDetails(err.Error()))
-		return
 	}
-	rsp.Success(config, app.NoMeta)
+	rsp.Success(ret, app.NoMeta)
+
 }
 
-func (f Config) Create(c *gin.Context) {
-	param := service.CreateConfig{}
+func (cm ConfigModule) Create(c *gin.Context) {
+	param := service.CreateConfigModule{}
 	rsp := app.NewResponse(c)
-	if valid, errors := app.BindAndValid(c, &param); !valid {
+	valid, errors := app.BindAndValid(c, &param)
+	if !valid {
 		rsp.Error(errcode.InvalidParams.WithDetails(errors.Error()))
 		return
 	}
 	svc := service.New(c.Request.Context())
-	if err := svc.CreateConfig(param); err != nil {
-		rsp.Error(errcode.InvalidParams.WithDetails(err.Error()))
+	if err := svc.CreateConfigModule(&param); err != nil {
+		rsp.Error(errcode.CreatedFail.WithDetails(err.Error()))
 		return
 	}
 	rsp.Success(nil, app.NoMeta)
 }
 
-func (f Config) Update(c *gin.Context) {
-	param := service.UpdateMultiConfig{}
+func (cm ConfigModule) Update(c *gin.Context) {
+	param := service.UpdateConfigModule{}
 	rsp := app.NewResponse(c)
-	if valid, errors := app.BindAndValid(c, &param); !valid {
+	valid, errors := app.BindAndValid(c, &param)
+	if !valid {
 		rsp.Error(errcode.InvalidParams.WithDetails(errors.Error()))
 		return
 	}
 	svc := service.New(c.Request.Context())
-	if err := svc.UpdateMultiConfig(param); err != nil {
+	if err := svc.UpdateConfigModule(&param); err != nil {
 		rsp.Error(errcode.UpdatedFail.WithDetails(err.Error()))
 		return
 	}
 	rsp.Success(nil, app.NoMeta)
 }
 
-func (f Config) Delete(c *gin.Context) {
-	param := service.DeleteConfig{}
+func (cm ConfigModule) Delete(c *gin.Context) {
+	param := service.DeleteConfigModule{}
 	rsp := app.NewResponse(c)
-	if valid, errors := app.BindAndValid(c, &param); !valid {
+	valid, errors := app.BindAndValid(c, &param)
+	if !valid {
 		rsp.Error(errcode.InvalidParams.WithDetails(errors.Error()))
 		return
 	}
 	svc := service.New(c.Request.Context())
-	if err := svc.DeleteConfig(param); err != nil {
+	if err := svc.DeleteConfigModule(&param); err != nil {
 		rsp.Error(errcode.DeletedFail.WithDetails(err.Error()))
 		return
 	}

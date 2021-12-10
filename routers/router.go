@@ -1,10 +1,11 @@
 package routers
 
 import (
+	"helloadmin/middleware"
+	v1 "helloadmin/routers/api/v1"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"helloadmin/middleware"
-	"helloadmin/routers/api/v1"
 )
 
 func InitRouter() *gin.Engine {
@@ -26,6 +27,7 @@ func InitRouter() *gin.Engine {
 	ver := v1.NewVersion()
 	menu := v1.NewMenu()
 	cfg := v1.NewConfig()
+	cm := v1.NewConfigModule()
 	apiv1.Use(middleware.JWT())
 	{
 		// Upload file
@@ -59,8 +61,15 @@ func InitRouter() *gin.Engine {
 		apiv1.PUT("/menus/:id", menu.Update)
 		apiv1.DELETE("/menus/:id", menu.Delete)
 
+		// Config
 		apiv1.GET("/config", cfg.Index)
-		apiv1.PUT("/config", cfg.Save)
+		apiv1.POST("/config", cfg.Create)
+		apiv1.PUT("/config", cfg.Update)
+		apiv1.DELETE("/config", cfg.Delete)
+		apiv1.GET("/config/module", cm.Index)
+		apiv1.PUT("/config/module", cm.Update)
+		apiv1.POST("/config/module", cm.Create)
+		apiv1.DELETE("/config/module", cm.Delete)
 	}
 
 	return r
