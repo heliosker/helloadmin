@@ -21,8 +21,8 @@ type CreateRoleMenu struct {
 }
 
 type ResultRole struct {
-	Role models.Role
-	Menu []models.RoleMenu
+	Role models.Role       `json:"role"`
+	Menu []models.RoleMenu `json:"menu"`
 }
 
 func (svc *Service) CreateRole(param CreateRole) error {
