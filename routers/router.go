@@ -43,8 +43,8 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/roles/:id", role.Show)
 		apiv1.POST("/roles", role.Store)
 		apiv1.PUT("/roles/:id", role.Update)
-		apiv1.POST("/roles/:id/menus", role.Update)
-		apiv1.PUT("/roles/:id/menus", role.Update)
+		apiv1.POST("/roles/:id/menus", role.CreatedMenu)
+		apiv1.PUT("/roles/:id/menus", role.UpdatedMenu)
 		apiv1.DELETE("/roles/:id", role.Destroy)
 
 		// Administrators

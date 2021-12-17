@@ -18,13 +18,21 @@ func NewConfigModule() ConfigModule {
 func (cm ConfigModule) Index(c *gin.Context) {
 	rsp := app.NewResponse(c)
 	svc := service.New(c.Request.Context())
-
-	ret, err := svc.GetConfigModules()
+	list, err := svc.GetConfigModules()
 	if err != nil {
 		rsp.Error(errcode.SelectedFail.WithDetails(err.Error()))
 	}
-	rsp.Success(ret, app.NoMeta)
 
+	if c.Query("options") != "" {
+		ret := make([]map[string]interface{}, 0, len(list))
+		for _, item := range list {
+			tmp := map[string]interface{}{"key": item.ID, "value": item.Module}
+			ret = append(ret, tmp)
+		}
+		rsp.Success(ret, app.NoMeta)
+		return
+	}
+	rsp.Success(list, app.NoMeta)
 }
 
 func (cm ConfigModule) Create(c *gin.Context) {

@@ -8,16 +8,16 @@
 - [x] 角色管理
 - [x] 菜单管理
 - [x] 管理员管理
-- [ ] 授权菜单
+- [x] 系统设置
+- [x] 角色授权菜单
+
+体验地址: [http://demo.helloadmin.cn](http://demo.helloadmin.cn)
 
 ## 效果图
 
 ![Login](https://raw.githubusercontent.com/heliosker/helloadmin/main/images/login.png)
 
 ![Dashboard](https://raw.githubusercontent.com/heliosker/helloadmin/main/images/dashboard.png)
-
-
-## Listen
 
 ## 前端仓库
 

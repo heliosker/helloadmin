@@ -33,7 +33,7 @@ func (c Config) Create(db *gorm.DB) error {
 }
 
 func (c Config) Update(db *gorm.DB) error {
-	return db.Debug().Model(&Config{}).Where("id = ?", c.ID).Updates(c).Error
+	return db.Model(&Config{}).Where("id = ?", c.ID).Updates(c).Error
 }
 
 func (c Config) Delete(db *gorm.DB) error {
