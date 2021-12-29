@@ -18,6 +18,8 @@ func InitRouter() *gin.Engine {
 	config.AllowAllOrigins = true
 	config.AddAllowHeaders("Authorization")
 	r.Use(cors.New(config))
+	// Register swagger
+	r.GET("/swagger/*any", v1.SwaggerInit())
 
 	apiv1 := r.Group("/api/v1")
 	apiv1.GET("/test", v1.Test)

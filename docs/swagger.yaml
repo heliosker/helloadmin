@@ -1,0 +1,267 @@
+definitions:
+  errcode.Error:
+    properties:
+      code:
+        type: integer
+      details:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+    type: object
+  models.Menu:
+    properties:
+      created_at:
+        type: string
+      icon:
+        type: string
+      id:
+        type: integer
+      label:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: integer
+      path:
+        type: string
+      redirect:
+        type: string
+      show:
+        type: integer
+      sort:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  service.MenuTreeMap:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/models.Menu'
+        type: array
+      created_at:
+        type: string
+      icon:
+        type: string
+      id:
+        type: integer
+      label:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: integer
+      path:
+        type: string
+      redirect:
+        type: string
+      show:
+        type: integer
+      sort:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - default: admin
+        description: string default
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: string valid
+        in: formData
+        maxLength: 10
+        minLength: 5
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 管理员登录
+      tags:
+      - 登录与退出
+  /auth/logout:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: '{access_token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: 管理员退出
+      tags:
+      - 登录与退出
+  /menus:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: int enums
+        enum:
+        - 0
+        - 1
+        in: query
+        name: options
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/service.MenuTreeMap'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 菜单列表
+      tags:
+      - 菜单
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: menu ID
+        in: body
+        name: parent_id
+        schema:
+          type: integer
+      - description: string valid
+        in: body
+        name: label
+        schema:
+          type: string
+      - description: string valid
+        in: body
+        name: Name
+        required: true
+        schema:
+          type: string
+      - description: string valid
+        in: body
+        name: Icon
+        required: true
+        schema:
+          type: string
+      - description: string valid
+        in: body
+        name: Path
+        required: true
+        schema:
+          type: string
+      - description: string valid
+        in: body
+        name: Redirect
+        schema:
+          type: string
+      - default: 50
+        description: string default
+        in: body
+        name: sort
+        schema:
+          type: integer
+      - description: string enums
+        enum:
+        - 0
+        - 1
+        in: body
+        name: show
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Menu'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 创建菜单
+      tags:
+      - 菜单
+  /menus/{id}:
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 删除菜单
+      tags:
+      - 菜单
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Menu'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 查询菜单
+      tags:
+      - 菜单
+    put:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 修改菜单
+      tags:
+      - 菜单
+swagger: "2.0"

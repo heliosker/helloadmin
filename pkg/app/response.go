@@ -29,8 +29,8 @@ func (r *Response) Success(data interface{}, totalRows int64) {
 	if totalRows > NoMeta {
 		// Items
 		r.Ctx.JSON(http.StatusOK, gin.H{
-			"message": errcode.Success.Message(),
-			"code":    errcode.Success.Code(),
+			"message": errcode.Success.Message,
+			"code":    errcode.Success.Code,
 			"data":    data,
 			"meta": Meta{
 				Page:  GetPage(r.Ctx),
@@ -43,15 +43,15 @@ func (r *Response) Success(data interface{}, totalRows int64) {
 
 	// No pagination
 	r.Ctx.JSON(http.StatusOK, gin.H{
-		"message": errcode.Success.Message(),
-		"code":    errcode.Success.Code(),
+		"message": errcode.Success.Message,
+		"code":    errcode.Success.Code,
 		"data":    data,
 	})
 }
 
 func (r *Response) Error(err *errcode.Error) {
-	response := gin.H{"code": err.Code(), "message": err.Message()}
-	details := err.Details()
+	response := gin.H{"code": err.Code, "message": err.Message}
+	details := err.Details
 	if len(details) > 0 {
 		response["details"] = details
 	}
