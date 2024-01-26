@@ -14,6 +14,7 @@ type RoleRepository interface {
 	GetById(ctx context.Context, id int64) (*model.Role, error)
 	Create(ctx context.Context, role *model.Role) error
 	Update(ctx context.Context, id int64, role *model.Role) error
+	UpdateRoleMenu(ctx context.Context, id int64, req *api.RoleMenuRequest) error
 	Delete(ctx context.Context, id int64) error
 	HasUser(ctx context.Context, id int64) int64
 }
@@ -35,9 +36,6 @@ func (r *roleRepository) Find(ctx context.Context, req *api.RoleFindRequest) (in
 	if req.Name != "" {
 		query = query.Where("name = ?", req.Name)
 	}
-	if req.Slug != "" {
-		query = query.Where("slug = ?", req.Slug)
-	}
 	if req.Page > 0 {
 		query = query.Offset((req.Page - 1) * req.Size).Limit(req.Size)
 	}
@@ -50,7 +48,7 @@ func (r *roleRepository) Find(ctx context.Context, req *api.RoleFindRequest) (in
 
 func (r *roleRepository) GetById(ctx context.Context, id int64) (*model.Role, error) {
 	var role model.Role
-	if err := r.DB(ctx).Where("id = ?", id).First(&role).Error; err != nil {
+	if err := r.DB(ctx).Where("id = ?", id).Preload("Menus").First(&role).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ecode.ErrNotFound
 		}
@@ -68,6 +66,25 @@ func (r *roleRepository) Create(ctx context.Context, role *model.Role) error {
 
 func (r *roleRepository) Update(ctx context.Context, id int64, role *model.Role) error {
 	if err := r.DB(ctx).Model(role).Where("id = ?", id).Updates(role).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *roleRepository) UpdateRoleMenu(ctx context.Context, id int64, req *api.RoleMenuRequest) error {
+	var role model.Role
+	if err := r.DB(ctx).Preload("Menus").First(&role, id).Error; err != nil {
+		return err
+	}
+	// 清空角色原有的关联菜单
+	if err := r.DB(ctx).Model(&role).Association("Menus").Clear(); err != nil {
+		return err
+	}
+	var menus []model.Menu
+	if err := r.DB(ctx).Find(&menus, req.MenuId).Error; err != nil {
+		return err
+	}
+	if err := r.DB(ctx).Model(&role).Association("Menus").Append(menus); err != nil {
 		return err
 	}
 	return nil

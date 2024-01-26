@@ -124,6 +124,34 @@ func (r *RoleHandler) UpdateRole(ctx *gin.Context) {
 	api.Success(ctx, nil)
 }
 
+// UpdateRoleMenu godoc
+// @Summary 修改角色权限
+// @Schemes
+// @Description 修改单个角色权限
+// @Tags 角色模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "角色ID"
+// @Param request body api.RoleMenuRequest true "params"
+// @Success 200 {object} api.Response
+// @Router /role/{id}/menu [put]
+func (r *RoleHandler) UpdateRoleMenu(ctx *gin.Context) {
+	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	req := new(api.RoleMenuRequest)
+	if err := ctx.ShouldBindJSON(req); err != nil {
+		r.logger.WithContext(ctx).Error("RoleHandler.ShowRole error", zap.Error(err))
+		api.Error(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if err := r.roleService.UpdateRoleMenu(ctx, id, req); err != nil {
+		r.logger.WithContext(ctx).Error("roleService.UpdateRole error", zap.Error(err))
+		api.Error(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	api.Success(ctx, nil)
+}
+
 // DeleteRole godoc
 // @Summary 删除角色
 // @Schemes

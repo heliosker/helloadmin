@@ -10,7 +10,7 @@ import (
 
 type MenuService interface {
 	GetMenuById(ctx context.Context, id int64) (*api.MenuResponseItem, error)
-	SearchMenu(ctx context.Context, request *api.MenuFindRequest) (*[]model.Menu, error)
+	SearchMenu(ctx context.Context, request *api.MenuFindRequest) (*[]api.MenuResponseItem, error)
 	CreateMenu(ctx context.Context, request *api.MenuCreateRequest) error
 	UpdateMenu(ctx context.Context, id int64, request *api.MenuUpdateRequest) error
 	DeleteMenu(ctx context.Context, id int64) error
@@ -46,12 +46,48 @@ func (s *menuService) GetMenuById(ctx context.Context, id int64) (*api.MenuRespo
 		Sort:      menu.Sort,
 		Visible:   menu.Visible,
 		CreatedAt: menu.CreatedAt.Format(time.RFC3339),
-		UpdateAt:  menu.UpdatedAt.Format(time.RFC3339),
+		UpdatedAt: menu.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }
 
-func (s *menuService) SearchMenu(ctx context.Context, req *api.MenuFindRequest) (*[]model.Menu, error) {
-	return s.menuRepository.Find(ctx, req)
+func (s *menuService) SearchMenu(ctx context.Context, req *api.MenuFindRequest) (*[]api.MenuResponseItem, error) {
+	menuList, err := s.menuRepository.Find(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	// Convert the flat menu list to a tree structure
+	menuTree := buildMenuTree(menuList, 0)
+	return &menuTree, nil
+}
+
+func buildMenuTree(menuList *[]model.Menu, parentId uint) []api.MenuResponseItem {
+	var result []api.MenuResponseItem
+
+	for _, menuItem := range *menuList {
+		if menuItem.ParentId == parentId {
+			child := api.MenuResponseItem{
+				ID:        menuItem.ID,
+				Name:      menuItem.Name,
+				Title:     menuItem.Title,
+				Icon:      menuItem.Icon,
+				Path:      menuItem.Path,
+				Type:      menuItem.Type,
+				Action:    menuItem.Action,
+				ParentId:  menuItem.ParentId,
+				Component: menuItem.Component,
+				Sort:      menuItem.Sort,
+				Visible:   menuItem.Visible,
+				CreatedAt: menuItem.CreatedAt.Format("2006-01-02 15:04:05"),
+				UpdatedAt: menuItem.UpdatedAt.Format("2006-01-02 15:04:05"),
+			}
+
+			// Recursively build the tree for child items
+			child.Children = buildMenuTree(menuList, menuItem.ID)
+			result = append(result, child)
+		}
+	}
+
+	return result
 }
 
 func (s *menuService) CreateMenu(ctx context.Context, req *api.MenuCreateRequest) error {

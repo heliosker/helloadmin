@@ -11,6 +11,7 @@ type Role struct {
 	Describe  string    `json:"describe"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	Menus     []Menu    `gorm:"many2many:role_menu;"`
 }
 
 func (m *Role) TableName() string {

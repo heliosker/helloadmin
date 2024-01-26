@@ -15,6 +15,7 @@ type RoleService interface {
 	CreateRole(ctx context.Context, request *api.RoleCreateRequest) error
 	UpdateRole(ctx context.Context, id int64, request *api.RoleUpdateRequest) error
 	DeleteRole(ctx context.Context, id int64) error
+	UpdateRoleMenu(ctx context.Context, id int64, request *api.RoleMenuRequest) error
 }
 
 func NewRoleService(service *Service, roleRepository repository.RoleRepository) RoleService {
@@ -34,13 +35,19 @@ func (s *roleService) GetRoleById(ctx context.Context, id int64) (*api.RoleRespo
 	if err != nil {
 		return nil, err
 	}
+	menuIds := make([]uint, 0)
+	if len(role.Menus) > 0 {
+		for _, menu := range role.Menus {
+			menuIds = append(menuIds, menu.ID)
+		}
+	}
 	return &api.RoleResponseItem{
 		Id:        role.ID,
 		Name:      role.Name,
-		Slug:      role.Slug,
 		Describe:  role.Describe,
 		UpdatedAt: role.UpdatedAt.Format(time.DateTime),
 		CreatedAt: role.CreatedAt.Format(time.DateTime),
+		MenuId:    menuIds,
 	}, nil
 }
 
@@ -56,7 +63,6 @@ func (s *roleService) SearchRole(ctx context.Context, req *api.RoleFindRequest) 
 			tmp := api.RoleResponseItem{
 				Id:        role.ID,
 				Name:      role.Name,
-				Slug:      role.Slug,
 				Describe:  role.Describe,
 				UpdatedAt: role.UpdatedAt.Format(time.DateTime),
 				CreatedAt: role.CreatedAt.Format(time.DateTime),
@@ -75,7 +81,6 @@ func (s *roleService) SearchRole(ctx context.Context, req *api.RoleFindRequest) 
 func (s *roleService) CreateRole(ctx context.Context, req *api.RoleCreateRequest) error {
 	role := model.Role{
 		Name:     req.Name,
-		Slug:     req.Slug,
 		Describe: req.Describe,
 	}
 	return s.roleRepository.Create(ctx, &role)
@@ -84,10 +89,13 @@ func (s *roleService) CreateRole(ctx context.Context, req *api.RoleCreateRequest
 func (s *roleService) UpdateRole(ctx context.Context, id int64, req *api.RoleUpdateRequest) error {
 	role := model.Role{
 		Name:     req.Name,
-		Slug:     req.Slug,
 		Describe: req.Describe,
 	}
 	return s.roleRepository.Update(ctx, id, &role)
+}
+
+func (s *roleService) UpdateRoleMenu(ctx context.Context, id int64, req *api.RoleMenuRequest) error {
+	return s.roleRepository.UpdateRoleMenu(ctx, id, req)
 }
 
 func (s *roleService) DeleteRole(ctx context.Context, id int64) error {

@@ -12,7 +12,7 @@ type Menu struct {
 	Path      string    `json:"path"`
 	Type      string    `json:"type"`
 	Action    string    `json:"action"`
-	ParentId  int64     `json:"parent_id"`
+	ParentId  uint      `json:"parent_id"`
 	Component string    `json:"component"`
 	Sort      int       `json:"sort"`
 	Visible   string    `json:"visible"`

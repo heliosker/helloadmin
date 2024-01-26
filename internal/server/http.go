@@ -77,6 +77,7 @@ func NewHTTPServer(
 			role.POST("", roleHandler.StoreRole)
 			role.GET("/:id", roleHandler.ShowRole)
 			role.PUT("/:id", roleHandler.UpdateRole)
+			role.PUT("/:id/menu", roleHandler.UpdateRoleMenu)
 			role.DELETE("/:id", roleHandler.DeleteRole)
 		}
 
