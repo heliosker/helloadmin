@@ -58,17 +58,15 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 func (h *UserHandler) Login(ctx *gin.Context) {
 	var req api.LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		api.Error(ctx, http.StatusBadRequest, ecode.ErrBadRequest)
+		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	token, err := h.userService.Login(ctx, &req)
+	resp, err := h.userService.Login(ctx, &req)
 	if err != nil {
-		api.Error(ctx, http.StatusUnauthorized, ecode.ErrUnauthorized)
+		api.Error(ctx, http.StatusUnauthorized, err)
 		return
 	}
-	api.Success(ctx, api.LoginResponseData{
-		AccessToken: token,
-	})
+	api.Success(ctx, resp)
 }
 
 // GetProfile godoc
@@ -79,7 +77,7 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} api.GetProfileResponse
+// @Success 200 {object} api.GetProfileResponseData
 // @Router /user [get]
 func (h *UserHandler) GetProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
@@ -89,7 +87,7 @@ func (h *UserHandler) GetProfile(ctx *gin.Context) {
 	}
 	user, err := h.userService.GetProfile(ctx, userId)
 	if err != nil {
-		api.Error(ctx, http.StatusBadRequest, ecode.ErrBadRequest)
+		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
 	api.Success(ctx, user)
@@ -99,11 +97,11 @@ func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
 	var req api.UpdateProfileRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		api.Error(ctx, http.StatusBadRequest, ecode.ErrBadRequest)
+		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
 	if err := h.userService.UpdateProfile(ctx, userId, &req); err != nil {
-		api.Error(ctx, http.StatusInternalServerError, ecode.ErrInternalServerError)
+		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
 	api.Success(ctx, nil)

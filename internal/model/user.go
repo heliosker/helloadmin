@@ -11,6 +11,9 @@ type User struct {
 	Nickname  string `gorm:"not null"`
 	Password  string `gorm:"not null"`
 	Email     string `gorm:"not null"`
+	Salt      string `gorm:"not null"`
+	RoleId    uint   `gorm:"not null"`
+	DeptId    uint   `gorm:"not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`

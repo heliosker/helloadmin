@@ -7,12 +7,13 @@ import (
 	"helloadmin/internal/ecode"
 	"helloadmin/internal/model"
 	"helloadmin/internal/repository"
+	"helloadmin/pkg/helper/generate"
 	"time"
 )
 
 type UserService interface {
 	Register(ctx context.Context, req *api.RegisterRequest) error
-	Login(ctx context.Context, req *api.LoginRequest) (string, error)
+	Login(ctx context.Context, req *api.LoginRequest) (*api.LoginResponse, error)
 	GetProfile(ctx context.Context, userId string) (*api.GetProfileResponseData, error)
 	UpdateProfile(ctx context.Context, userId string, req *api.UpdateProfileRequest) error
 }
@@ -35,7 +36,8 @@ func (s *userService) Register(ctx context.Context, req *api.RegisterRequest) er
 		return ecode.ErrEmailAlreadyUse
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	salt := generate.RandomString(16)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password+salt), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
@@ -44,12 +46,17 @@ func (s *userService) Register(ctx context.Context, req *api.RegisterRequest) er
 	if err != nil {
 		return err
 	}
+
 	user := &model.User{
 		UserId:   userId,
 		Email:    req.Email,
 		Password: string(hashedPassword),
+		Salt:     salt,
+		Nickname: req.Nickname,
+		RoleId:   req.RoleId,
+		DeptId:   req.DeptId,
 	}
-	// Transaction demo
+	// Transaction
 	err = s.tm.Transaction(ctx, func(ctx context.Context) error {
 		// Create a user
 		if err = s.userRepo.Create(ctx, user); err != nil {
@@ -61,22 +68,24 @@ func (s *userService) Register(ctx context.Context, req *api.RegisterRequest) er
 	return err
 }
 
-func (s *userService) Login(ctx context.Context, req *api.LoginRequest) (string, error) {
+func (s *userService) Login(ctx context.Context, req *api.LoginRequest) (*api.LoginResponse, error) {
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil || user == nil {
-		return "", ecode.ErrUnauthorized
+		return nil, ecode.ErrUnauthorized
 	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password+user.Salt), []byte(req.Password+user.Salt)); err != nil {
+		return nil, err
+	}
+	expiresAt := time.Now().Add(time.Hour * 24 * 90)
+	token, err := s.jwt.GenToken(user.UserId, expiresAt)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	token, err := s.jwt.GenToken(user.UserId, time.Now().Add(time.Hour*24*90))
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
+	return &api.LoginResponse{
+		AccessToken: token,
+		ExpiresAt:   expiresAt.Format(time.RFC3339),
+		TokenType:   "Bearer",
+	}, nil
 }
 
 func (s *userService) GetProfile(ctx context.Context, userId string) (*api.GetProfileResponseData, error) {

@@ -31,5 +31,5 @@ type RoleResponseItem struct {
 	Describe  string `json:"describe"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
-	MenuId    []uint `json:"menuId,omitempty"`
+	MenuId    []uint `json:"menuId"`
 }
