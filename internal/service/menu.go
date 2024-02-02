@@ -40,7 +40,6 @@ func (s *menuService) GetMenuById(ctx context.Context, id int64) (*api.MenuRespo
 		Icon:      menu.Icon,
 		Path:      menu.Path,
 		Type:      menu.Type,
-		Action:    menu.Action,
 		ParentId:  menu.ParentId,
 		Component: menu.Component,
 		Sort:      menu.Sort,
@@ -72,7 +71,6 @@ func buildMenuTree(menuList *[]model.Menu, parentId uint) []api.MenuResponseItem
 				Icon:      menuItem.Icon,
 				Path:      menuItem.Path,
 				Type:      menuItem.Type,
-				Action:    menuItem.Action,
 				ParentId:  menuItem.ParentId,
 				Component: menuItem.Component,
 				Sort:      menuItem.Sort,
@@ -97,7 +95,6 @@ func (s *menuService) CreateMenu(ctx context.Context, req *api.MenuCreateRequest
 		Icon:      req.Icon,
 		Path:      req.Path,
 		Type:      req.Type,
-		Action:    req.Action,
 		ParentId:  req.ParentId,
 		Component: req.Component,
 		Sort:      req.Sort,
@@ -116,7 +113,6 @@ func (s *menuService) UpdateMenu(ctx context.Context, id int64, req *api.MenuUpd
 	menu.Icon = req.Icon
 	menu.Path = req.Path
 	menu.Type = req.Type
-	menu.Action = req.Action
 	menu.ParentId = req.ParentId
 	menu.Component = req.Component
 	menu.Sort = req.Sort

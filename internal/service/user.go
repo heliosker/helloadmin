@@ -48,13 +48,15 @@ func (s *userService) Register(ctx context.Context, req *api.RegisterRequest) er
 	}
 
 	user := &model.User{
-		UserId:   userId,
-		Email:    req.Email,
-		Password: string(hashedPassword),
-		Salt:     salt,
-		Nickname: req.Nickname,
-		RoleId:   req.RoleId,
-		DeptId:   req.DeptId,
+		UserId:    userId,
+		Email:     req.Email,
+		Password:  string(hashedPassword),
+		Salt:      salt,
+		Nickname:  req.Nickname,
+		RoleId:    req.RoleId,
+		DeptId:    req.DeptId,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 	// Transaction
 	err = s.tm.Transaction(ctx, func(ctx context.Context) error {
@@ -71,10 +73,10 @@ func (s *userService) Register(ctx context.Context, req *api.RegisterRequest) er
 func (s *userService) Login(ctx context.Context, req *api.LoginRequest) (*api.LoginResponse, error) {
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil || user == nil {
-		return nil, ecode.ErrUnauthorized
+		return nil, ecode.ErrUserNotFound
 	}
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password+user.Salt), []byte(req.Password+user.Salt)); err != nil {
-		return nil, err
+		return nil, ecode.ErrPasswordIncorrect
 	}
 	expiresAt := time.Now().Add(time.Hour * 24 * 90)
 	token, err := s.jwt.GenToken(user.UserId, expiresAt)

@@ -23,6 +23,8 @@ const (
 	ErrNotFound            ErrCode = 404 //Not Found
 	ErrInternalServerError ErrCode = 500 //Internal Server Error
 
-	ErrEmailAlreadyUse ErrCode = iota + 10001 //The email is already in use
-	ErrRoleHasUser                            //The role has users and cannot be deleted
+	ErrEmailAlreadyUse   ErrCode = iota + 10001 //The email is already in use
+	ErrPasswordIncorrect                        //The password is incorrect
+	ErrUserNotFound                             //The user does not exist
+	ErrRoleHasUser                              //The role has users and cannot be deleted
 )

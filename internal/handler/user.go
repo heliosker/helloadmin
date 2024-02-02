@@ -2,22 +2,26 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/mssola/user_agent"
 	"go.uber.org/zap"
 	"helloadmin/api"
 	"helloadmin/internal/ecode"
+	login_log "helloadmin/internal/login_record"
 	"helloadmin/internal/service"
 	"net/http"
 )
 
 type UserHandler struct {
 	*Handler
-	userService service.UserService
+	userService   service.UserService
+	recordService login_log.LoginRecordService
 }
 
-func NewUserHandler(handler *Handler, userService service.UserService) *UserHandler {
+func NewUserHandler(handler *Handler, userService service.UserService, recordService login_log.LoginRecordService) *UserHandler {
 	return &UserHandler{
-		Handler:     handler,
-		userService: userService,
+		Handler:       handler,
+		userService:   userService,
+		recordService: recordService,
 	}
 }
 
@@ -34,7 +38,7 @@ func NewUserHandler(handler *Handler, userService service.UserService) *UserHand
 func (h *UserHandler) Register(ctx *gin.Context) {
 	req := new(api.RegisterRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
-		api.Error(ctx, http.StatusBadRequest, ecode.ErrBadRequest)
+		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
 	if err := h.userService.Register(ctx, req); err != nil {
@@ -61,11 +65,17 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
+	ua := user_agent.New(ctx.Request.UserAgent())
+	browser, _ := ua.Browser()
+	record := login_log.LoginRecordRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
 	resp, err := h.userService.Login(ctx, &req)
 	if err != nil {
+		record.ErrorMessage = err.Error()
+		_ = h.recordService.Create(ctx, &record)
 		api.Error(ctx, http.StatusUnauthorized, err)
 		return
 	}
+	_ = h.recordService.Create(ctx, &record)
 	api.Success(ctx, resp)
 }
 

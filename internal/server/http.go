@@ -8,6 +8,7 @@ import (
 	"helloadmin/api"
 	"helloadmin/docs"
 	"helloadmin/internal/handler"
+	"helloadmin/internal/login_record"
 	"helloadmin/internal/middleware"
 	"helloadmin/pkg/jwt"
 	"helloadmin/pkg/log"
@@ -22,6 +23,7 @@ func NewHTTPServer(
 	roleHandler *handler.RoleHandler,
 	menuHandler *handler.MenuHandler,
 	departHandler *handler.DepartmentHandler,
+	loginRecordHandler *login_record.LoginRecordHandler,
 ) *http.Server {
 	gin.SetMode(gin.DebugMode)
 	s := http.NewServer(
@@ -96,6 +98,11 @@ func NewHTTPServer(
 			depart.GET("/:id", departHandler.ShowDepartment)
 			depart.PUT("/:id", departHandler.UpdateDepartment)
 			depart.DELETE("/:id", departHandler.DeleteDepartment)
+		}
+		record := group.Group("/record").Use(middleware.StrictAuth(jwt, logger))
+		{
+			record.GET("login", loginRecordHandler.SearchLoginRecord)
+			record.GET("operation", loginRecordHandler.SearchLoginRecord)
 		}
 
 	}

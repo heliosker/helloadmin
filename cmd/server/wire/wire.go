@@ -7,6 +7,7 @@ import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 	"helloadmin/internal/handler"
+	"helloadmin/internal/login_record"
 	"helloadmin/internal/repository"
 	"helloadmin/internal/server"
 	"helloadmin/internal/service"
@@ -26,6 +27,7 @@ var repositorySet = wire.NewSet(
 	repository.NewRoleRepository,
 	repository.NewMenuRepository,
 	repository.NewDepartmentRepository,
+	login_record.NewRepository,
 )
 
 var serviceSet = wire.NewSet(
@@ -34,6 +36,7 @@ var serviceSet = wire.NewSet(
 	service.NewRoleService,
 	service.NewMenuService,
 	service.NewDepartmentService,
+	login_record.NewService,
 )
 
 var handlerSet = wire.NewSet(
@@ -42,6 +45,7 @@ var handlerSet = wire.NewSet(
 	handler.NewRoleHandler,
 	handler.NewMenuHandler,
 	handler.NewDepartmentHandler,
+	login_record.NewHandler,
 )
 
 var serverSet = wire.NewSet(
@@ -54,7 +58,7 @@ var serverSet = wire.NewSet(
 func newApp(httpServer *http.Server, job *server.Job) *app.App {
 	return app.NewApp(
 		app.WithServer(httpServer, job),
-		app.WithName("demo-server"),
+		app.WithName("hello-admin-server"),
 	)
 }
 

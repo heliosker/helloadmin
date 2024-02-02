@@ -10,6 +10,7 @@ import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 	"helloadmin/internal/handler"
+	"helloadmin/internal/login_record"
 	"helloadmin/internal/repository"
 	"helloadmin/internal/server"
 	"helloadmin/internal/service"
@@ -33,7 +34,9 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	serviceService := service.NewService(transaction, logger, sidSid, jwtJWT)
 	userRepository := repository.NewUserRepository(repositoryRepository)
 	userService := service.NewUserService(serviceService, userRepository)
-	userHandler := handler.NewUserHandler(handlerHandler, userService)
+	loginRecordRepository := login_record.NewRepository(repositoryRepository)
+	loginRecordService := login_record.NewService(serviceService, loginRecordRepository)
+	userHandler := handler.NewUserHandler(handlerHandler, userService, loginRecordService)
 	roleRepository := repository.NewRoleRepository(repositoryRepository)
 	roleService := service.NewRoleService(serviceService, roleRepository)
 	roleHandler := handler.NewRoleHandler(handlerHandler, roleService)
@@ -43,7 +46,8 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 	departmentRepository := repository.NewDepartmentRepository(repositoryRepository)
 	departmentService := service.NewDepartmentService(serviceService, departmentRepository)
 	departmentHandler := handler.NewDepartmentHandler(handlerHandler, departmentService)
-	httpServer := server.NewHTTPServer(logger, viperViper, jwtJWT, userHandler, roleHandler, menuHandler, departmentHandler)
+	loginRecordHandler := login_record.NewHandler(logger, loginRecordService)
+	httpServer := server.NewHTTPServer(logger, viperViper, jwtJWT, userHandler, roleHandler, menuHandler, departmentHandler, loginRecordHandler)
 	job := server.NewJob(logger)
 	appApp := newApp(httpServer, job)
 	return appApp, func() {
@@ -52,15 +56,15 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRedis, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewRoleRepository, repository.NewMenuRepository, repository.NewDepartmentRepository)
+var repositorySet = wire.NewSet(repository.NewDB, repository.NewRedis, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewRoleRepository, repository.NewMenuRepository, repository.NewDepartmentRepository, login_record.NewRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewRoleService, service.NewMenuService, service.NewDepartmentService)
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewRoleService, service.NewMenuService, service.NewDepartmentService, login_record.NewService)
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewRoleHandler, handler.NewMenuHandler, handler.NewDepartmentHandler)
+var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewRoleHandler, handler.NewMenuHandler, handler.NewDepartmentHandler, login_record.NewHandler)
 
 var serverSet = wire.NewSet(server.NewHTTPServer, server.NewJob, server.NewTask)
 
 // build App
 func newApp(httpServer *http.Server, job *server.Job) *app.App {
-	return app.NewApp(app.WithServer(httpServer, job), app.WithName("demo-server"))
+	return app.NewApp(app.WithServer(httpServer, job), app.WithName("hello-admin-server"))
 }
