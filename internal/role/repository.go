@@ -10,7 +10,7 @@ import (
 	"helloadmin/internal/user"
 )
 
-type RoleRepository interface {
+type Repository interface {
 	Find(ctx context.Context, request *RoleFindRequest) (int64, *[]Model, error)
 	GetById(ctx context.Context, id int64) (*Model, error)
 	Create(ctx context.Context, role *Model) error
@@ -20,7 +20,7 @@ type RoleRepository interface {
 	HasUser(ctx context.Context, id int64) int64
 }
 
-func NewRoleRepository(r *repository.Repository) RoleRepository {
+func NewRepository(r *repository.Repository) Repository {
 	return &roleRepository{
 		Repository: r,
 	}

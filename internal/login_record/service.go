@@ -6,19 +6,19 @@ import (
 	"time"
 )
 
-type LoginRecordService interface {
+type Service interface {
 	Create(ctx context.Context, record *LoginRecordRequest) error
 	Search(ctx context.Context, request *LoginRecordFindRequest) (*LoginRecordResponse, error)
 }
 
-func NewService(repo LoginRecordRepository) LoginRecordService {
+func NewService(repo Repository) Service {
 	return &loginRecordService{
 		loginRecordRepository: repo,
 	}
 }
 
 type loginRecordService struct {
-	loginRecordRepository LoginRecordRepository
+	loginRecordRepository Repository
 }
 
 func (lrs *loginRecordService) Create(ctx context.Context, req *LoginRecordRequest) error {

@@ -14,14 +14,14 @@ type Service interface {
 	DeleteDepartment(ctx context.Context, id int64) error
 }
 
-func NewDepartmentService(repo DeptRepository) Service {
+func NewService(repo Repository) Service {
 	return &departmentService{
 		departmentRepository: repo,
 	}
 }
 
 type departmentService struct {
-	departmentRepository DeptRepository
+	departmentRepository Repository
 }
 
 func (s *departmentService) GetDepartmentById(ctx context.Context, id int64) (*ResponseItem, error) {

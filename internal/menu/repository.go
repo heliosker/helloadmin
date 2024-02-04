@@ -8,7 +8,7 @@ import (
 	"helloadmin/internal/repository"
 )
 
-type MenuRepository interface {
+type Repository interface {
 	Find(ctx context.Context, request *MenuFindRequest) (*[]Model, error)
 	GetById(ctx context.Context, id int64) (*Model, error)
 	Create(ctx context.Context, menu *Model) error
@@ -16,7 +16,7 @@ type MenuRepository interface {
 	Delete(ctx context.Context, id int64) error
 }
 
-func NewMenuRepository(r *repository.Repository) MenuRepository {
+func NewRepository(r *repository.Repository) Repository {
 	return &menuRepository{
 		Repository: r,
 	}

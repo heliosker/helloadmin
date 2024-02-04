@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type RoleService interface {
+type Service interface {
 	GetRoleById(ctx context.Context, id int64) (*RoleResponseItem, error)
 	SearchRole(ctx context.Context, request *RoleFindRequest) (*RoleResponse, error)
 	CreateRole(ctx context.Context, request *RoleCreateRequest) error
@@ -16,14 +16,14 @@ type RoleService interface {
 	UpdateRoleMenu(ctx context.Context, id int64, request *RoleMenuRequest) error
 }
 
-func NewRoleService(repo RoleRepository) RoleService {
+func NewService(repo Repository) Service {
 	return &roleService{
 		roleRepository: repo,
 	}
 }
 
 type roleService struct {
-	roleRepository RoleRepository
+	roleRepository Repository
 }
 
 func (s *roleService) GetRoleById(ctx context.Context, id int64) (*RoleResponseItem, error) {

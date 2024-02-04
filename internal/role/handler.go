@@ -11,14 +11,14 @@ import (
 )
 
 type Handler struct {
-	logger      *log.Logger
-	roleService RoleService
+	logger *log.Logger
+	svc    Service
 }
 
-func NewHandler(log *log.Logger, svc RoleService) *Handler {
+func NewHandler(log *log.Logger, svc Service) *Handler {
 	return &Handler{
-		logger:      log,
-		roleService: svc,
+		logger: log,
+		svc:    svc,
 	}
 }
 
@@ -40,8 +40,8 @@ func (r *Handler) StoreRole(ctx *gin.Context) {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := r.roleService.CreateRole(ctx, req); err != nil {
-		r.logger.WithContext(ctx).Error("roleService.CreateRole error", zap.Error(err))
+	if err := r.svc.CreateRole(ctx, req); err != nil {
+		r.logger.WithContext(ctx).Error("svc.CreateRole error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -66,9 +66,9 @@ func (r *Handler) GetRole(ctx *gin.Context) {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	role, err := r.roleService.SearchRole(ctx, req)
+	role, err := r.svc.SearchRole(ctx, req)
 	if err != nil {
-		r.logger.WithContext(ctx).Error("roleService.SearchRole error", zap.Error(err))
+		r.logger.WithContext(ctx).Error("svc.SearchRole error", zap.Error(err))
 		return
 	}
 	api.Success(ctx, role)
@@ -87,8 +87,8 @@ func (r *Handler) GetRole(ctx *gin.Context) {
 // @Router /role/{id} [get]
 func (r *Handler) ShowRole(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if role, err := r.roleService.GetRoleById(ctx, id); err != nil {
-		r.logger.WithContext(ctx).Error("roleService.GetRoleById error", zap.Error(err))
+	if role, err := r.svc.GetRoleById(ctx, id); err != nil {
+		r.logger.WithContext(ctx).Error("svc.GetRoleById error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	} else {
@@ -116,8 +116,8 @@ func (r *Handler) UpdateRole(ctx *gin.Context) {
 		api.Error(ctx, http.StatusBadRequest, ecode.ErrBadRequest)
 		return
 	}
-	if err := r.roleService.UpdateRole(ctx, id, req); err != nil {
-		r.logger.WithContext(ctx).Error("roleService.UpdateRole error", zap.Error(err))
+	if err := r.svc.UpdateRole(ctx, id, req); err != nil {
+		r.logger.WithContext(ctx).Error("svc.UpdateRole error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -144,8 +144,8 @@ func (r *Handler) UpdateRoleMenu(ctx *gin.Context) {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := r.roleService.UpdateRoleMenu(ctx, id, req); err != nil {
-		r.logger.WithContext(ctx).Error("roleService.UpdateRole error", zap.Error(err))
+	if err := r.svc.UpdateRoleMenu(ctx, id, req); err != nil {
+		r.logger.WithContext(ctx).Error("svc.UpdateRole error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -165,8 +165,8 @@ func (r *Handler) UpdateRoleMenu(ctx *gin.Context) {
 // @Router /role/{id} [delete]
 func (r *Handler) DeleteRole(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err := r.roleService.DeleteRole(ctx, id); err != nil {
-		r.logger.WithContext(ctx).Error("roleService.DeleteRole error", zap.Error(err))
+	if err := r.svc.DeleteRole(ctx, id); err != nil {
+		r.logger.WithContext(ctx).Error("svc.DeleteRole error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}

@@ -13,14 +13,14 @@ type Service interface {
 	DeleteMenu(ctx context.Context, id int64) error
 }
 
-func NewMenuService(repo MenuRepository) Service {
+func NewService(repo Repository) Service {
 	return &menuService{
 		menuRepository: repo,
 	}
 }
 
 type menuService struct {
-	menuRepository MenuRepository
+	menuRepository Repository
 }
 
 func (s *menuService) GetMenuById(ctx context.Context, id int64) (*MenuResponseItem, error) {

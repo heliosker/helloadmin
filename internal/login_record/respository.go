@@ -5,12 +5,12 @@ import (
 	"helloadmin/internal/repository"
 )
 
-type LoginRecordRepository interface {
+type Repository interface {
 	Create(ctx context.Context, record *Model) error
 	Search(ctx context.Context, request *LoginRecordFindRequest) (int64, *[]Model, error)
 }
 
-func NewLoginRecordRepository(r *repository.Repository) LoginRecordRepository {
+func NewRepository(r *repository.Repository) Repository {
 	return &loginRecordRepository{r}
 }
 

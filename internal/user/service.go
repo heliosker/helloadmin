@@ -10,14 +10,14 @@ import (
 	"time"
 )
 
-type UserService interface {
+type Service interface {
 	Register(ctx context.Context, req *RegisterRequest) error
 	Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error)
 	GetProfile(ctx context.Context, userId string) (*GetProfileResponseData, error)
 	UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error
 }
 
-func NewUserService(sid *sid.Sid, jwt *jwt.JWT, repo UserRepository) UserService {
+func NewService(sid *sid.Sid, jwt *jwt.JWT, repo Repository) Service {
 	return &userService{
 		userRepo: repo,
 		sid:      sid,
@@ -26,7 +26,7 @@ func NewUserService(sid *sid.Sid, jwt *jwt.JWT, repo UserRepository) UserService
 }
 
 type userService struct {
-	userRepo UserRepository
+	userRepo Repository
 	sid      *sid.Sid
 	jwt      *jwt.JWT
 }
