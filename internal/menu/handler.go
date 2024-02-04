@@ -29,7 +29,7 @@ func NewHandler(logger *log.Logger, svc Service) *Handler {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body api.MenuCreateRequest true "params"
+// @Param request body MenuCreateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /menu [post]
 func (m *Handler) StoreMenu(ctx *gin.Context) {
@@ -54,7 +54,7 @@ func (m *Handler) StoreMenu(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query api.MenuFindRequest true "params"
+// @Param request query MenuFindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /menu [get]
 func (m *Handler) GetMenu(ctx *gin.Context) {
@@ -103,7 +103,7 @@ func (m *Handler) ShowMenu(ctx *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "菜单ID"
-// @Param request body api.MenuUpdateRequest true "params"
+// @Param request body MenuUpdateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /menu/{id} [put]
 func (m *Handler) UpdateMenu(ctx *gin.Context) {

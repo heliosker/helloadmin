@@ -30,7 +30,7 @@ func NewHandler(log *log.Logger, svc Service) *Handler {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body api.RoleCreateRequest true "params"
+// @Param request body RoleCreateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role [post]
 func (r *Handler) StoreRole(ctx *gin.Context) {
@@ -56,7 +56,7 @@ func (r *Handler) StoreRole(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query api.RoleFindRequest true "params"
+// @Param request query RoleFindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role [get]
 func (r *Handler) GetRole(ctx *gin.Context) {
@@ -105,7 +105,7 @@ func (r *Handler) ShowRole(ctx *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "角色ID"
-// @Param request body api.RoleUpdateRequest true "params"
+// @Param request body RoleUpdateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role/{id} [put]
 func (r *Handler) UpdateRole(ctx *gin.Context) {
@@ -133,7 +133,7 @@ func (r *Handler) UpdateRole(ctx *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "角色ID"
-// @Param request body api.RoleMenuRequest true "params"
+// @Param request body RoleMenuRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role/{id}/menu [put]
 func (r *Handler) UpdateRoleMenu(ctx *gin.Context) {

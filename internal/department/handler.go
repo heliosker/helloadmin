@@ -29,7 +29,7 @@ func NewHandler(logger *log.Logger, departmentService Service) *Handler {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body api.DepartmentCreateRequest true "params"
+// @Param request body CreateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /department [post]
 func (d *Handler) StoreDepartment(ctx *gin.Context) {
@@ -54,7 +54,7 @@ func (d *Handler) StoreDepartment(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query api.DepartmentFindRequest true "params"
+// @Param request query FindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /department [get]
 func (d *Handler) GetDepartment(ctx *gin.Context) {
@@ -104,7 +104,7 @@ func (d *Handler) ShowDepartment(ctx *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "部门ID"
-// @Param request body api.DepartmentUpdateRequest true "params"
+// @Param request body UpdateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /department/{id} [put]
 func (d *Handler) UpdateDepartment(ctx *gin.Context) {

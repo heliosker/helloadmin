@@ -57,8 +57,8 @@ func (h *Handler) Register(ctx *gin.Context) {
 // @Tags 用户模块
 // @Accept json
 // @Produce json
-// @Param request body api.LoginRequest true "params"
-// @Success 200 {object} api.LoginResponse
+// @Param request body LoginRequest true "params"
+// @Success 200 {object} LoginResponse
 // @Router /login [post]
 func (h *Handler) Login(ctx *gin.Context) {
 	var req LoginRequest
@@ -88,7 +88,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} api.GetProfileResponseData
+// @Success 200 {object} GetProfileResponseData
 // @Router /user [get]
 func (h *Handler) GetProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
