@@ -8,6 +8,7 @@ import (
 	v1 "helloadmin/api"
 	"helloadmin/internal/handler"
 	"helloadmin/internal/middleware"
+	"helloadmin/internal/user"
 	jwt2 "helloadmin/pkg/jwt"
 	"helloadmin/test/mocks/service"
 	"time"
@@ -73,7 +74,7 @@ func TestUserHandler_Register(t *testing.T) {
 	mockUserService := mock_service.NewMockUserService(ctrl)
 	mockUserService.EXPECT().Register(gomock.Any(), &params).Return(nil)
 
-	userHandler := handler.NewUserHandler(hdl, mockUserService)
+	userHandler := user.NewUserHandler(hdl, mockUserService)
 	router.POST("/register", userHandler.Register)
 
 	paramsJson, _ := json.Marshal(params)
@@ -96,7 +97,7 @@ func TestUserHandler_Login(t *testing.T) {
 	mockUserService := mock_service.NewMockUserService(ctrl)
 	mockUserService.EXPECT().Login(gomock.Any(), &params).Return("", nil)
 
-	userHandler := handler.NewUserHandler(hdl, mockUserService)
+	userHandler := user.NewUserHandler(hdl, mockUserService)
 	router.POST("/login", userHandler.Login)
 	paramsJson, _ := json.Marshal(params)
 
@@ -116,7 +117,7 @@ func TestUserHandler_GetProfile(t *testing.T) {
 		Nickname: "xxxxx",
 	}, nil)
 
-	userHandler := handler.NewUserHandler(hdl, mockUserService)
+	userHandler := user.NewUserHandler(hdl, mockUserService)
 	router.Use(middleware.NoStrictAuth(jwt, logger))
 	router.GET("/user", userHandler.GetProfile)
 	req, _ := http.NewRequest("GET", "/user", nil)
@@ -141,7 +142,7 @@ func TestUserHandler_UpdateProfile(t *testing.T) {
 	mockUserService := mock_service.NewMockUserService(ctrl)
 	mockUserService.EXPECT().UpdateProfile(gomock.Any(), userId, &params).Return(nil)
 
-	userHandler := handler.NewUserHandler(hdl, mockUserService)
+	userHandler := user.NewUserHandler(hdl, mockUserService)
 	router.Use(middleware.StrictAuth(jwt, logger))
 	router.PUT("/user", userHandler.UpdateProfile)
 	paramsJson, _ := json.Marshal(params)

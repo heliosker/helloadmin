@@ -1,23 +1,23 @@
-package handler
+package menu
 
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"helloadmin/api"
-	"helloadmin/internal/service"
+	"helloadmin/internal/api"
+	"helloadmin/pkg/log"
 	"net/http"
 	"strconv"
 )
 
-type MenuHandler struct {
-	*Handler
-	menuService service.MenuService
+type Handler struct {
+	logger      *log.Logger
+	menuService Service
 }
 
-func NewMenuHandler(handler *Handler, menuService service.MenuService) *MenuHandler {
-	return &MenuHandler{
-		Handler:     handler,
-		menuService: menuService,
+func NewHandler(logger *log.Logger, svc Service) *Handler {
+	return &Handler{
+		logger:      logger,
+		menuService: svc,
 	}
 }
 
@@ -32,8 +32,8 @@ func NewMenuHandler(handler *Handler, menuService service.MenuService) *MenuHand
 // @Param request body api.MenuCreateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /menu [post]
-func (m *MenuHandler) StoreMenu(ctx *gin.Context) {
-	req := new(api.MenuCreateRequest)
+func (m *Handler) StoreMenu(ctx *gin.Context) {
+	req := new(MenuCreateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
@@ -57,8 +57,8 @@ func (m *MenuHandler) StoreMenu(ctx *gin.Context) {
 // @Param request query api.MenuFindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /menu [get]
-func (m *MenuHandler) GetMenu(ctx *gin.Context) {
-	req := new(api.MenuFindRequest)
+func (m *Handler) GetMenu(ctx *gin.Context) {
+	req := new(MenuFindRequest)
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		m.logger.WithContext(ctx).Error("MenuHandler.GetMenu error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
@@ -83,7 +83,7 @@ func (m *MenuHandler) GetMenu(ctx *gin.Context) {
 // @Param id path int true "菜单ID"
 // @Success 200 {object} api.Response
 // @Router /menu/{id} [get]
-func (m *MenuHandler) ShowMenu(ctx *gin.Context) {
+func (m *Handler) ShowMenu(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if menu, err := m.menuService.GetMenuById(ctx, id); err != nil {
 		m.logger.WithContext(ctx).Error("menuService.GetMenuById error", zap.Error(err))
@@ -106,8 +106,8 @@ func (m *MenuHandler) ShowMenu(ctx *gin.Context) {
 // @Param request body api.MenuUpdateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /menu/{id} [put]
-func (m *MenuHandler) UpdateMenu(ctx *gin.Context) {
-	req := new(api.MenuUpdateRequest)
+func (m *Handler) UpdateMenu(ctx *gin.Context) {
+	req := new(MenuUpdateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		m.logger.WithContext(ctx).Error("MenuHandler.ShowMenu error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
@@ -133,7 +133,7 @@ func (m *MenuHandler) UpdateMenu(ctx *gin.Context) {
 // @Param id path int true "菜单ID"
 // @Success 200 {object} api.Response
 // @Router /menu/{id} [delete]
-func (m *MenuHandler) DeleteMenu(ctx *gin.Context) {
+func (m *Handler) DeleteMenu(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err := m.menuService.DeleteMenu(ctx, id); err != nil {
 		m.logger.WithContext(ctx).Error("menuService.DeleteMenu error", zap.Error(err))

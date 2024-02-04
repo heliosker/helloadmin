@@ -1,4 +1,8 @@
-package api
+package role
+
+import (
+	"helloadmin/internal/api"
+)
 
 type RoleCreateRequest struct {
 	Name     string `json:"name" binding:"required,min=1,max=50"  example:"test"`  // 角色名称
@@ -21,8 +25,8 @@ type RoleMenuRequest struct {
 }
 
 type RoleResponse struct {
-	Items      []RoleResponseItem `json:"items"`
-	Pagination `json:"pagination"`
+	Items          []RoleResponseItem `json:"items"`
+	api.Pagination `json:"pagination"`
 }
 
 type RoleResponseItem struct {

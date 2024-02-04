@@ -1,10 +1,10 @@
-package model
+package menu
 
 import (
 	"time"
 )
 
-type Menu struct {
+type Model struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	Name      string    `json:"name" gorm:"type:varchar(128);not null;default:'';comment:菜单名称"`
 	Title     string    `json:"title" gorm:"type:varchar(128);not null;default:'';comment:菜单标题"`
@@ -19,6 +19,6 @@ type Menu struct {
 	UpdatedAt time.Time `json:"updated_at" gorm:"default:null;comment:更新于"`
 }
 
-func (u *Menu) TableName() string {
+func (u *Model) TableName() string {
 	return "menu"
 }

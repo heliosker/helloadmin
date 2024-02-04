@@ -4,9 +4,12 @@ import (
 	"context"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"helloadmin/internal/department"
 	login_log "helloadmin/internal/login_record"
-	"helloadmin/internal/model"
+	"helloadmin/internal/menu"
 	"helloadmin/internal/operation_record"
+	"helloadmin/internal/role"
+	"helloadmin/internal/user"
 	"helloadmin/pkg/log"
 	"os"
 )
@@ -23,19 +26,19 @@ func NewMigrate(db *gorm.DB, log *log.Logger) *Migrate {
 	}
 }
 func (m *Migrate) Start(ctx context.Context) error {
-	if err := m.db.AutoMigrate(&model.User{}); err != nil {
+	if err := m.db.AutoMigrate(&user.Model{}); err != nil {
 		m.log.Error("user migrate error", zap.Error(err))
 		return err
 	}
-	if err := m.db.AutoMigrate(&model.Role{}); err != nil {
+	if err := m.db.AutoMigrate(&role.Model{}); err != nil {
 		m.log.Error("role migrate error", zap.Error(err))
 		return err
 	}
-	if err := m.db.AutoMigrate(&model.Menu{}); err != nil {
+	if err := m.db.AutoMigrate(&menu.Model{}); err != nil {
 		m.log.Error("menu migrate error", zap.Error(err))
 		return err
 	}
-	if err := m.db.AutoMigrate(&model.Department{}); err != nil {
+	if err := m.db.AutoMigrate(&department.Model{}); err != nil {
 		m.log.Error("department migrate error", zap.Error(err))
 		return err
 	}

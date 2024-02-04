@@ -4,19 +4,20 @@
 package wire
 
 import (
-	"helloadmin/internal/repository"
-	"helloadmin/internal/server"
-	"helloadmin/pkg/app"
-	"helloadmin/pkg/log"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
+	"helloadmin/internal/repository"
+	"helloadmin/internal/server"
+	"helloadmin/internal/user"
+	"helloadmin/pkg/app"
+	"helloadmin/pkg/log"
 )
 
 var repositorySet = wire.NewSet(
 	repository.NewDB,
 	repository.NewRedis,
 	repository.NewRepository,
-	repository.NewUserRepository,
+	user.NewUserRepository,
 )
 
 // build App

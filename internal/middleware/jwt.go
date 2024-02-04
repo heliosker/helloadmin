@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"helloadmin/api"
+	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
 	"helloadmin/pkg/jwt"
 	"helloadmin/pkg/log"

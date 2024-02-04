@@ -1,10 +1,10 @@
-package model
+package department
 
 import (
 	"time"
 )
 
-type Department struct {
+type Model struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	Name      string    `json:"name" gorm:"type:varchar(30);not null;default:'';comment:部门名称"`
 	ParentId  int       `json:"parent_id" gorm:"type:int;default:0;comment:上级部门ID"`
@@ -14,6 +14,6 @@ type Department struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty" gorm:"default:null;comment:更新于"`
 }
 
-func (u *Department) TableName() string {
+func (u *Model) TableName() string {
 	return "department"
 }

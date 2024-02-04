@@ -1,22 +1,22 @@
-package handler
+package department
 
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"helloadmin/api"
-	"helloadmin/internal/service"
+	"helloadmin/internal/api"
+	"helloadmin/pkg/log"
 	"net/http"
 	"strconv"
 )
 
-type DepartmentHandler struct {
-	*Handler
-	departmentService service.DepartmentService
+type Handler struct {
+	logger            *log.Logger
+	departmentService Service
 }
 
-func NewDepartmentHandler(handler *Handler, departmentService service.DepartmentService) *DepartmentHandler {
-	return &DepartmentHandler{
-		Handler:           handler,
+func NewHandler(logger *log.Logger, departmentService Service) *Handler {
+	return &Handler{
+		logger:            logger,
 		departmentService: departmentService,
 	}
 }
@@ -32,8 +32,8 @@ func NewDepartmentHandler(handler *Handler, departmentService service.Department
 // @Param request body api.DepartmentCreateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /department [post]
-func (d *DepartmentHandler) StoreDepartment(ctx *gin.Context) {
-	req := new(api.DepartmentCreateRequest)
+func (d *Handler) StoreDepartment(ctx *gin.Context) {
+	req := new(CreateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
@@ -57,8 +57,8 @@ func (d *DepartmentHandler) StoreDepartment(ctx *gin.Context) {
 // @Param request query api.DepartmentFindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /department [get]
-func (d *DepartmentHandler) GetDepartment(ctx *gin.Context) {
-	req := new(api.DepartmentFindRequest)
+func (d *Handler) GetDepartment(ctx *gin.Context) {
+	req := new(FindRequest)
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		d.logger.WithContext(ctx).Error("DepartmentHandler.GetDepartment error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
@@ -84,7 +84,7 @@ func (d *DepartmentHandler) GetDepartment(ctx *gin.Context) {
 // @Param id path int true "部门ID"
 // @Success 200 {object} api.Response
 // @Router /department/{id} [get]
-func (d *DepartmentHandler) ShowDepartment(ctx *gin.Context) {
+func (d *Handler) ShowDepartment(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if department, err := d.departmentService.GetDepartmentById(ctx, id); err != nil {
 		d.logger.WithContext(ctx).Error("departmentService.GetDepartmentById error", zap.Error(err))
@@ -107,9 +107,9 @@ func (d *DepartmentHandler) ShowDepartment(ctx *gin.Context) {
 // @Param request body api.DepartmentUpdateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /department/{id} [put]
-func (d *DepartmentHandler) UpdateDepartment(ctx *gin.Context) {
+func (d *Handler) UpdateDepartment(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	req := new(api.DepartmentUpdateRequest)
+	req := new(UpdateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		d.logger.WithContext(ctx).Error("DepartmentHandler.UpdateDepartment error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
@@ -134,7 +134,7 @@ func (d *DepartmentHandler) UpdateDepartment(ctx *gin.Context) {
 // @Param id path int true "部门ID"
 // @Success 200 {object} api.Response
 // @Router /department/{id} [delete]
-func (d *DepartmentHandler) DeleteDepartment(ctx *gin.Context) {
+func (d *Handler) DeleteDepartment(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err := d.departmentService.DeleteDepartment(ctx, id); err != nil {
 		d.logger.WithContext(ctx).Error("departmentService.DeleteDepartment error", zap.Error(err))

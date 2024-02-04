@@ -1,11 +1,11 @@
-package model
+package user
 
 import (
 	"gorm.io/gorm"
 	"time"
 )
 
-type User struct {
+type Model struct {
 	ID        uint           `json:"id" gorm:"primaryKey"`
 	UserId    string         `json:"userId" gorm:"type:varchar(64);not null;default:'';index:idx_user_id;unique;comment:账号唯一ID"`
 	Nickname  string         `json:"nickname" gorm:"type:varchar(64);default:'';comment:昵称"`
@@ -19,6 +19,6 @@ type User struct {
 	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"default:null;comment:删除于"`
 }
 
-func (u *User) TableName() string {
+func (u *Model) TableName() string {
 	return "user"
 }

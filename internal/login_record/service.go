@@ -2,8 +2,7 @@ package login_record
 
 import (
 	"context"
-	"helloadmin/api"
-	"helloadmin/internal/service"
+	"helloadmin/internal/api"
 	"time"
 )
 
@@ -12,15 +11,13 @@ type LoginRecordService interface {
 	Search(ctx context.Context, request *LoginRecordFindRequest) (*LoginRecordResponse, error)
 }
 
-func NewService(service *service.Service, loginRecordRepository LoginRecordRepository) LoginRecordService {
+func NewService(repo LoginRecordRepository) LoginRecordService {
 	return &loginRecordService{
-		Service:               service,
-		loginRecordRepository: loginRecordRepository,
+		loginRecordRepository: repo,
 	}
 }
 
 type loginRecordService struct {
-	*service.Service
 	loginRecordRepository LoginRecordRepository
 }
 

@@ -1,6 +1,8 @@
 package login_record
 
-import "helloadmin/api"
+import (
+	"helloadmin/internal/api"
+)
 
 type LoginRecordRequest struct {
 	Ip           string `json:"ip" binding:"max=60"`

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"helloadmin/internal/user"
 	"testing"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 	"helloadmin/internal/repository"
 )
 
-func setupRepository(t *testing.T) (repository.UserRepository, sqlmock.Sqlmock) {
+func setupRepository(t *testing.T) (user.Repository, sqlmock.Sqlmock) {
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("failed to create sqlmock: %v", err)
@@ -31,7 +32,7 @@ func setupRepository(t *testing.T) (repository.UserRepository, sqlmock.Sqlmock) 
 	rdb, _ := redismock.NewClientMock()
 
 	repo := repository.NewRepository(db, rdb, nil)
-	userRepo := repository.NewUserRepository(repo)
+	userRepo := user.NewUserRepository(repo)
 
 	return userRepo, mock
 }

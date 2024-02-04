@@ -9,11 +9,13 @@ package wire
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
-	"helloadmin/internal/handler"
+	"helloadmin/internal/department"
 	"helloadmin/internal/login_record"
+	"helloadmin/internal/menu"
 	"helloadmin/internal/repository"
+	"helloadmin/internal/role"
 	"helloadmin/internal/server"
-	"helloadmin/internal/service"
+	"helloadmin/internal/user"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/helper/sid"
 	"helloadmin/pkg/jwt"
@@ -25,29 +27,26 @@ import (
 
 func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), error) {
 	jwtJWT := jwt.NewJwt(viperViper)
-	handlerHandler := handler.NewHandler(logger)
+	sidSid := sid.NewSid()
 	db := repository.NewDB(viperViper, logger)
 	client := repository.NewRedis(viperViper)
 	repositoryRepository := repository.NewRepository(db, client, logger)
-	transaction := repository.NewTransaction(repositoryRepository)
-	sidSid := sid.NewSid()
-	serviceService := service.NewService(transaction, logger, sidSid, jwtJWT)
-	userRepository := repository.NewUserRepository(repositoryRepository)
-	userService := service.NewUserService(serviceService, userRepository)
-	loginRecordRepository := login_record.NewRepository(repositoryRepository)
-	loginRecordService := login_record.NewService(serviceService, loginRecordRepository)
-	userHandler := handler.NewUserHandler(handlerHandler, userService, loginRecordService)
-	roleRepository := repository.NewRoleRepository(repositoryRepository)
-	roleService := service.NewRoleService(serviceService, roleRepository)
-	roleHandler := handler.NewRoleHandler(handlerHandler, roleService)
-	menuRepository := repository.NewMenuRepository(repositoryRepository)
-	menuService := service.NewMenuService(serviceService, menuRepository)
-	menuHandler := handler.NewMenuHandler(handlerHandler, menuService)
-	departmentRepository := repository.NewDepartmentRepository(repositoryRepository)
-	departmentService := service.NewDepartmentService(serviceService, departmentRepository)
-	departmentHandler := handler.NewDepartmentHandler(handlerHandler, departmentService)
-	loginRecordHandler := login_record.NewHandler(logger, loginRecordService)
-	httpServer := server.NewHTTPServer(logger, viperViper, jwtJWT, userHandler, roleHandler, menuHandler, departmentHandler, loginRecordHandler)
+	userRepository := user.NewUserRepository(repositoryRepository)
+	userService := user.NewUserService(sidSid, jwtJWT, userRepository)
+	loginRecordRepository := login_record.NewLoginRecordRepository(repositoryRepository)
+	loginRecordService := login_record.NewService(loginRecordRepository)
+	handler := user.NewHandler(logger, userService, loginRecordService)
+	roleRepository := role.NewRoleRepository(repositoryRepository)
+	roleService := role.NewRoleService(roleRepository)
+	roleHandler := role.NewHandler(logger, roleService)
+	menuRepository := menu.NewMenuRepository(repositoryRepository)
+	service := menu.NewMenuService(menuRepository)
+	menuHandler := menu.NewHandler(logger, service)
+	deptRepository := department.NewDeptRepository(repositoryRepository)
+	departmentService := department.NewDepartmentService(deptRepository)
+	departmentHandler := department.NewHandler(logger, departmentService)
+	login_recordHandler := login_record.NewHandler(logger, loginRecordService)
+	httpServer := server.NewHTTPServer(logger, viperViper, jwtJWT, handler, roleHandler, menuHandler, departmentHandler, login_recordHandler)
 	job := server.NewJob(logger)
 	appApp := newApp(httpServer, job)
 	return appApp, func() {
@@ -56,11 +55,11 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*app.App, func(), err
 
 // wire.go:
 
-var repositorySet = wire.NewSet(repository.NewDB, repository.NewRedis, repository.NewRepository, repository.NewTransaction, repository.NewUserRepository, repository.NewRoleRepository, repository.NewMenuRepository, repository.NewDepartmentRepository, login_record.NewRepository)
+var repositorySet = wire.NewSet(repository.NewDB, repository.NewRedis, repository.NewRepository, repository.NewTransaction, role.NewRoleRepository, menu.NewMenuRepository, department.NewDeptRepository, login_record.NewLoginRecordRepository, user.NewUserRepository)
 
-var serviceSet = wire.NewSet(service.NewService, service.NewUserService, service.NewRoleService, service.NewMenuService, service.NewDepartmentService, login_record.NewService)
+var serviceSet = wire.NewSet(role.NewRoleService, menu.NewMenuService, department.NewDepartmentService, login_record.NewService, user.NewUserService)
 
-var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler, handler.NewRoleHandler, handler.NewMenuHandler, handler.NewDepartmentHandler, login_record.NewHandler)
+var handlerSet = wire.NewSet(role.NewHandler, menu.NewHandler, department.NewHandler, login_record.NewHandler, user.NewHandler)
 
 var serverSet = wire.NewSet(server.NewHTTPServer, server.NewJob, server.NewTask)
 

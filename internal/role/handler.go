@@ -1,24 +1,24 @@
-package handler
+package role
 
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"helloadmin/api"
+	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
-	"helloadmin/internal/service"
+	"helloadmin/pkg/log"
 	"net/http"
 	"strconv"
 )
 
-type RoleHandler struct {
-	*Handler
-	roleService service.RoleService
+type Handler struct {
+	logger      *log.Logger
+	roleService RoleService
 }
 
-func NewRoleHandler(handler *Handler, roleService service.RoleService) *RoleHandler {
-	return &RoleHandler{
-		Handler:     handler,
-		roleService: roleService,
+func NewHandler(log *log.Logger, svc RoleService) *Handler {
+	return &Handler{
+		logger:      log,
+		roleService: svc,
 	}
 }
 
@@ -33,8 +33,8 @@ func NewRoleHandler(handler *Handler, roleService service.RoleService) *RoleHand
 // @Param request body api.RoleCreateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role [post]
-func (r *RoleHandler) StoreRole(ctx *gin.Context) {
-	req := new(api.RoleCreateRequest)
+func (r *Handler) StoreRole(ctx *gin.Context) {
+	req := new(RoleCreateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		r.logger.WithContext(ctx).Error("RoleHandler.StoreRole ShouldBindJSON error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
@@ -59,8 +59,8 @@ func (r *RoleHandler) StoreRole(ctx *gin.Context) {
 // @Param request query api.RoleFindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role [get]
-func (r *RoleHandler) GetRole(ctx *gin.Context) {
-	req := new(api.RoleFindRequest)
+func (r *Handler) GetRole(ctx *gin.Context) {
+	req := new(RoleFindRequest)
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		r.logger.WithContext(ctx).Error("RoleHandler.GetRole error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
@@ -85,7 +85,7 @@ func (r *RoleHandler) GetRole(ctx *gin.Context) {
 // @Param id path int true "角色ID"
 // @Success 200 {object} api.Response
 // @Router /role/{id} [get]
-func (r *RoleHandler) ShowRole(ctx *gin.Context) {
+func (r *Handler) ShowRole(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if role, err := r.roleService.GetRoleById(ctx, id); err != nil {
 		r.logger.WithContext(ctx).Error("roleService.GetRoleById error", zap.Error(err))
@@ -108,9 +108,9 @@ func (r *RoleHandler) ShowRole(ctx *gin.Context) {
 // @Param request body api.RoleUpdateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role/{id} [put]
-func (r *RoleHandler) UpdateRole(ctx *gin.Context) {
+func (r *Handler) UpdateRole(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	req := new(api.RoleUpdateRequest)
+	req := new(RoleUpdateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		r.logger.WithContext(ctx).Error("RoleHandler.ShowRole error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, ecode.ErrBadRequest)
@@ -136,9 +136,9 @@ func (r *RoleHandler) UpdateRole(ctx *gin.Context) {
 // @Param request body api.RoleMenuRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role/{id}/menu [put]
-func (r *RoleHandler) UpdateRoleMenu(ctx *gin.Context) {
+func (r *Handler) UpdateRoleMenu(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	req := new(api.RoleMenuRequest)
+	req := new(RoleMenuRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		r.logger.WithContext(ctx).Error("RoleHandler.ShowRole error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
@@ -163,7 +163,7 @@ func (r *RoleHandler) UpdateRoleMenu(ctx *gin.Context) {
 // @Param id path int true "角色ID"
 // @Success 200 {object} api.Response
 // @Router /role/{id} [delete]
-func (r *RoleHandler) DeleteRole(ctx *gin.Context) {
+func (r *Handler) DeleteRole(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err := r.roleService.DeleteRole(ctx, id); err != nil {
 		r.logger.WithContext(ctx).Error("roleService.DeleteRole error", zap.Error(err))

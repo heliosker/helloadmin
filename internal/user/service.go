@@ -1,36 +1,37 @@
-package service
+package user
 
 import (
 	"context"
 	"golang.org/x/crypto/bcrypt"
-	"helloadmin/api"
 	"helloadmin/internal/ecode"
-	"helloadmin/internal/model"
-	"helloadmin/internal/repository"
 	"helloadmin/pkg/helper/generate"
+	"helloadmin/pkg/helper/sid"
+	"helloadmin/pkg/jwt"
 	"time"
 )
 
 type UserService interface {
-	Register(ctx context.Context, req *api.RegisterRequest) error
-	Login(ctx context.Context, req *api.LoginRequest) (*api.LoginResponse, error)
-	GetProfile(ctx context.Context, userId string) (*api.GetProfileResponseData, error)
-	UpdateProfile(ctx context.Context, userId string, req *api.UpdateProfileRequest) error
+	Register(ctx context.Context, req *RegisterRequest) error
+	Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error)
+	GetProfile(ctx context.Context, userId string) (*GetProfileResponseData, error)
+	UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error
 }
 
-func NewUserService(service *Service, userRepo repository.UserRepository) UserService {
+func NewUserService(sid *sid.Sid, jwt *jwt.JWT, repo UserRepository) UserService {
 	return &userService{
-		userRepo: userRepo,
-		Service:  service,
+		userRepo: repo,
+		sid:      sid,
+		jwt:      jwt,
 	}
 }
 
 type userService struct {
-	userRepo repository.UserRepository
-	*Service
+	userRepo UserRepository
+	sid      *sid.Sid
+	jwt      *jwt.JWT
 }
 
-func (s *userService) Register(ctx context.Context, req *api.RegisterRequest) error {
+func (s *userService) Register(ctx context.Context, req *RegisterRequest) error {
 	// check username
 	if user, err := s.userRepo.GetByEmail(ctx, req.Email); err == nil && user != nil {
 		return ecode.ErrEmailAlreadyUse
@@ -47,7 +48,7 @@ func (s *userService) Register(ctx context.Context, req *api.RegisterRequest) er
 		return err
 	}
 
-	user := &model.User{
+	user := &Model{
 		UserId:    userId,
 		Email:     req.Email,
 		Password:  string(hashedPassword),
@@ -59,18 +60,13 @@ func (s *userService) Register(ctx context.Context, req *api.RegisterRequest) er
 		UpdatedAt: time.Now(),
 	}
 	// Transaction
-	err = s.tm.Transaction(ctx, func(ctx context.Context) error {
-		// Create a user
-		if err = s.userRepo.Create(ctx, user); err != nil {
-			return err
-		}
-		// TODO: other repo
-		return nil
-	})
-	return err
+	if err = s.userRepo.Create(ctx, user); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (s *userService) Login(ctx context.Context, req *api.LoginRequest) (*api.LoginResponse, error) {
+func (s *userService) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil || user == nil {
 		return nil, ecode.ErrUserNotFound
@@ -83,20 +79,20 @@ func (s *userService) Login(ctx context.Context, req *api.LoginRequest) (*api.Lo
 	if err != nil {
 		return nil, err
 	}
-	return &api.LoginResponse{
+	return &LoginResponse{
 		AccessToken: token,
 		ExpiresAt:   expiresAt.Format(time.RFC3339),
 		TokenType:   "Bearer",
 	}, nil
 }
 
-func (s *userService) GetProfile(ctx context.Context, userId string) (*api.GetProfileResponseData, error) {
+func (s *userService) GetProfile(ctx context.Context, userId string) (*GetProfileResponseData, error) {
 	user, err := s.userRepo.GetByID(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	return &api.GetProfileResponseData{
+	return &GetProfileResponseData{
 		UserId:    user.UserId,
 		Nickname:  user.Nickname,
 		Email:     user.Email,
@@ -104,7 +100,7 @@ func (s *userService) GetProfile(ctx context.Context, userId string) (*api.GetPr
 	}, nil
 }
 
-func (s *userService) UpdateProfile(ctx context.Context, userId string, req *api.UpdateProfileRequest) error {
+func (s *userService) UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error {
 	user, err := s.userRepo.GetByID(ctx, userId)
 	if err != nil {
 		return err

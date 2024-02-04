@@ -1,39 +1,35 @@
-package service
+package department
 
 import (
 	"context"
-	"helloadmin/api"
-	"helloadmin/internal/model"
-	"helloadmin/internal/repository"
+	"helloadmin/internal/api"
 	"time"
 )
 
-type DepartmentService interface {
-	GetDepartmentById(ctx context.Context, id int64) (*api.DepartmentResponseItem, error)
-	SearchDepartment(ctx context.Context, request *api.DepartmentFindRequest) (*api.DepartmentResponse, error)
-	CreateDepartment(ctx context.Context, request *api.DepartmentCreateRequest) error
-	UpdateDepartment(ctx context.Context, id int64, request *api.DepartmentUpdateRequest) error
+type Service interface {
+	GetDepartmentById(ctx context.Context, id int64) (*ResponseItem, error)
+	SearchDepartment(ctx context.Context, request *FindRequest) (*Response, error)
+	CreateDepartment(ctx context.Context, request *CreateRequest) error
+	UpdateDepartment(ctx context.Context, id int64, request *UpdateRequest) error
 	DeleteDepartment(ctx context.Context, id int64) error
 }
 
-func NewDepartmentService(service *Service, departmentRepository repository.DepartmentRepository) DepartmentService {
+func NewDepartmentService(repo DeptRepository) Service {
 	return &departmentService{
-		Service:              service,
-		departmentRepository: departmentRepository,
+		departmentRepository: repo,
 	}
 }
 
 type departmentService struct {
-	*Service
-	departmentRepository repository.DepartmentRepository
+	departmentRepository DeptRepository
 }
 
-func (s *departmentService) GetDepartmentById(ctx context.Context, id int64) (*api.DepartmentResponseItem, error) {
+func (s *departmentService) GetDepartmentById(ctx context.Context, id int64) (*ResponseItem, error) {
 	department, err := s.departmentRepository.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	return &api.DepartmentResponseItem{
+	return &ResponseItem{
 		ID:        department.ID,
 		UpdateAt:  department.UpdatedAt.Format(time.RFC3339),
 		Name:      department.Name,
@@ -44,16 +40,16 @@ func (s *departmentService) GetDepartmentById(ctx context.Context, id int64) (*a
 	}, nil
 }
 
-func (s *departmentService) SearchDepartment(ctx context.Context, req *api.DepartmentFindRequest) (*api.DepartmentResponse, error) {
-	var result api.DepartmentResponse
+func (s *departmentService) SearchDepartment(ctx context.Context, req *FindRequest) (*Response, error) {
+	var result Response
 	count, departs, err := s.departmentRepository.Find(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 	if count > 0 {
-		result.Items = make([]api.DepartmentResponseItem, 0, req.Size)
+		result.Items = make([]ResponseItem, 0, req.Size)
 		for _, depart := range *departs {
-			tmp := api.DepartmentResponseItem{
+			tmp := ResponseItem{
 				ID:        depart.ID,
 				Name:      depart.Name,
 				ParentId:  depart.ParentId,
@@ -72,8 +68,8 @@ func (s *departmentService) SearchDepartment(ctx context.Context, req *api.Depar
 	return &result, nil
 }
 
-func (s *departmentService) CreateDepartment(ctx context.Context, req *api.DepartmentCreateRequest) error {
-	department := model.Department{
+func (s *departmentService) CreateDepartment(ctx context.Context, req *CreateRequest) error {
+	department := Model{
 		Name:     req.Name,
 		ParentId: req.ParentId,
 		Leader:   req.Leader,
@@ -82,8 +78,8 @@ func (s *departmentService) CreateDepartment(ctx context.Context, req *api.Depar
 	return s.departmentRepository.Create(ctx, &department)
 }
 
-func (s *departmentService) UpdateDepartment(ctx context.Context, id int64, req *api.DepartmentUpdateRequest) error {
-	department := model.Department{
+func (s *departmentService) UpdateDepartment(ctx context.Context, id int64, req *UpdateRequest) error {
+	department := Model{
 		Name:     req.Name,
 		ParentId: req.ParentId,
 		Leader:   req.Leader,

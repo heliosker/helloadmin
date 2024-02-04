@@ -1,25 +1,26 @@
-package handler
+package user
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/mssola/user_agent"
 	"go.uber.org/zap"
-	"helloadmin/api"
+	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
 	login_log "helloadmin/internal/login_record"
-	"helloadmin/internal/service"
+	"helloadmin/pkg/jwt"
+	"helloadmin/pkg/log"
 	"net/http"
 )
 
-type UserHandler struct {
-	*Handler
-	userService   service.UserService
+type Handler struct {
+	logger        *log.Logger
+	userService   UserService
 	recordService login_log.LoginRecordService
 }
 
-func NewUserHandler(handler *Handler, userService service.UserService, recordService login_log.LoginRecordService) *UserHandler {
-	return &UserHandler{
-		Handler:       handler,
+func NewHandler(logger *log.Logger, userService UserService, recordService login_log.LoginRecordService) *Handler {
+	return &Handler{
+		logger:        logger,
 		userService:   userService,
 		recordService: recordService,
 	}
@@ -32,11 +33,11 @@ func NewUserHandler(handler *Handler, userService service.UserService, recordSer
 // @Tags 用户模块
 // @Accept json
 // @Produce json
-// @Param request body api.RegisterRequest true "params"
+// @Param request body RegisterRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /register [post]
-func (h *UserHandler) Register(ctx *gin.Context) {
-	req := new(api.RegisterRequest)
+func (h *Handler) Register(ctx *gin.Context) {
+	req := new(RegisterRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
@@ -59,8 +60,8 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 // @Param request body api.LoginRequest true "params"
 // @Success 200 {object} api.LoginResponse
 // @Router /login [post]
-func (h *UserHandler) Login(ctx *gin.Context) {
-	var req api.LoginRequest
+func (h *Handler) Login(ctx *gin.Context) {
+	var req LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
@@ -89,7 +90,7 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 // @Security Bearer
 // @Success 200 {object} api.GetProfileResponseData
 // @Router /user [get]
-func (h *UserHandler) GetProfile(ctx *gin.Context) {
+func (h *Handler) GetProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
 	if userId == "" {
 		api.Error(ctx, http.StatusUnauthorized, ecode.ErrUnauthorized)
@@ -103,9 +104,9 @@ func (h *UserHandler) GetProfile(ctx *gin.Context) {
 	api.Success(ctx, user)
 }
 
-func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
+func (h *Handler) UpdateProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
-	var req api.UpdateProfileRequest
+	var req UpdateProfileRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
@@ -115,4 +116,12 @@ func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 		return
 	}
 	api.Success(ctx, nil)
+}
+
+func GetUserIdFromCtx(ctx *gin.Context) string {
+	v, exists := ctx.Get("claims")
+	if !exists {
+		return ""
+	}
+	return v.(*jwt.MyCustomClaims).UserId
 }

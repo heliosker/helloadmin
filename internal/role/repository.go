@@ -1,37 +1,38 @@
-package repository
+package role
 
 import (
 	"context"
 	"errors"
 	"gorm.io/gorm"
-	"helloadmin/api"
 	"helloadmin/internal/ecode"
-	"helloadmin/internal/model"
+	"helloadmin/internal/menu"
+	"helloadmin/internal/repository"
+	"helloadmin/internal/user"
 )
 
 type RoleRepository interface {
-	Find(ctx context.Context, request *api.RoleFindRequest) (int64, *[]model.Role, error)
-	GetById(ctx context.Context, id int64) (*model.Role, error)
-	Create(ctx context.Context, role *model.Role) error
-	Update(ctx context.Context, id int64, role *model.Role) error
-	UpdateRoleMenu(ctx context.Context, id int64, req *api.RoleMenuRequest) error
+	Find(ctx context.Context, request *RoleFindRequest) (int64, *[]Model, error)
+	GetById(ctx context.Context, id int64) (*Model, error)
+	Create(ctx context.Context, role *Model) error
+	Update(ctx context.Context, id int64, role *Model) error
+	UpdateRoleMenu(ctx context.Context, id int64, req *RoleMenuRequest) error
 	Delete(ctx context.Context, id int64) error
 	HasUser(ctx context.Context, id int64) int64
 }
 
-func NewRoleRepository(r *Repository) RoleRepository {
+func NewRoleRepository(r *repository.Repository) RoleRepository {
 	return &roleRepository{
 		Repository: r,
 	}
 }
 
 type roleRepository struct {
-	*Repository
+	*repository.Repository
 }
 
-func (r *roleRepository) Find(ctx context.Context, req *api.RoleFindRequest) (int64, *[]model.Role, error) {
+func (r *roleRepository) Find(ctx context.Context, req *RoleFindRequest) (int64, *[]Model, error) {
 	var count int64
-	var role []model.Role
+	var role []Model
 	query := r.DB(ctx)
 	if req.Name != "" {
 		query = query.Where("name = ?", req.Name)
@@ -39,15 +40,15 @@ func (r *roleRepository) Find(ctx context.Context, req *api.RoleFindRequest) (in
 	if req.Page > 0 {
 		query = query.Offset((req.Page - 1) * req.Size).Limit(req.Size)
 	}
-	query.Model(model.Role{}).Count(&count)
+	query.Model(Model{}).Count(&count)
 	if result := query.Order("id desc").Find(&role); result.Error != nil {
 		return count, nil, result.Error
 	}
 	return count, &role, nil
 }
 
-func (r *roleRepository) GetById(ctx context.Context, id int64) (*model.Role, error) {
-	var role model.Role
+func (r *roleRepository) GetById(ctx context.Context, id int64) (*Model, error) {
+	var role Model
 	if err := r.DB(ctx).Where("id = ?", id).Preload("Menus").First(&role).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ecode.ErrNotFound
@@ -57,22 +58,22 @@ func (r *roleRepository) GetById(ctx context.Context, id int64) (*model.Role, er
 	return &role, nil
 }
 
-func (r *roleRepository) Create(ctx context.Context, role *model.Role) error {
+func (r *roleRepository) Create(ctx context.Context, role *Model) error {
 	if err := r.DB(ctx).Create(role).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *roleRepository) Update(ctx context.Context, id int64, role *model.Role) error {
+func (r *roleRepository) Update(ctx context.Context, id int64, role *Model) error {
 	if err := r.DB(ctx).Model(role).Where("id = ?", id).Updates(role).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *roleRepository) UpdateRoleMenu(ctx context.Context, id int64, req *api.RoleMenuRequest) error {
-	var role model.Role
+func (r *roleRepository) UpdateRoleMenu(ctx context.Context, id int64, req *RoleMenuRequest) error {
+	var role Model
 	if err := r.DB(ctx).Preload("Menus").First(&role, id).Error; err != nil {
 		return err
 	}
@@ -80,7 +81,7 @@ func (r *roleRepository) UpdateRoleMenu(ctx context.Context, id int64, req *api.
 	if err := r.DB(ctx).Model(&role).Association("Menus").Clear(); err != nil {
 		return err
 	}
-	var menus []model.Menu
+	var menus []menu.Model
 	if err := r.DB(ctx).Find(&menus, req.MenuId).Error; err != nil {
 		return err
 	}
@@ -91,7 +92,7 @@ func (r *roleRepository) UpdateRoleMenu(ctx context.Context, id int64, req *api.
 }
 
 func (r *roleRepository) Delete(ctx context.Context, id int64) error {
-	if err := r.DB(ctx).Delete(&model.Role{}, id).Error; err != nil {
+	if err := r.DB(ctx).Delete(&Model{}, id).Error; err != nil {
 		return err
 	}
 	return nil
@@ -99,6 +100,6 @@ func (r *roleRepository) Delete(ctx context.Context, id int64) error {
 
 func (r *roleRepository) HasUser(ctx context.Context, id int64) int64 {
 	var count int64
-	r.DB(ctx).Model(model.User{}).Where("role_id = ?", id).Count(&count)
+	r.DB(ctx).Model(user.Model{}).Where("role_id = ?", id).Count(&count)
 	return count
 }

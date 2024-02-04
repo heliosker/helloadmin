@@ -1,46 +1,46 @@
-package repository
+package user
 
 import (
 	"context"
 	"errors"
 	"gorm.io/gorm"
 	"helloadmin/internal/ecode"
-	"helloadmin/internal/model"
+	"helloadmin/internal/repository"
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, user *model.User) error
-	Update(ctx context.Context, user *model.User) error
-	GetByID(ctx context.Context, id string) (*model.User, error)
-	GetByEmail(ctx context.Context, email string) (*model.User, error)
+	Create(ctx context.Context, user *Model) error
+	Update(ctx context.Context, user *Model) error
+	GetByID(ctx context.Context, id string) (*Model, error)
+	GetByEmail(ctx context.Context, email string) (*Model, error)
 }
 
-func NewUserRepository(r *Repository) UserRepository {
+func NewUserRepository(r *repository.Repository) UserRepository {
 	return &userRepository{
 		Repository: r,
 	}
 }
 
 type userRepository struct {
-	*Repository
+	*repository.Repository
 }
 
-func (r *userRepository) Create(ctx context.Context, user *model.User) error {
+func (r *userRepository) Create(ctx context.Context, user *Model) error {
 	if err := r.DB(ctx).Create(user).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *userRepository) Update(ctx context.Context, user *model.User) error {
+func (r *userRepository) Update(ctx context.Context, user *Model) error {
 	if err := r.DB(ctx).Save(user).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *userRepository) GetByID(ctx context.Context, userId string) (*model.User, error) {
-	var user model.User
+func (r *userRepository) GetByID(ctx context.Context, userId string) (*Model, error) {
+	var user Model
 	if err := r.DB(ctx).Where("user_id = ?", userId).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ecode.ErrNotFound
@@ -50,8 +50,8 @@ func (r *userRepository) GetByID(ctx context.Context, userId string) (*model.Use
 	return &user, nil
 }
 
-func (r *userRepository) GetByEmail(ctx context.Context, email string) (*model.User, error) {
-	var user model.User
+func (r *userRepository) GetByEmail(ctx context.Context, email string) (*Model, error) {
+	var user Model
 	if err := r.DB(ctx).Where("email = ?", email).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil

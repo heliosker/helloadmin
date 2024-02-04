@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"helloadmin/api"
+	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
 	"helloadmin/pkg/helper/md5"
 	"helloadmin/pkg/log"

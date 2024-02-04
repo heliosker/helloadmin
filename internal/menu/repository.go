@@ -1,35 +1,34 @@
-package repository
+package menu
 
 import (
 	"context"
 	"errors"
 	"gorm.io/gorm"
-	"helloadmin/api"
 	"helloadmin/internal/ecode"
-	"helloadmin/internal/model"
+	"helloadmin/internal/repository"
 )
 
 type MenuRepository interface {
-	Find(ctx context.Context, request *api.MenuFindRequest) (*[]model.Menu, error)
-	GetById(ctx context.Context, id int64) (*model.Menu, error)
-	Create(ctx context.Context, menu *model.Menu) error
-	Update(ctx context.Context, id int64, menu *model.Menu) error
+	Find(ctx context.Context, request *MenuFindRequest) (*[]Model, error)
+	GetById(ctx context.Context, id int64) (*Model, error)
+	Create(ctx context.Context, menu *Model) error
+	Update(ctx context.Context, id int64, menu *Model) error
 	Delete(ctx context.Context, id int64) error
 }
 
-func NewMenuRepository(r *Repository) MenuRepository {
+func NewMenuRepository(r *repository.Repository) MenuRepository {
 	return &menuRepository{
 		Repository: r,
 	}
 }
 
 type menuRepository struct {
-	*Repository
+	*repository.Repository
 }
 
-func (r *menuRepository) Find(ctx context.Context, req *api.MenuFindRequest) (*[]model.Menu, error) {
+func (r *menuRepository) Find(ctx context.Context, req *MenuFindRequest) (*[]Model, error) {
 	var count int64
-	var menu []model.Menu
+	var menu []Model
 	query := r.DB(ctx)
 	if req.Name != "" {
 		query = query.Where("name like ?", "%"+req.Name+"%")
@@ -47,8 +46,8 @@ func (r *menuRepository) Find(ctx context.Context, req *api.MenuFindRequest) (*[
 	return &menu, nil
 }
 
-func (r *menuRepository) GetById(ctx context.Context, id int64) (*model.Menu, error) {
-	var menu model.Menu
+func (r *menuRepository) GetById(ctx context.Context, id int64) (*Model, error) {
+	var menu Model
 	if err := r.DB(ctx).Where("id = ?", id).First(&menu).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ecode.ErrNotFound
@@ -58,14 +57,14 @@ func (r *menuRepository) GetById(ctx context.Context, id int64) (*model.Menu, er
 	return &menu, nil
 }
 
-func (r *menuRepository) Create(ctx context.Context, menu *model.Menu) error {
+func (r *menuRepository) Create(ctx context.Context, menu *Model) error {
 	if err := r.DB(ctx).Create(menu).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *menuRepository) Update(ctx context.Context, id int64, menu *model.Menu) error {
+func (r *menuRepository) Update(ctx context.Context, id int64, menu *Model) error {
 	menu.ID = uint(id)
 	if err := r.DB(ctx).Model(menu).Omit("updated_at").Updates(menu).Error; err != nil {
 		return err
@@ -74,7 +73,7 @@ func (r *menuRepository) Update(ctx context.Context, id int64, menu *model.Menu)
 }
 
 func (r *menuRepository) Delete(ctx context.Context, id int64) error {
-	if err := r.DB(ctx).Delete(&model.Menu{}, id).Error; err != nil {
+	if err := r.DB(ctx).Delete(&Model{}, id).Error; err != nil {
 		return err
 	}
 	return nil

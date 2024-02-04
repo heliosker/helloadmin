@@ -1,35 +1,34 @@
-package repository
+package department
 
 import (
 	"context"
 	"errors"
 	"gorm.io/gorm"
-	"helloadmin/api"
 	"helloadmin/internal/ecode"
-	"helloadmin/internal/model"
+	"helloadmin/internal/repository"
 )
 
-type DepartmentRepository interface {
-	Find(ctx context.Context, request *api.DepartmentFindRequest) (int64, *[]model.Department, error)
-	GetById(ctx context.Context, id int64) (*model.Department, error)
-	Create(ctx context.Context, department *model.Department) error
-	Update(ctx context.Context, id int64, department *model.Department) error
+type DeptRepository interface {
+	Find(ctx context.Context, request *FindRequest) (int64, *[]Model, error)
+	GetById(ctx context.Context, id int64) (*Model, error)
+	Create(ctx context.Context, department *Model) error
+	Update(ctx context.Context, id int64, department *Model) error
 	Delete(ctx context.Context, id int64) error
 }
 
-func NewDepartmentRepository(r *Repository) DepartmentRepository {
+func NewDeptRepository(r *repository.Repository) DeptRepository {
 	return &departmentRepository{
 		Repository: r,
 	}
 }
 
 type departmentRepository struct {
-	*Repository
+	*repository.Repository
 }
 
-func (r *departmentRepository) Find(ctx context.Context, req *api.DepartmentFindRequest) (int64, *[]model.Department, error) {
+func (r *departmentRepository) Find(ctx context.Context, req *FindRequest) (int64, *[]Model, error) {
 	var count int64
-	var departments []model.Department
+	var departments []Model
 	query := r.DB(ctx)
 	if req.Name != "" {
 		query = query.Where("name = ?", req.Name)
@@ -37,15 +36,15 @@ func (r *departmentRepository) Find(ctx context.Context, req *api.DepartmentFind
 	if req.Page != 0 && req.Size != 0 {
 		query = query.Offset((req.Page - 1) * req.Size).Limit(req.Size)
 	}
-	query.Model(model.Department{}).Count(&count)
+	query.Model(Model{}).Count(&count)
 	if err := query.Order("sort DESC").Find(&departments).Error; err != nil {
 		return count, nil, err
 	}
 	return count, &departments, nil
 }
 
-func (r *departmentRepository) GetById(ctx context.Context, id int64) (*model.Department, error) {
-	var department model.Department
+func (r *departmentRepository) GetById(ctx context.Context, id int64) (*Model, error) {
+	var department Model
 	if err := r.DB(ctx).Where("id = ?", id).First(&department).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ecode.ErrNotFound
@@ -55,14 +54,14 @@ func (r *departmentRepository) GetById(ctx context.Context, id int64) (*model.De
 	return &department, nil
 }
 
-func (r *departmentRepository) Create(ctx context.Context, department *model.Department) error {
+func (r *departmentRepository) Create(ctx context.Context, department *Model) error {
 	if err := r.DB(ctx).Create(department).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *departmentRepository) Update(ctx context.Context, id int64, department *model.Department) error {
+func (r *departmentRepository) Update(ctx context.Context, id int64, department *Model) error {
 	if err := r.DB(ctx).Model(department).Select("name", "parent_id", "sort", "leader").Where("id = ?", id).Updates(department).Error; err != nil {
 		return err
 	}
@@ -70,7 +69,7 @@ func (r *departmentRepository) Update(ctx context.Context, id int64, department 
 }
 
 func (r *departmentRepository) Delete(ctx context.Context, id int64) error {
-	if err := r.DB(ctx).Delete(&model.Department{}, id).Error; err != nil {
+	if err := r.DB(ctx).Delete(&Model{}, id).Error; err != nil {
 		return err
 	}
 	return nil

@@ -1,4 +1,4 @@
-package api
+package menu
 
 type MenuCreateRequest struct {
 	Name      string `json:"name" binding:"required;max=128"`        // 菜单名称

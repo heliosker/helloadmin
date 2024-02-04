@@ -6,8 +6,7 @@ package mock_service
 
 import (
 	context "context"
-	api "helloadmin/api"
-	model "helloadmin/internal/model"
+	api "helloadmin/internal/role"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -80,10 +79,10 @@ func (mr *MockRoleServiceMockRecorder) GetRoleById(ctx, id interface{}) *gomock.
 }
 
 // SearchRole mocks base method.
-func (m *MockRoleService) SearchRole(ctx context.Context, request *api.RoleFindRequest) (*[]model.Role, error) {
+func (m *MockRoleService) SearchRole(ctx context.Context, request *api.RoleFindRequest) (*[]api.Role, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRole", ctx, request)
-	ret0, _ := ret[0].(*[]model.Role)
+	ret0, _ := ret[0].(*[]api.Role)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -1,36 +1,32 @@
-package service
+package role
 
 import (
 	"context"
-	"helloadmin/api"
+	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
-	"helloadmin/internal/model"
-	"helloadmin/internal/repository"
 	"time"
 )
 
 type RoleService interface {
-	GetRoleById(ctx context.Context, id int64) (*api.RoleResponseItem, error)
-	SearchRole(ctx context.Context, request *api.RoleFindRequest) (*api.RoleResponse, error)
-	CreateRole(ctx context.Context, request *api.RoleCreateRequest) error
-	UpdateRole(ctx context.Context, id int64, request *api.RoleUpdateRequest) error
+	GetRoleById(ctx context.Context, id int64) (*RoleResponseItem, error)
+	SearchRole(ctx context.Context, request *RoleFindRequest) (*RoleResponse, error)
+	CreateRole(ctx context.Context, request *RoleCreateRequest) error
+	UpdateRole(ctx context.Context, id int64, request *RoleUpdateRequest) error
 	DeleteRole(ctx context.Context, id int64) error
-	UpdateRoleMenu(ctx context.Context, id int64, request *api.RoleMenuRequest) error
+	UpdateRoleMenu(ctx context.Context, id int64, request *RoleMenuRequest) error
 }
 
-func NewRoleService(service *Service, roleRepository repository.RoleRepository) RoleService {
+func NewRoleService(repo RoleRepository) RoleService {
 	return &roleService{
-		Service:        service,
-		roleRepository: roleRepository,
+		roleRepository: repo,
 	}
 }
 
 type roleService struct {
-	*Service
-	roleRepository repository.RoleRepository
+	roleRepository RoleRepository
 }
 
-func (s *roleService) GetRoleById(ctx context.Context, id int64) (*api.RoleResponseItem, error) {
+func (s *roleService) GetRoleById(ctx context.Context, id int64) (*RoleResponseItem, error) {
 	role, err := s.roleRepository.GetById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -41,7 +37,7 @@ func (s *roleService) GetRoleById(ctx context.Context, id int64) (*api.RoleRespo
 			menuIds = append(menuIds, menu.ID)
 		}
 	}
-	return &api.RoleResponseItem{
+	return &RoleResponseItem{
 		Id:        role.ID,
 		Name:      role.Name,
 		Describe:  role.Describe,
@@ -51,16 +47,16 @@ func (s *roleService) GetRoleById(ctx context.Context, id int64) (*api.RoleRespo
 	}, nil
 }
 
-func (s *roleService) SearchRole(ctx context.Context, req *api.RoleFindRequest) (*api.RoleResponse, error) {
-	var result api.RoleResponse
+func (s *roleService) SearchRole(ctx context.Context, req *RoleFindRequest) (*RoleResponse, error) {
+	var result RoleResponse
 	count, roles, err := s.roleRepository.Find(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	result.Items = make([]api.RoleResponseItem, 0)
+	result.Items = make([]RoleResponseItem, 0)
 	if count > 0 {
 		for _, role := range *roles {
-			tmp := api.RoleResponseItem{
+			tmp := RoleResponseItem{
 				Id:        role.ID,
 				Name:      role.Name,
 				Describe:  role.Describe,
@@ -78,23 +74,23 @@ func (s *roleService) SearchRole(ctx context.Context, req *api.RoleFindRequest) 
 	return &result, nil
 }
 
-func (s *roleService) CreateRole(ctx context.Context, req *api.RoleCreateRequest) error {
-	role := model.Role{
+func (s *roleService) CreateRole(ctx context.Context, req *RoleCreateRequest) error {
+	role := Model{
 		Name:     req.Name,
 		Describe: req.Describe,
 	}
 	return s.roleRepository.Create(ctx, &role)
 }
 
-func (s *roleService) UpdateRole(ctx context.Context, id int64, req *api.RoleUpdateRequest) error {
-	role := model.Role{
+func (s *roleService) UpdateRole(ctx context.Context, id int64, req *RoleUpdateRequest) error {
+	role := Model{
 		Name:     req.Name,
 		Describe: req.Describe,
 	}
 	return s.roleRepository.Update(ctx, id, &role)
 }
 
-func (s *roleService) UpdateRoleMenu(ctx context.Context, id int64, req *api.RoleMenuRequest) error {
+func (s *roleService) UpdateRoleMenu(ctx context.Context, id int64, req *RoleMenuRequest) error {
 	return s.roleRepository.UpdateRoleMenu(ctx, id, req)
 }
 

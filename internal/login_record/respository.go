@@ -10,7 +10,7 @@ type LoginRecordRepository interface {
 	Search(ctx context.Context, request *LoginRecordFindRequest) (int64, *[]Model, error)
 }
 
-func NewRepository(r *repository.Repository) LoginRecordRepository {
+func NewLoginRecordRepository(r *repository.Repository) LoginRecordRepository {
 	return &loginRecordRepository{r}
 }
 

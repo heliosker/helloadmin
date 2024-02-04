@@ -6,11 +6,13 @@ package wire
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
-	"helloadmin/internal/handler"
+	"helloadmin/internal/department"
 	"helloadmin/internal/login_record"
+	"helloadmin/internal/menu"
 	"helloadmin/internal/repository"
+	"helloadmin/internal/role"
 	"helloadmin/internal/server"
-	"helloadmin/internal/service"
+	"helloadmin/internal/user"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/helper/sid"
 	"helloadmin/pkg/jwt"
@@ -23,29 +25,27 @@ var repositorySet = wire.NewSet(
 	repository.NewRedis,
 	repository.NewRepository,
 	repository.NewTransaction,
-	repository.NewUserRepository,
-	repository.NewRoleRepository,
-	repository.NewMenuRepository,
-	repository.NewDepartmentRepository,
-	login_record.NewRepository,
+	role.NewRoleRepository,
+	menu.NewMenuRepository,
+	department.NewDeptRepository,
+	login_record.NewLoginRecordRepository,
+	user.NewUserRepository,
 )
 
 var serviceSet = wire.NewSet(
-	service.NewService,
-	service.NewUserService,
-	service.NewRoleService,
-	service.NewMenuService,
-	service.NewDepartmentService,
+	role.NewRoleService,
+	menu.NewMenuService,
+	department.NewDepartmentService,
 	login_record.NewService,
+	user.NewUserService,
 )
 
 var handlerSet = wire.NewSet(
-	handler.NewHandler,
-	handler.NewUserHandler,
-	handler.NewRoleHandler,
-	handler.NewMenuHandler,
-	handler.NewDepartmentHandler,
+	role.NewHandler,
+	menu.NewHandler,
+	department.NewHandler,
 	login_record.NewHandler,
+	user.NewHandler,
 )
 
 var serverSet = wire.NewSet(
@@ -63,7 +63,6 @@ func newApp(httpServer *http.Server, job *server.Job) *app.App {
 }
 
 func NewWire(*viper.Viper, *log.Logger) (*app.App, func(), error) {
-
 	panic(wire.Build(
 		repositorySet,
 		serviceSet,

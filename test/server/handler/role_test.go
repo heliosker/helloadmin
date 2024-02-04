@@ -6,9 +6,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"helloadmin/api"
-	"helloadmin/internal/handler"
 	"helloadmin/internal/middleware"
-	"helloadmin/internal/model"
+	"helloadmin/internal/role"
 	"helloadmin/test/mocks/service"
 	"net/http"
 	"net/http/httptest"
@@ -21,7 +20,7 @@ func TestRoleHandler_StoreRole(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	params := api.RoleCreateRequest{
+	params := role.RoleCreateRequest{
 		Name:     "test role",
 		Slug:     "test",
 		Describe: "this is test role",
@@ -29,7 +28,7 @@ func TestRoleHandler_StoreRole(t *testing.T) {
 	mockRoleService := mock_service.NewMockRoleService(ctrl)
 	mockRoleService.EXPECT().CreateRole(gomock.Any(), &params).Return(nil)
 
-	roleHandler := handler.NewRoleHandler(hdl, mockRoleService)
+	roleHandler := role.NewRoleHandler(hdl, mockRoleService)
 	router.Use(middleware.NoStrictAuth(jwt, logger))
 	router.POST("/role", roleHandler.StoreRole)
 
@@ -45,7 +44,7 @@ func TestRoleHandler_StoreRole(t *testing.T) {
 func TestRoleHandler_GetRole(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	params := api.RoleFindRequest{
+	params := role.RoleFindRequest{
 		Name: "",
 		Slug: "",
 		Meta: api.Meta{
@@ -54,9 +53,9 @@ func TestRoleHandler_GetRole(t *testing.T) {
 		},
 	}
 	mockRoleService := mock_service.NewMockRoleService(ctrl)
-	mockRoleService.EXPECT().SearchRole(gomock.Any(), &params).Return(&[]model.Role{}, nil)
+	mockRoleService.EXPECT().SearchRole(gomock.Any(), &params).Return(&[]role.Role{}, nil)
 
-	roleHandler := handler.NewRoleHandler(hdl, mockRoleService)
+	roleHandler := role.NewRoleHandler(hdl, mockRoleService)
 	router.Use(middleware.NoStrictAuth(jwt, logger))
 	router.GET("/role", roleHandler.GetRole)
 

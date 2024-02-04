@@ -3,20 +3,20 @@ package login_record
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"helloadmin/api"
+	"helloadmin/internal/api"
 	"helloadmin/pkg/log"
 	"net/http"
 )
 
-type LoginRecordHandler struct {
+type Handler struct {
 	logger             *log.Logger
 	loginRecordService LoginRecordService
 }
 
-func NewHandler(logger *log.Logger, loginRecordService LoginRecordService) *LoginRecordHandler {
-	return &LoginRecordHandler{
+func NewHandler(logger *log.Logger, svc LoginRecordService) *Handler {
+	return &Handler{
 		logger:             logger,
-		loginRecordService: loginRecordService,
+		loginRecordService: svc,
 	}
 }
 
@@ -31,7 +31,7 @@ func NewHandler(logger *log.Logger, loginRecordService LoginRecordService) *Logi
 // @Param request query LoginRecordFindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /record/login [get]
-func (lrh *LoginRecordHandler) SearchLoginRecord(ctx *gin.Context) {
+func (lrh *Handler) SearchLoginRecord(ctx *gin.Context) {
 	req := new(LoginRecordFindRequest)
 	if err := ctx.ShouldBind(req); err != nil {
 		lrh.logger.WithContext(ctx).Error("SearchLoginRecord ShouldBind error", zap.Error(err))

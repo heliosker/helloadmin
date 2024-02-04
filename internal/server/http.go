@@ -5,11 +5,14 @@ import (
 	"github.com/spf13/viper"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"helloadmin/api"
 	"helloadmin/docs"
-	"helloadmin/internal/handler"
+	"helloadmin/internal/api"
+	"helloadmin/internal/department"
 	"helloadmin/internal/login_record"
+	"helloadmin/internal/menu"
 	"helloadmin/internal/middleware"
+	"helloadmin/internal/role"
+	"helloadmin/internal/user"
 	"helloadmin/pkg/jwt"
 	"helloadmin/pkg/log"
 	"helloadmin/pkg/server/http"
@@ -19,11 +22,11 @@ func NewHTTPServer(
 	logger *log.Logger,
 	cfg *viper.Viper,
 	jwt *jwt.JWT,
-	userHandler *handler.UserHandler,
-	roleHandler *handler.RoleHandler,
-	menuHandler *handler.MenuHandler,
-	departHandler *handler.DepartmentHandler,
-	loginRecordHandler *login_record.LoginRecordHandler,
+	userHandler *user.Handler,
+	roleHandler *role.Handler,
+	menuHandler *menu.Handler,
+	departHandler *department.Handler,
+	loginRecordHandler *login_record.Handler,
 ) *http.Server {
 	gin.SetMode(gin.DebugMode)
 	s := http.NewServer(
