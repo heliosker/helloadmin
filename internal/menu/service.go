@@ -14,17 +14,17 @@ type Service interface {
 }
 
 func NewService(repo Repository) Service {
-	return &menuService{
-		menuRepository: repo,
+	return &service{
+		repo: repo,
 	}
 }
 
-type menuService struct {
-	menuRepository Repository
+type service struct {
+	repo Repository
 }
 
-func (s *menuService) GetMenuById(ctx context.Context, id int64) (*ResponseItem, error) {
-	menu, err := s.menuRepository.GetById(ctx, id)
+func (s *service) GetMenuById(ctx context.Context, id int64) (*ResponseItem, error) {
+	menu, err := s.repo.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +44,8 @@ func (s *menuService) GetMenuById(ctx context.Context, id int64) (*ResponseItem,
 	}, nil
 }
 
-func (s *menuService) SearchMenu(ctx context.Context, req *FindRequest) (*[]ResponseItem, error) {
-	menuList, err := s.menuRepository.Find(ctx, req)
+func (s *service) SearchMenu(ctx context.Context, req *FindRequest) (*[]ResponseItem, error) {
+	menuList, err := s.repo.Find(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,6 @@ func (s *menuService) SearchMenu(ctx context.Context, req *FindRequest) (*[]Resp
 
 func buildMenuTree(menuList *[]Model, parentId uint) []ResponseItem {
 	var result []ResponseItem
-
 	for _, menuItem := range *menuList {
 		if menuItem.ParentId == parentId {
 			child := ResponseItem{
@@ -79,11 +78,10 @@ func buildMenuTree(menuList *[]Model, parentId uint) []ResponseItem {
 			result = append(result, child)
 		}
 	}
-
 	return result
 }
 
-func (s *menuService) CreateMenu(ctx context.Context, req *CreateRequest) error {
+func (s *service) CreateMenu(ctx context.Context, req *CreateRequest) error {
 	menu := Model{
 		Name:      req.Name,
 		Title:     req.Title,
@@ -94,12 +92,14 @@ func (s *menuService) CreateMenu(ctx context.Context, req *CreateRequest) error 
 		Component: req.Component,
 		Sort:      req.Sort,
 		Visible:   req.Visible,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
-	return s.menuRepository.Create(ctx, &menu)
+	return s.repo.Create(ctx, &menu)
 }
 
-func (s *menuService) UpdateMenu(ctx context.Context, id int64, req *UpdateRequest) error {
-	menu, err := s.menuRepository.GetById(ctx, id)
+func (s *service) UpdateMenu(ctx context.Context, id int64, req *UpdateRequest) error {
+	menu, err := s.repo.GetById(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -112,9 +112,10 @@ func (s *menuService) UpdateMenu(ctx context.Context, id int64, req *UpdateReque
 	menu.Component = req.Component
 	menu.Sort = req.Sort
 	menu.Visible = req.Visible
-	return s.menuRepository.Update(ctx, id, menu)
+	menu.UpdatedAt = time.Now()
+	return s.repo.Update(ctx, id, menu)
 }
 
-func (s *menuService) DeleteMenu(ctx context.Context, id int64) error {
-	return s.menuRepository.Delete(ctx, id)
+func (s *service) DeleteMenu(ctx context.Context, id int64) error {
+	return s.repo.Delete(ctx, id)
 }

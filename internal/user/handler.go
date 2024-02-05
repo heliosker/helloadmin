@@ -26,17 +26,43 @@ func NewHandler(log *log.Logger, us Service, rs login_log.Service) *Handler {
 	}
 }
 
-// Register godoc
+// Search godoc
+// @Summary 搜索员工
+// @Schemes
+// @Description 搜索员工
+// @Tags 员工模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request query FindRequest true "params"
+// @Success 200 {object} api.Response
+// @Router /user [get]
+func (h *Handler) Search(ctx *gin.Context) {
+	req := new(FindRequest)
+	if err := ctx.ShouldBindQuery(req); err != nil {
+		api.Error(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if resp, err := h.us.Search(ctx, req); err != nil {
+		h.log.WithContext(ctx).Error("us.Search error", zap.Error(err))
+		api.Error(ctx, http.StatusInternalServerError, err)
+	} else {
+		api.Success(ctx, resp)
+	}
+}
+
+// Store godoc
 // @Summary 添加员工
 // @Schemes
 // @Description 添加员工
 // @Tags 员工模块
 // @Accept json
 // @Produce json
+// @Security Bearer
 // @Param request body RegisterRequest true "params"
 // @Success 200 {object} api.Response
-// @Router /register [post]
-func (h *Handler) Register(ctx *gin.Context) {
+// @Router /user [post]
+func (h *Handler) Store(ctx *gin.Context) {
 	req := new(RegisterRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		api.Error(ctx, http.StatusBadRequest, err)
@@ -51,7 +77,7 @@ func (h *Handler) Register(ctx *gin.Context) {
 }
 
 // Login godoc
-// @Summary 账号登录
+// @Summary 员工登录
 // @Schemes
 // @Description
 // @Tags 员工模块
@@ -88,8 +114,8 @@ func (h *Handler) Login(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} GetProfileResponseData
-// @Router /user [get]
+// @Success 200 {object} ProfileData
+// @Router /user/profile [get]
 func (h *Handler) GetProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
 	if userId == "" {

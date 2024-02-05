@@ -70,20 +70,23 @@ func (s *service) SearchDepartment(ctx context.Context, req *FindRequest) (*Resp
 
 func (s *service) CreateDepartment(ctx context.Context, req *CreateRequest) error {
 	department := Model{
-		Name:     req.Name,
-		ParentId: req.ParentId,
-		Leader:   req.Leader,
-		Sort:     req.Sort,
+		Name:      req.Name,
+		ParentId:  req.ParentId,
+		Leader:    req.Leader,
+		Sort:      req.Sort,
+		UpdatedAt: time.Now(),
+		CreatedAt: time.Now(),
 	}
 	return s.repo.Create(ctx, &department)
 }
 
 func (s *service) UpdateDepartment(ctx context.Context, id int64, req *UpdateRequest) error {
 	department := Model{
-		Name:     req.Name,
-		ParentId: req.ParentId,
-		Leader:   req.Leader,
-		Sort:     req.Sort,
+		Name:      req.Name,
+		ParentId:  req.ParentId,
+		Leader:    req.Leader,
+		Sort:      req.Sort,
+		UpdatedAt: time.Now(),
 	}
 	return s.repo.Update(ctx, id, &department)
 }

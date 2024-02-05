@@ -13,6 +13,7 @@ type Repository interface {
 	Update(ctx context.Context, user *Model) error
 	GetByID(ctx context.Context, id string) (*Model, error)
 	GetByEmail(ctx context.Context, email string) (*Model, error)
+	Search(ctx context.Context, request *FindRequest) (int64, *[]Model, error)
 }
 
 func NewRepository(r *repository.Repository) Repository {
@@ -59,4 +60,30 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*Model, 
 		return nil, err
 	}
 	return &user, nil
+}
+func (r *userRepository) Search(ctx context.Context, request *FindRequest) (int64, *[]Model, error) {
+	var (
+		users []Model
+		total int64
+	)
+	query := r.DB(ctx)
+	if request.Email != "" {
+		query = query.Where("email = ?", request.Email)
+	}
+	if request.Nickname != "" {
+		query = query.Where("nickname = ?", request.Nickname)
+	}
+	if request.RoleId != 0 {
+		query = query.Where("role_id = ?", request.RoleId)
+	}
+	if request.DeptId != 0 {
+		query = query.Where("dept_id = ?", request.DeptId)
+	}
+	if err := query.Model(Model{}).Count(&total).Error; err != nil {
+		return 0, nil, err
+	}
+	if err := query.Order("id desc").Offset((request.Page - 1) * request.Size).Limit(request.Size).Find(&users).Error; err != nil {
+		return total, nil, err
+	}
+	return total, &users, nil
 }

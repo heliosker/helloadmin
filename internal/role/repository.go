@@ -37,9 +37,6 @@ func (r *roleRepository) Find(ctx context.Context, req *FindRequest) (int64, *[]
 	if req.Name != "" {
 		query = query.Where("name = ?", req.Name)
 	}
-	if req.Page > 0 {
-		query = query.Offset((req.Page - 1) * req.Size).Limit(req.Size)
-	}
 	query.Model(Model{}).Count(&count)
 	if result := query.Order("id desc").Find(&role); result.Error != nil {
 		return count, nil, result.Error
