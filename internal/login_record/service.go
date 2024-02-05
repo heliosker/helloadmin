@@ -7,21 +7,21 @@ import (
 )
 
 type Service interface {
-	Create(ctx context.Context, record *LoginRecordRequest) error
-	Search(ctx context.Context, request *LoginRecordFindRequest) (*LoginRecordResponse, error)
+	Create(ctx context.Context, record *CreateRequest) error
+	Search(ctx context.Context, request *FindRequest) (*Response, error)
 }
 
 func NewService(repo Repository) Service {
-	return &loginRecordService{
-		loginRecordRepository: repo,
+	return &service{
+		repo: repo,
 	}
 }
 
-type loginRecordService struct {
-	loginRecordRepository Repository
+type service struct {
+	repo Repository
 }
 
-func (lrs *loginRecordService) Create(ctx context.Context, req *LoginRecordRequest) error {
+func (lrs *service) Create(ctx context.Context, req *CreateRequest) error {
 	model := Model{
 		Ip:           req.Ip,
 		Os:           req.Os,
@@ -32,15 +32,15 @@ func (lrs *loginRecordService) Create(ctx context.Context, req *LoginRecordReque
 		UpdatedAt:    time.Now(),
 		CreatedAt:    time.Now(),
 	}
-	if err := lrs.loginRecordRepository.Create(ctx, &model); err != nil {
+	if err := lrs.repo.Create(ctx, &model); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (lrs *loginRecordService) Search(ctx context.Context, request *LoginRecordFindRequest) (*LoginRecordResponse, error) {
-	var result LoginRecordResponse
-	count, records, err := lrs.loginRecordRepository.Search(ctx, request)
+func (lrs *service) Search(ctx context.Context, request *FindRequest) (*Response, error) {
+	var result Response
+	count, records, err := lrs.repo.Search(ctx, request)
 	if err != nil {
 		return nil, err
 	}

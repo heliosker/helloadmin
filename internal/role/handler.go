@@ -11,14 +11,14 @@ import (
 )
 
 type Handler struct {
-	logger *log.Logger
-	svc    Service
+	log *log.Logger
+	svc Service
 }
 
 func NewHandler(log *log.Logger, svc Service) *Handler {
 	return &Handler{
-		logger: log,
-		svc:    svc,
+		log: log,
+		svc: svc,
 	}
 }
 
@@ -30,18 +30,18 @@ func NewHandler(log *log.Logger, svc Service) *Handler {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body RoleCreateRequest true "params"
+// @Param request body CreateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role [post]
 func (r *Handler) StoreRole(ctx *gin.Context) {
-	req := new(RoleCreateRequest)
+	req := new(CreateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
-		r.logger.WithContext(ctx).Error("RoleHandler.StoreRole ShouldBindJSON error", zap.Error(err))
+		r.log.WithContext(ctx).Error("RoleHandler.StoreRole ShouldBindJSON error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
 	if err := r.svc.CreateRole(ctx, req); err != nil {
-		r.logger.WithContext(ctx).Error("svc.CreateRole error", zap.Error(err))
+		r.log.WithContext(ctx).Error("svc.CreateRole error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -56,19 +56,19 @@ func (r *Handler) StoreRole(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query RoleFindRequest true "params"
+// @Param request query FindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role [get]
 func (r *Handler) GetRole(ctx *gin.Context) {
-	req := new(RoleFindRequest)
+	req := new(FindRequest)
 	if err := ctx.ShouldBindQuery(req); err != nil {
-		r.logger.WithContext(ctx).Error("RoleHandler.GetRole error", zap.Error(err))
+		r.log.WithContext(ctx).Error("RoleHandler.GetRole error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
 	role, err := r.svc.SearchRole(ctx, req)
 	if err != nil {
-		r.logger.WithContext(ctx).Error("svc.SearchRole error", zap.Error(err))
+		r.log.WithContext(ctx).Error("svc.SearchRole error", zap.Error(err))
 		return
 	}
 	api.Success(ctx, role)
@@ -88,7 +88,7 @@ func (r *Handler) GetRole(ctx *gin.Context) {
 func (r *Handler) ShowRole(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if role, err := r.svc.GetRoleById(ctx, id); err != nil {
-		r.logger.WithContext(ctx).Error("svc.GetRoleById error", zap.Error(err))
+		r.log.WithContext(ctx).Error("svc.GetRoleById error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	} else {
@@ -105,19 +105,19 @@ func (r *Handler) ShowRole(ctx *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "角色ID"
-// @Param request body RoleUpdateRequest true "params"
+// @Param request body UpdateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role/{id} [put]
 func (r *Handler) UpdateRole(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	req := new(RoleUpdateRequest)
+	req := new(UpdateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
-		r.logger.WithContext(ctx).Error("RoleHandler.ShowRole error", zap.Error(err))
+		r.log.WithContext(ctx).Error("RoleHandler.ShowRole error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, ecode.ErrBadRequest)
 		return
 	}
 	if err := r.svc.UpdateRole(ctx, id, req); err != nil {
-		r.logger.WithContext(ctx).Error("svc.UpdateRole error", zap.Error(err))
+		r.log.WithContext(ctx).Error("svc.UpdateRole error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -133,19 +133,19 @@ func (r *Handler) UpdateRole(ctx *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "角色ID"
-// @Param request body RoleMenuRequest true "params"
+// @Param request body MenuRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /role/{id}/menu [put]
 func (r *Handler) UpdateRoleMenu(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	req := new(RoleMenuRequest)
+	req := new(MenuRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
-		r.logger.WithContext(ctx).Error("RoleHandler.ShowRole error", zap.Error(err))
+		r.log.WithContext(ctx).Error("RoleHandler.ShowRole error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
 	if err := r.svc.UpdateRoleMenu(ctx, id, req); err != nil {
-		r.logger.WithContext(ctx).Error("svc.UpdateRole error", zap.Error(err))
+		r.log.WithContext(ctx).Error("svc.UpdateRole error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -166,7 +166,7 @@ func (r *Handler) UpdateRoleMenu(ctx *gin.Context) {
 func (r *Handler) DeleteRole(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err := r.svc.DeleteRole(ctx, id); err != nil {
-		r.logger.WithContext(ctx).Error("svc.DeleteRole error", zap.Error(err))
+		r.log.WithContext(ctx).Error("svc.DeleteRole error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}

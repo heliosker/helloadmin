@@ -10,14 +10,14 @@ import (
 )
 
 type Handler struct {
-	logger      *log.Logger
-	menuService Service
+	log *log.Logger
+	svc Service
 }
 
 func NewHandler(logger *log.Logger, svc Service) *Handler {
 	return &Handler{
-		logger:      logger,
-		menuService: svc,
+		log: logger,
+		svc: svc,
 	}
 }
 
@@ -29,17 +29,17 @@ func NewHandler(logger *log.Logger, svc Service) *Handler {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body MenuCreateRequest true "params"
+// @Param request body CreateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /menu [post]
 func (m *Handler) StoreMenu(ctx *gin.Context) {
-	req := new(MenuCreateRequest)
+	req := new(CreateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := m.menuService.CreateMenu(ctx, req); err != nil {
-		m.logger.WithContext(ctx).Error("menuService.CreateMenu error", zap.Error(err))
+	if err := m.svc.CreateMenu(ctx, req); err != nil {
+		m.log.WithContext(ctx).Error("menuService.CreateMenu error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -54,19 +54,19 @@ func (m *Handler) StoreMenu(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query MenuFindRequest true "params"
+// @Param request query FindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /menu [get]
 func (m *Handler) GetMenu(ctx *gin.Context) {
-	req := new(MenuFindRequest)
+	req := new(FindRequest)
 	if err := ctx.ShouldBindQuery(req); err != nil {
-		m.logger.WithContext(ctx).Error("MenuHandler.GetMenu error", zap.Error(err))
+		m.log.WithContext(ctx).Error("MenuHandler.GetMenu error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	menu, err := m.menuService.SearchMenu(ctx, req)
+	menu, err := m.svc.SearchMenu(ctx, req)
 	if err != nil {
-		m.logger.WithContext(ctx).Error("menuService.SearchMenu error", zap.Error(err))
+		m.log.WithContext(ctx).Error("menuService.SearchMenu error", zap.Error(err))
 		return
 	}
 	api.Success(ctx, menu)
@@ -85,8 +85,8 @@ func (m *Handler) GetMenu(ctx *gin.Context) {
 // @Router /menu/{id} [get]
 func (m *Handler) ShowMenu(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if menu, err := m.menuService.GetMenuById(ctx, id); err != nil {
-		m.logger.WithContext(ctx).Error("menuService.GetMenuById error", zap.Error(err))
+	if menu, err := m.svc.GetMenuById(ctx, id); err != nil {
+		m.log.WithContext(ctx).Error("menuService.GetMenuById error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	} else {
@@ -103,19 +103,19 @@ func (m *Handler) ShowMenu(ctx *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "菜单ID"
-// @Param request body MenuUpdateRequest true "params"
+// @Param request body UpdateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /menu/{id} [put]
 func (m *Handler) UpdateMenu(ctx *gin.Context) {
-	req := new(MenuUpdateRequest)
+	req := new(UpdateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
-		m.logger.WithContext(ctx).Error("MenuHandler.ShowMenu error", zap.Error(err))
+		m.log.WithContext(ctx).Error("MenuHandler.ShowMenu error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err := m.menuService.UpdateMenu(ctx, id, req); err != nil {
-		m.logger.WithContext(ctx).Error("menuService.UpdateMenu error", zap.Error(err))
+	if err := m.svc.UpdateMenu(ctx, id, req); err != nil {
+		m.log.WithContext(ctx).Error("menuService.UpdateMenu error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -135,8 +135,8 @@ func (m *Handler) UpdateMenu(ctx *gin.Context) {
 // @Router /menu/{id} [delete]
 func (m *Handler) DeleteMenu(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err := m.menuService.DeleteMenu(ctx, id); err != nil {
-		m.logger.WithContext(ctx).Error("menuService.DeleteMenu error", zap.Error(err))
+	if err := m.svc.DeleteMenu(ctx, id); err != nil {
+		m.log.WithContext(ctx).Error("menuService.DeleteMenu error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}

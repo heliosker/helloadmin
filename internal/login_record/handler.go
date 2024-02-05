@@ -13,9 +13,9 @@ type Handler struct {
 	svc Service
 }
 
-func NewHandler(logger *log.Logger, svc Service) *Handler {
+func NewHandler(log *log.Logger, svc Service) *Handler {
 	return &Handler{
-		log: logger,
+		log: log,
 		svc: svc,
 	}
 }
@@ -28,11 +28,11 @@ func NewHandler(logger *log.Logger, svc Service) *Handler {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query LoginRecordFindRequest true "params"
+// @Param request query FindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /record/login [get]
 func (lrh *Handler) SearchLoginRecord(ctx *gin.Context) {
-	req := new(LoginRecordFindRequest)
+	req := new(FindRequest)
 	if err := ctx.ShouldBind(req); err != nil {
 		lrh.log.WithContext(ctx).Error("SearchLoginRecord ShouldBind error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)

@@ -68,7 +68,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 	}
 	ua := user_agent.New(ctx.Request.UserAgent())
 	browser, _ := ua.Browser()
-	record := login_log.LoginRecordRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
+	record := login_log.CreateRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
 	resp, err := h.us.Login(ctx, &req)
 	if err != nil {
 		record.ErrorMessage = err.Error()
