@@ -19,21 +19,21 @@ type Service interface {
 
 func NewService(sid *sid.Sid, jwt *jwt.JWT, repo Repository) Service {
 	return &userService{
-		userRepo: repo,
-		sid:      sid,
-		jwt:      jwt,
+		repo: repo,
+		sid:  sid,
+		jwt:  jwt,
 	}
 }
 
 type userService struct {
-	userRepo Repository
-	sid      *sid.Sid
-	jwt      *jwt.JWT
+	repo Repository
+	sid  *sid.Sid
+	jwt  *jwt.JWT
 }
 
 func (s *userService) Register(ctx context.Context, req *RegisterRequest) error {
 	// check username
-	if user, err := s.userRepo.GetByEmail(ctx, req.Email); err == nil && user != nil {
+	if user, err := s.repo.GetByEmail(ctx, req.Email); err == nil && user != nil {
 		return ecode.ErrEmailAlreadyUse
 	}
 
@@ -60,14 +60,14 @@ func (s *userService) Register(ctx context.Context, req *RegisterRequest) error 
 		UpdatedAt: time.Now(),
 	}
 	// Transaction
-	if err = s.userRepo.Create(ctx, user); err != nil {
+	if err = s.repo.Create(ctx, user); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (s *userService) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
-	user, err := s.userRepo.GetByEmail(ctx, req.Email)
+	user, err := s.repo.GetByEmail(ctx, req.Email)
 	if err != nil || user == nil {
 		return nil, ecode.ErrUserNotFound
 	}
@@ -87,7 +87,7 @@ func (s *userService) Login(ctx context.Context, req *LoginRequest) (*LoginRespo
 }
 
 func (s *userService) GetProfile(ctx context.Context, userId string) (*GetProfileResponseData, error) {
-	user, err := s.userRepo.GetByID(ctx, userId)
+	user, err := s.repo.GetByID(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (s *userService) GetProfile(ctx context.Context, userId string) (*GetProfil
 }
 
 func (s *userService) UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error {
-	user, err := s.userRepo.GetByID(ctx, userId)
+	user, err := s.repo.GetByID(ctx, userId)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func (s *userService) UpdateProfile(ctx context.Context, userId string, req *Upd
 	user.Email = req.Email
 	user.Nickname = req.Nickname
 
-	if err = s.userRepo.Update(ctx, user); err != nil {
+	if err = s.repo.Update(ctx, user); err != nil {
 		return err
 	}
 

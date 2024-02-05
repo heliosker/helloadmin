@@ -6,10 +6,10 @@ import (
 )
 
 type Service interface {
-	GetMenuById(ctx context.Context, id int64) (*MenuResponseItem, error)
-	SearchMenu(ctx context.Context, request *MenuFindRequest) (*[]MenuResponseItem, error)
-	CreateMenu(ctx context.Context, request *MenuCreateRequest) error
-	UpdateMenu(ctx context.Context, id int64, request *MenuUpdateRequest) error
+	GetMenuById(ctx context.Context, id int64) (*ResponseItem, error)
+	SearchMenu(ctx context.Context, request *FindRequest) (*[]ResponseItem, error)
+	CreateMenu(ctx context.Context, request *CreateRequest) error
+	UpdateMenu(ctx context.Context, id int64, request *UpdateRequest) error
 	DeleteMenu(ctx context.Context, id int64) error
 }
 
@@ -23,12 +23,12 @@ type menuService struct {
 	menuRepository Repository
 }
 
-func (s *menuService) GetMenuById(ctx context.Context, id int64) (*MenuResponseItem, error) {
+func (s *menuService) GetMenuById(ctx context.Context, id int64) (*ResponseItem, error) {
 	menu, err := s.menuRepository.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	return &MenuResponseItem{
+	return &ResponseItem{
 		ID:        menu.ID,
 		Name:      menu.Name,
 		Title:     menu.Title,
@@ -44,7 +44,7 @@ func (s *menuService) GetMenuById(ctx context.Context, id int64) (*MenuResponseI
 	}, nil
 }
 
-func (s *menuService) SearchMenu(ctx context.Context, req *MenuFindRequest) (*[]MenuResponseItem, error) {
+func (s *menuService) SearchMenu(ctx context.Context, req *FindRequest) (*[]ResponseItem, error) {
 	menuList, err := s.menuRepository.Find(ctx, req)
 	if err != nil {
 		return nil, err
@@ -54,12 +54,12 @@ func (s *menuService) SearchMenu(ctx context.Context, req *MenuFindRequest) (*[]
 	return &menuTree, nil
 }
 
-func buildMenuTree(menuList *[]Model, parentId uint) []MenuResponseItem {
-	var result []MenuResponseItem
+func buildMenuTree(menuList *[]Model, parentId uint) []ResponseItem {
+	var result []ResponseItem
 
 	for _, menuItem := range *menuList {
 		if menuItem.ParentId == parentId {
-			child := MenuResponseItem{
+			child := ResponseItem{
 				ID:        menuItem.ID,
 				Name:      menuItem.Name,
 				Title:     menuItem.Title,
@@ -83,7 +83,7 @@ func buildMenuTree(menuList *[]Model, parentId uint) []MenuResponseItem {
 	return result
 }
 
-func (s *menuService) CreateMenu(ctx context.Context, req *MenuCreateRequest) error {
+func (s *menuService) CreateMenu(ctx context.Context, req *CreateRequest) error {
 	menu := Model{
 		Name:      req.Name,
 		Title:     req.Title,
@@ -98,7 +98,7 @@ func (s *menuService) CreateMenu(ctx context.Context, req *MenuCreateRequest) er
 	return s.menuRepository.Create(ctx, &menu)
 }
 
-func (s *menuService) UpdateMenu(ctx context.Context, id int64, req *MenuUpdateRequest) error {
+func (s *menuService) UpdateMenu(ctx context.Context, id int64, req *UpdateRequest) error {
 	menu, err := s.menuRepository.GetById(ctx, id)
 	if err != nil {
 		return err

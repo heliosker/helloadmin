@@ -7,8 +7,8 @@ import (
 )
 
 type Service interface {
-	Create(ctx context.Context, record *LoginRecordRequest) error
-	Search(ctx context.Context, request *LoginRecordFindRequest) (*LoginRecordResponse, error)
+	Create(ctx context.Context, record *CreateRequest) error
+	Search(ctx context.Context, request *FindRequest) (*Response, error)
 }
 
 func NewService(repo Repository) Service {
@@ -21,7 +21,7 @@ type loginRecordService struct {
 	loginRecordRepository Repository
 }
 
-func (lrs *loginRecordService) Create(ctx context.Context, req *LoginRecordRequest) error {
+func (lrs *loginRecordService) Create(ctx context.Context, req *CreateRequest) error {
 	model := Model{
 		Ip:           req.Ip,
 		Os:           req.Os,
@@ -38,16 +38,16 @@ func (lrs *loginRecordService) Create(ctx context.Context, req *LoginRecordReque
 	return nil
 }
 
-func (lrs *loginRecordService) Search(ctx context.Context, request *LoginRecordFindRequest) (*LoginRecordResponse, error) {
-	var result LoginRecordResponse
+func (lrs *loginRecordService) Search(ctx context.Context, request *FindRequest) (*Response, error) {
+	var result Response
 	count, records, err := lrs.loginRecordRepository.Search(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	result.Items = make([]LoginRecordItem, 0)
+	result.Items = make([]Item, 0)
 	if count > 0 {
 		for _, record := range *records {
-			result.Items = append(result.Items, LoginRecordItem{
+			result.Items = append(result.Items, Item{
 				Ip:           record.Ip,
 				Os:           record.Os,
 				Email:        record.Email,

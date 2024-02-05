@@ -7,11 +7,11 @@
 package wire
 
 import (
+	"github.com/google/wire"
+	"github.com/spf13/viper"
 	"helloadmin/internal/server"
 	"helloadmin/pkg/app"
 	"helloadmin/pkg/log"
-	"github.com/google/wire"
-	"github.com/spf13/viper"
 )
 
 // Injectors from wire.go:

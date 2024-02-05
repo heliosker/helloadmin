@@ -4,7 +4,7 @@ import (
 	"helloadmin/internal/api"
 )
 
-type LoginRecordRequest struct {
+type CreateRequest struct {
 	Ip           string `json:"ip" binding:"max=60"`
 	Os           string `json:"os"`
 	Email        string `json:"email"`
@@ -14,14 +14,14 @@ type LoginRecordRequest struct {
 	ErrorMessage string `json:"ErrorMessage"`
 }
 
-type LoginRecordFindRequest struct {
+type FindRequest struct {
 	Ip    string `form:"ip" binding:"max=60"`
 	Email string `form:"email" binding:"max=50"`
 	Page  int    `form:"page" binding:"required,min=1" example:"1"`
 	Size  int    `form:"size" binding:"required,min=1,max=100" example:"10"`
 }
 
-type LoginRecordItem struct {
+type Item struct {
 	Ip           string `json:"ip"`
 	Os           string `json:"os"`
 	Email        string `json:"email"`
@@ -33,7 +33,7 @@ type LoginRecordItem struct {
 	CreatedAt    string `json:"createdAt"`
 }
 
-type LoginRecordResponse struct {
-	Items          []LoginRecordItem `json:"items"`
+type Response struct {
+	Items          []Item `json:"items"`
 	api.Pagination `json:"pagination"`
 }

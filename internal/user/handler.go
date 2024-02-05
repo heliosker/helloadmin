@@ -18,19 +18,19 @@ type Handler struct {
 	rs  login_log.Service
 }
 
-func NewHandler(logger *log.Logger, us Service, rs login_log.Service) *Handler {
+func NewHandler(log *log.Logger, us Service, rs login_log.Service) *Handler {
 	return &Handler{
-		log: logger,
+		log: log,
 		us:  us,
 		rs:  rs,
 	}
 }
 
 // Register godoc
-// @Summary 用户注册
+// @Summary 添加员工
 // @Schemes
-// @Description 目前只支持邮箱登录
-// @Tags 用户模块
+// @Description 添加员工
+// @Tags 员工模块
 // @Accept json
 // @Produce json
 // @Param request body RegisterRequest true "params"
@@ -54,11 +54,11 @@ func (h *Handler) Register(ctx *gin.Context) {
 // @Summary 账号登录
 // @Schemes
 // @Description
-// @Tags 用户模块
+// @Tags 员工模块
 // @Accept json
 // @Produce json
-// @Param request body api.LoginRequest true "params"
-// @Success 200 {object} api.LoginResponse
+// @Param request body LoginRequest true "params"
+// @Success 200 {object} LoginResponse
 // @Router /login [post]
 func (h *Handler) Login(ctx *gin.Context) {
 	var req LoginRequest
@@ -68,7 +68,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 	}
 	ua := user_agent.New(ctx.Request.UserAgent())
 	browser, _ := ua.Browser()
-	record := login_log.LoginRecordRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
+	record := login_log.CreateRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
 	resp, err := h.us.Login(ctx, &req)
 	if err != nil {
 		record.ErrorMessage = err.Error()
@@ -81,14 +81,14 @@ func (h *Handler) Login(ctx *gin.Context) {
 }
 
 // GetProfile godoc
-// @Summary 获取用户信息
+// @Summary 获取员工信息
 // @Schemes
 // @Description
-// @Tags 用户模块
+// @Tags 员工模块
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} api.GetProfileResponseData
+// @Success 200 {object} GetProfileResponseData
 // @Router /user [get]
 func (h *Handler) GetProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
@@ -104,6 +104,17 @@ func (h *Handler) GetProfile(ctx *gin.Context) {
 	api.Success(ctx, user)
 }
 
+// UpdateProfile godoc
+// @Summary 更新员工信息
+// @Schemes
+// @Description
+// @Tags 员工模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body UpdateProfileRequest true "params"
+// @Success 200 {object} api.Response
+// @Router /user [put]
 func (h *Handler) UpdateProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
 	var req UpdateProfileRequest
