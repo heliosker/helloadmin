@@ -1,6 +1,7 @@
 package menu
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"helloadmin/internal/api"
@@ -55,7 +56,7 @@ func (m *Handler) StoreMenu(ctx *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param request query FindRequest true "params"
-// @Success 200 {object} api.Response
+// @Success 200 {object} Response
 // @Router /menu [get]
 func (m *Handler) GetMenu(ctx *gin.Context) {
 	req := new(FindRequest)
@@ -64,12 +65,40 @@ func (m *Handler) GetMenu(ctx *gin.Context) {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	menu, err := m.svc.SearchMenu(ctx, req)
-	if err != nil {
+	if resp, err := m.svc.SearchMenu(ctx, req); err != nil {
 		m.log.WithContext(ctx).Error("svc.SearchMenu error", zap.Error(err))
+		api.Error(ctx, http.StatusInternalServerError, err)
+	} else {
+		api.Success(ctx, resp)
+	}
+}
+
+// GetOption godoc
+// @Summary 菜单选项
+// @Schemes
+// @Description 菜单下拉选项
+// @Tags 菜单模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request query OptionRequest true "params"
+// @Success 200 {object} []Option
+// @Router /menu/option [get]
+func (m *Handler) GetOption(ctx *gin.Context) {
+	req := new(OptionRequest)
+	if err := ctx.ShouldBindQuery(req); err != nil {
+		m.log.WithContext(ctx).Error("MenuHandler.Options error", zap.Error(err))
+		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	api.Success(ctx, menu)
+	if resp, err := m.svc.Options(ctx, req); err != nil {
+		m.log.WithContext(ctx).Error("svc.Options error", zap.Error(err))
+		api.Error(ctx, http.StatusInternalServerError, err)
+	} else {
+		fmt.Println(resp)
+		fmt.Println("-------")
+		api.Success(ctx, resp)
+	}
 }
 
 // ShowMenu godoc

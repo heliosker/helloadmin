@@ -2,15 +2,17 @@ package menu
 
 import (
 	"context"
+	"helloadmin/internal/ecode"
 	"time"
 )
 
 type Service interface {
 	GetMenuById(ctx context.Context, id int64) (*ResponseItem, error)
-	SearchMenu(ctx context.Context, request *FindRequest) (*[]ResponseItem, error)
+	SearchMenu(ctx context.Context, request *FindRequest) (Response, error)
 	CreateMenu(ctx context.Context, request *CreateRequest) error
 	UpdateMenu(ctx context.Context, id int64, request *UpdateRequest) error
 	DeleteMenu(ctx context.Context, id int64) error
+	Options(ctx context.Context, req *OptionRequest) ([]Option, error)
 }
 
 func NewService(repo Repository) Service {
@@ -44,14 +46,56 @@ func (s *service) GetMenuById(ctx context.Context, id int64) (*ResponseItem, err
 	}, nil
 }
 
-func (s *service) SearchMenu(ctx context.Context, req *FindRequest) (*[]ResponseItem, error) {
-	menuList, err := s.repo.Find(ctx, req)
+func (s *service) SearchMenu(ctx context.Context, req *FindRequest) (resp Response, err error) {
+	resp.Items = make([]ResponseItem, 0)
+	count, menuList, err := s.repo.Find(ctx, req)
+	if err != nil {
+		return resp, err
+	}
+	if count > 0 {
+		// Convert the flat menu list to a tree structure
+		resp.Items = buildMenuTree(menuList, 0)
+	}
+	return resp, nil
+}
+
+func (s *service) Options(ctx context.Context, req *OptionRequest) ([]Option, error) {
+	var menus *[]Model
+	var err error
+	switch req.Type {
+	case TypeDirectory:
+		return []Option{
+			{
+				Label: "一级目录",
+				Value: 0,
+			},
+		}, nil
+	case TypeMenu:
+		menus, err = s.repo.FindByType(ctx, TypeDirectory)
+	case TypeButton:
+		menus, err = s.repo.FindByType(ctx, TypeMenu)
+	default:
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
-	// Convert the flat menu list to a tree structure
-	menuTree := buildMenuTree(menuList, 0)
-	return &menuTree, nil
+
+	return buildOptions(*menus)
+}
+
+func buildOptions(menus []Model) ([]Option, error) {
+	var options []Option
+	if len(menus) > 0 {
+		for _, item := range menus {
+			options = append(options, Option{
+				Label: item.Title,
+				Value: item.ID,
+			})
+		}
+		return options, nil
+	}
+	return options, nil
 }
 
 func buildMenuTree(menuList *[]Model, parentId uint) []ResponseItem {
@@ -117,5 +161,13 @@ func (s *service) UpdateMenu(ctx context.Context, id int64, req *UpdateRequest) 
 }
 
 func (s *service) DeleteMenu(ctx context.Context, id int64) error {
+	menu, err := s.repo.GetByParentId(ctx, id)
+	if err != nil {
+		return err
+	}
+	// 删除菜单时，判断是否存在下级
+	if len(*menu) > 0 {
+		return ecode.ErrMenuHasChild
+	}
 	return s.repo.Delete(ctx, id)
 }

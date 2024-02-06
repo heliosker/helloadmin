@@ -85,6 +85,7 @@ func NewHTTPServer(
 		menuRouter := group.Group("/menu").Use(middleware.StrictAuth(jwt, logger))
 		{
 			menuRouter.GET("", menuHandler.GetMenu)
+			menuRouter.GET("/option", menuHandler.GetOption)
 			menuRouter.POST("", menuHandler.StoreMenu)
 			menuRouter.GET("/:id", menuHandler.ShowMenu)
 			menuRouter.PUT("/:id", menuHandler.UpdateMenu)

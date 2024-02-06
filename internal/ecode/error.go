@@ -27,4 +27,5 @@ const (
 	ErrPasswordIncorrect                        //The password is incorrect
 	ErrUserNotFound                             //The user does not exist
 	ErrRoleHasUser                              //The role has users and cannot be deleted
+	ErrMenuHasChild                             //The menu has children and cannot be deleted
 )
