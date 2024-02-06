@@ -8,14 +8,14 @@ import (
 	"helloadmin/internal/repository"
 )
 
-type UserRepository interface {
+type Repository interface {
 	Create(ctx context.Context, user *Model) error
 	Update(ctx context.Context, user *Model) error
 	GetByID(ctx context.Context, id string) (*Model, error)
 	GetByEmail(ctx context.Context, email string) (*Model, error)
 }
 
-func NewUserRepository(r *repository.Repository) UserRepository {
+func NewRepository(r *repository.Repository) Repository {
 	return &userRepository{
 		Repository: r,
 	}

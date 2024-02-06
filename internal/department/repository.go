@@ -8,7 +8,7 @@ import (
 	"helloadmin/internal/repository"
 )
 
-type DeptRepository interface {
+type Repository interface {
 	Find(ctx context.Context, request *FindRequest) (int64, *[]Model, error)
 	GetById(ctx context.Context, id int64) (*Model, error)
 	Create(ctx context.Context, department *Model) error
@@ -16,7 +16,7 @@ type DeptRepository interface {
 	Delete(ctx context.Context, id int64) error
 }
 
-func NewDeptRepository(r *repository.Repository) DeptRepository {
+func NewRepository(r *repository.Repository) Repository {
 	return &departmentRepository{
 		Repository: r,
 	}

@@ -36,7 +36,7 @@ func (m *MockRoleService) EXPECT() *MockRoleServiceMockRecorder {
 }
 
 // CreateRole mocks base method.
-func (m *MockRoleService) CreateRole(ctx context.Context, request *api.RoleCreateRequest) error {
+func (m *MockRoleService) CreateRole(ctx context.Context, request *api.CreateRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateRole", ctx, request)
 	ret0, _ := ret[0].(error)
@@ -64,10 +64,10 @@ func (mr *MockRoleServiceMockRecorder) DeleteRole(ctx, id interface{}) *gomock.C
 }
 
 // GetRoleById mocks base method.
-func (m *MockRoleService) GetRoleById(ctx context.Context, id int64) (*api.RoleResponseItem, error) {
+func (m *MockRoleService) GetRoleById(ctx context.Context, id int64) (*api.ResponseItem, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRoleById", ctx, id)
-	ret0, _ := ret[0].(*api.RoleResponseItem)
+	ret0, _ := ret[0].(*api.ResponseItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -79,7 +79,7 @@ func (mr *MockRoleServiceMockRecorder) GetRoleById(ctx, id interface{}) *gomock.
 }
 
 // SearchRole mocks base method.
-func (m *MockRoleService) SearchRole(ctx context.Context, request *api.RoleFindRequest) (*[]api.Role, error) {
+func (m *MockRoleService) SearchRole(ctx context.Context, request *api.FindRequest) (*[]api.Role, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchRole", ctx, request)
 	ret0, _ := ret[0].(*[]api.Role)
@@ -94,7 +94,7 @@ func (mr *MockRoleServiceMockRecorder) SearchRole(ctx, request interface{}) *gom
 }
 
 // UpdateRole mocks base method.
-func (m *MockRoleService) UpdateRole(ctx context.Context, id int64, request *api.RoleUpdateRequest) error {
+func (m *MockRoleService) UpdateRole(ctx context.Context, id int64, request *api.UpdateRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateRole", ctx, id, request)
 	ret0, _ := ret[0].(error)

@@ -13,16 +13,16 @@ import (
 )
 
 type Handler struct {
-	logger        *log.Logger
-	userService   UserService
-	recordService login_log.LoginRecordService
+	log *log.Logger
+	us  Service
+	rs  login_log.Service
 }
 
-func NewHandler(logger *log.Logger, userService UserService, recordService login_log.LoginRecordService) *Handler {
+func NewHandler(logger *log.Logger, us Service, rs login_log.Service) *Handler {
 	return &Handler{
-		logger:        logger,
-		userService:   userService,
-		recordService: recordService,
+		log: logger,
+		us:  us,
+		rs:  rs,
 	}
 }
 
@@ -42,8 +42,8 @@ func (h *Handler) Register(ctx *gin.Context) {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := h.userService.Register(ctx, req); err != nil {
-		h.logger.WithContext(ctx).Error("userService.Register error", zap.Error(err))
+	if err := h.us.Register(ctx, req); err != nil {
+		h.log.WithContext(ctx).Error("us.Register error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -57,8 +57,8 @@ func (h *Handler) Register(ctx *gin.Context) {
 // @Tags 用户模块
 // @Accept json
 // @Produce json
-// @Param request body api.LoginRequest true "params"
-// @Success 200 {object} api.LoginResponse
+// @Param request body LoginRequest true "params"
+// @Success 200 {object} LoginResponse
 // @Router /login [post]
 func (h *Handler) Login(ctx *gin.Context) {
 	var req LoginRequest
@@ -68,15 +68,15 @@ func (h *Handler) Login(ctx *gin.Context) {
 	}
 	ua := user_agent.New(ctx.Request.UserAgent())
 	browser, _ := ua.Browser()
-	record := login_log.LoginRecordRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
-	resp, err := h.userService.Login(ctx, &req)
+	record := login_log.CreateRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
+	resp, err := h.us.Login(ctx, &req)
 	if err != nil {
 		record.ErrorMessage = err.Error()
-		_ = h.recordService.Create(ctx, &record)
+		_ = h.rs.Create(ctx, &record)
 		api.Error(ctx, http.StatusUnauthorized, err)
 		return
 	}
-	_ = h.recordService.Create(ctx, &record)
+	_ = h.rs.Create(ctx, &record)
 	api.Success(ctx, resp)
 }
 
@@ -88,7 +88,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Success 200 {object} api.GetProfileResponseData
+// @Success 200 {object} GetProfileResponseData
 // @Router /user [get]
 func (h *Handler) GetProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
@@ -96,7 +96,7 @@ func (h *Handler) GetProfile(ctx *gin.Context) {
 		api.Error(ctx, http.StatusUnauthorized, ecode.ErrUnauthorized)
 		return
 	}
-	user, err := h.userService.GetProfile(ctx, userId)
+	user, err := h.us.GetProfile(ctx, userId)
 	if err != nil {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
@@ -111,7 +111,7 @@ func (h *Handler) UpdateProfile(ctx *gin.Context) {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := h.userService.UpdateProfile(ctx, userId, &req); err != nil {
+	if err := h.us.UpdateProfile(ctx, userId, &req); err != nil {
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}

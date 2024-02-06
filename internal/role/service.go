@@ -2,32 +2,31 @@ package role
 
 import (
 	"context"
-	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
 	"time"
 )
 
-type RoleService interface {
-	GetRoleById(ctx context.Context, id int64) (*RoleResponseItem, error)
-	SearchRole(ctx context.Context, request *RoleFindRequest) (*RoleResponse, error)
-	CreateRole(ctx context.Context, request *RoleCreateRequest) error
-	UpdateRole(ctx context.Context, id int64, request *RoleUpdateRequest) error
+type Service interface {
+	GetRoleById(ctx context.Context, id int64) (*ResponseItem, error)
+	SearchRole(ctx context.Context, request *FindRequest) (*Response, error)
+	CreateRole(ctx context.Context, request *CreateRequest) error
+	UpdateRole(ctx context.Context, id int64, request *UpdateRequest) error
 	DeleteRole(ctx context.Context, id int64) error
-	UpdateRoleMenu(ctx context.Context, id int64, request *RoleMenuRequest) error
+	UpdateRoleMenu(ctx context.Context, id int64, request *MenuRequest) error
 }
 
-func NewRoleService(repo RoleRepository) RoleService {
-	return &roleService{
-		roleRepository: repo,
+func NewService(repo Repository) Service {
+	return &service{
+		repo: repo,
 	}
 }
 
-type roleService struct {
-	roleRepository RoleRepository
+type service struct {
+	repo Repository
 }
 
-func (s *roleService) GetRoleById(ctx context.Context, id int64) (*RoleResponseItem, error) {
-	role, err := s.roleRepository.GetById(ctx, id)
+func (s *service) GetRoleById(ctx context.Context, id int64) (*ResponseItem, error) {
+	role, err := s.repo.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +36,7 @@ func (s *roleService) GetRoleById(ctx context.Context, id int64) (*RoleResponseI
 			menuIds = append(menuIds, menu.ID)
 		}
 	}
-	return &RoleResponseItem{
+	return &ResponseItem{
 		Id:        role.ID,
 		Name:      role.Name,
 		Describe:  role.Describe,
@@ -47,16 +46,16 @@ func (s *roleService) GetRoleById(ctx context.Context, id int64) (*RoleResponseI
 	}, nil
 }
 
-func (s *roleService) SearchRole(ctx context.Context, req *RoleFindRequest) (*RoleResponse, error) {
-	var result RoleResponse
-	count, roles, err := s.roleRepository.Find(ctx, req)
+func (s *service) SearchRole(ctx context.Context, req *FindRequest) (*Response, error) {
+	var result Response
+	count, roles, err := s.repo.Find(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	result.Items = make([]RoleResponseItem, 0)
+	result.Items = make([]ResponseItem, 0)
 	if count > 0 {
 		for _, role := range *roles {
-			tmp := RoleResponseItem{
+			tmp := ResponseItem{
 				Id:        role.ID,
 				Name:      role.Name,
 				Describe:  role.Describe,
@@ -66,37 +65,32 @@ func (s *roleService) SearchRole(ctx context.Context, req *RoleFindRequest) (*Ro
 			result.Items = append(result.Items, tmp)
 		}
 	}
-	result.Pagination = api.Pagination{
-		Page:  req.Page,
-		Size:  req.Size,
-		Count: int(count),
-	}
 	return &result, nil
 }
 
-func (s *roleService) CreateRole(ctx context.Context, req *RoleCreateRequest) error {
+func (s *service) CreateRole(ctx context.Context, req *CreateRequest) error {
 	role := Model{
 		Name:     req.Name,
 		Describe: req.Describe,
 	}
-	return s.roleRepository.Create(ctx, &role)
+	return s.repo.Create(ctx, &role)
 }
 
-func (s *roleService) UpdateRole(ctx context.Context, id int64, req *RoleUpdateRequest) error {
+func (s *service) UpdateRole(ctx context.Context, id int64, req *UpdateRequest) error {
 	role := Model{
 		Name:     req.Name,
 		Describe: req.Describe,
 	}
-	return s.roleRepository.Update(ctx, id, &role)
+	return s.repo.Update(ctx, id, &role)
 }
 
-func (s *roleService) UpdateRoleMenu(ctx context.Context, id int64, req *RoleMenuRequest) error {
-	return s.roleRepository.UpdateRoleMenu(ctx, id, req)
+func (s *service) UpdateRoleMenu(ctx context.Context, id int64, req *MenuRequest) error {
+	return s.repo.UpdateRoleMenu(ctx, id, req)
 }
 
-func (s *roleService) DeleteRole(ctx context.Context, id int64) error {
-	if s.roleRepository.HasUser(ctx, id) > 0 {
+func (s *service) DeleteRole(ctx context.Context, id int64) error {
+	if s.repo.HasUser(ctx, id) > 0 {
 		return ecode.ErrRoleHasUser
 	}
-	return s.roleRepository.Delete(ctx, id)
+	return s.repo.Delete(ctx, id)
 }

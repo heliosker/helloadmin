@@ -9,14 +9,14 @@ import (
 )
 
 type Handler struct {
-	logger             *log.Logger
-	loginRecordService LoginRecordService
+	log *log.Logger
+	svc Service
 }
 
-func NewHandler(logger *log.Logger, svc LoginRecordService) *Handler {
+func NewHandler(log *log.Logger, svc Service) *Handler {
 	return &Handler{
-		logger:             logger,
-		loginRecordService: svc,
+		log: log,
+		svc: svc,
 	}
 }
 
@@ -28,17 +28,17 @@ func NewHandler(logger *log.Logger, svc LoginRecordService) *Handler {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query LoginRecordFindRequest true "params"
+// @Param request query FindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /record/login [get]
 func (lrh *Handler) SearchLoginRecord(ctx *gin.Context) {
-	req := new(LoginRecordFindRequest)
+	req := new(FindRequest)
 	if err := ctx.ShouldBind(req); err != nil {
-		lrh.logger.WithContext(ctx).Error("SearchLoginRecord ShouldBind error", zap.Error(err))
+		lrh.log.WithContext(ctx).Error("SearchLoginRecord ShouldBind error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if res, err := lrh.loginRecordService.Search(ctx, req); err != nil {
+	if res, err := lrh.svc.Search(ctx, req); err != nil {
 		api.Error(ctx, http.StatusInternalServerError, err)
 	} else {
 		api.Success(ctx, res)

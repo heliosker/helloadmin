@@ -25,19 +25,19 @@ var repositorySet = wire.NewSet(
 	repository.NewRedis,
 	repository.NewRepository,
 	repository.NewTransaction,
-	role.NewRoleRepository,
-	menu.NewMenuRepository,
-	department.NewDeptRepository,
-	login_record.NewLoginRecordRepository,
-	user.NewUserRepository,
+	role.NewRepository,
+	menu.NewRepository,
+	department.NewRepository,
+	login_record.NewRepository,
+	user.NewRepository,
 )
 
 var serviceSet = wire.NewSet(
-	role.NewRoleService,
-	menu.NewMenuService,
-	department.NewDepartmentService,
+	role.NewService,
+	menu.NewService,
+	department.NewService,
 	login_record.NewService,
-	user.NewUserService,
+	user.NewService,
 )
 
 var handlerSet = wire.NewSet(

@@ -14,18 +14,18 @@ type Service interface {
 	DeleteDepartment(ctx context.Context, id int64) error
 }
 
-func NewDepartmentService(repo DeptRepository) Service {
-	return &departmentService{
-		departmentRepository: repo,
+func NewService(repo Repository) Service {
+	return &service{
+		repo: repo,
 	}
 }
 
-type departmentService struct {
-	departmentRepository DeptRepository
+type service struct {
+	repo Repository
 }
 
-func (s *departmentService) GetDepartmentById(ctx context.Context, id int64) (*ResponseItem, error) {
-	department, err := s.departmentRepository.GetById(ctx, id)
+func (s *service) GetDepartmentById(ctx context.Context, id int64) (*ResponseItem, error) {
+	department, err := s.repo.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -40,9 +40,9 @@ func (s *departmentService) GetDepartmentById(ctx context.Context, id int64) (*R
 	}, nil
 }
 
-func (s *departmentService) SearchDepartment(ctx context.Context, req *FindRequest) (*Response, error) {
+func (s *service) SearchDepartment(ctx context.Context, req *FindRequest) (*Response, error) {
 	var result Response
-	count, departs, err := s.departmentRepository.Find(ctx, req)
+	count, departs, err := s.repo.Find(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -68,26 +68,26 @@ func (s *departmentService) SearchDepartment(ctx context.Context, req *FindReque
 	return &result, nil
 }
 
-func (s *departmentService) CreateDepartment(ctx context.Context, req *CreateRequest) error {
+func (s *service) CreateDepartment(ctx context.Context, req *CreateRequest) error {
 	department := Model{
 		Name:     req.Name,
 		ParentId: req.ParentId,
 		Leader:   req.Leader,
 		Sort:     req.Sort,
 	}
-	return s.departmentRepository.Create(ctx, &department)
+	return s.repo.Create(ctx, &department)
 }
 
-func (s *departmentService) UpdateDepartment(ctx context.Context, id int64, req *UpdateRequest) error {
+func (s *service) UpdateDepartment(ctx context.Context, id int64, req *UpdateRequest) error {
 	department := Model{
 		Name:     req.Name,
 		ParentId: req.ParentId,
 		Leader:   req.Leader,
 		Sort:     req.Sort,
 	}
-	return s.departmentRepository.Update(ctx, id, &department)
+	return s.repo.Update(ctx, id, &department)
 }
 
-func (s *departmentService) DeleteDepartment(ctx context.Context, id int64) error {
-	return s.departmentRepository.Delete(ctx, id)
+func (s *service) DeleteDepartment(ctx context.Context, id int64) error {
+	return s.repo.Delete(ctx, id)
 }

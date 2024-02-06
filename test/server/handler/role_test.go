@@ -20,7 +20,7 @@ func TestRoleHandler_StoreRole(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	params := role.RoleCreateRequest{
+	params := role.CreateRequest{
 		Name:     "test role",
 		Slug:     "test",
 		Describe: "this is test role",
@@ -44,7 +44,7 @@ func TestRoleHandler_StoreRole(t *testing.T) {
 func TestRoleHandler_GetRole(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	params := role.RoleFindRequest{
+	params := role.FindRequest{
 		Name: "",
 		Slug: "",
 		Meta: api.Meta{

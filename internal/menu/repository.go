@@ -8,15 +8,15 @@ import (
 	"helloadmin/internal/repository"
 )
 
-type MenuRepository interface {
-	Find(ctx context.Context, request *MenuFindRequest) (*[]Model, error)
+type Repository interface {
+	Find(ctx context.Context, request *FindRequest) (*[]Model, error)
 	GetById(ctx context.Context, id int64) (*Model, error)
 	Create(ctx context.Context, menu *Model) error
 	Update(ctx context.Context, id int64, menu *Model) error
 	Delete(ctx context.Context, id int64) error
 }
 
-func NewMenuRepository(r *repository.Repository) MenuRepository {
+func NewRepository(r *repository.Repository) Repository {
 	return &menuRepository{
 		Repository: r,
 	}
@@ -26,7 +26,7 @@ type menuRepository struct {
 	*repository.Repository
 }
 
-func (r *menuRepository) Find(ctx context.Context, req *MenuFindRequest) (*[]Model, error) {
+func (r *menuRepository) Find(ctx context.Context, req *FindRequest) (*[]Model, error) {
 	var count int64
 	var menu []Model
 	query := r.DB(ctx)

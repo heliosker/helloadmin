@@ -10,14 +10,14 @@ import (
 )
 
 type Handler struct {
-	logger            *log.Logger
-	departmentService Service
+	log *log.Logger
+	svc Service
 }
 
-func NewHandler(logger *log.Logger, departmentService Service) *Handler {
+func NewHandler(logger *log.Logger, svc Service) *Handler {
 	return &Handler{
-		logger:            logger,
-		departmentService: departmentService,
+		log: logger,
+		svc: svc,
 	}
 }
 
@@ -29,7 +29,7 @@ func NewHandler(logger *log.Logger, departmentService Service) *Handler {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body api.DepartmentCreateRequest true "params"
+// @Param request body CreateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /department [post]
 func (d *Handler) StoreDepartment(ctx *gin.Context) {
@@ -38,8 +38,8 @@ func (d *Handler) StoreDepartment(ctx *gin.Context) {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := d.departmentService.CreateDepartment(ctx, req); err != nil {
-		d.logger.WithContext(ctx).Error("departmentService.CreateDepartment error", zap.Error(err))
+	if err := d.svc.CreateDepartment(ctx, req); err != nil {
+		d.log.WithContext(ctx).Error("departmentService.CreateDepartment error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -54,19 +54,19 @@ func (d *Handler) StoreDepartment(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request query api.DepartmentFindRequest true "params"
+// @Param request query FindRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /department [get]
 func (d *Handler) GetDepartment(ctx *gin.Context) {
 	req := new(FindRequest)
 	if err := ctx.ShouldBindQuery(req); err != nil {
-		d.logger.WithContext(ctx).Error("DepartmentHandler.GetDepartment error", zap.Error(err))
+		d.log.WithContext(ctx).Error("DepartmentHandler.GetDepartment error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	departments, err := d.departmentService.SearchDepartment(ctx, req)
+	departments, err := d.svc.SearchDepartment(ctx, req)
 	if err != nil {
-		d.logger.WithContext(ctx).Error("departmentService.SearchDepartment error", zap.Error(err))
+		d.log.WithContext(ctx).Error("departmentService.SearchDepartment error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -86,8 +86,8 @@ func (d *Handler) GetDepartment(ctx *gin.Context) {
 // @Router /department/{id} [get]
 func (d *Handler) ShowDepartment(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if department, err := d.departmentService.GetDepartmentById(ctx, id); err != nil {
-		d.logger.WithContext(ctx).Error("departmentService.GetDepartmentById error", zap.Error(err))
+	if department, err := d.svc.GetDepartmentById(ctx, id); err != nil {
+		d.log.WithContext(ctx).Error("departmentService.GetDepartmentById error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	} else {
@@ -104,19 +104,19 @@ func (d *Handler) ShowDepartment(ctx *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param id path int true "部门ID"
-// @Param request body api.DepartmentUpdateRequest true "params"
+// @Param request body UpdateRequest true "params"
 // @Success 200 {object} api.Response
 // @Router /department/{id} [put]
 func (d *Handler) UpdateDepartment(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	req := new(UpdateRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
-		d.logger.WithContext(ctx).Error("DepartmentHandler.UpdateDepartment error", zap.Error(err))
+		d.log.WithContext(ctx).Error("DepartmentHandler.UpdateDepartment error", zap.Error(err))
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := d.departmentService.UpdateDepartment(ctx, id, req); err != nil {
-		d.logger.WithContext(ctx).Error("departmentService.UpdateDepartment error", zap.Error(err))
+	if err := d.svc.UpdateDepartment(ctx, id, req); err != nil {
+		d.log.WithContext(ctx).Error("departmentService.UpdateDepartment error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -136,8 +136,8 @@ func (d *Handler) UpdateDepartment(ctx *gin.Context) {
 // @Router /department/{id} [delete]
 func (d *Handler) DeleteDepartment(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err := d.departmentService.DeleteDepartment(ctx, id); err != nil {
-		d.logger.WithContext(ctx).Error("departmentService.DeleteDepartment error", zap.Error(err))
+	if err := d.svc.DeleteDepartment(ctx, id); err != nil {
+		d.log.WithContext(ctx).Error("departmentService.DeleteDepartment error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
