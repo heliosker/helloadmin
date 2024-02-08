@@ -12,11 +12,16 @@ func _() {
 	_ = x[ErrBadRequest-400]
 	_ = x[ErrUnauthorized-401]
 	_ = x[ErrNotFound-404]
-	_ = x[ErrInternalServerError-500]
+	_ = x[ErrInternalServer-500]
 	_ = x[ErrEmailAlreadyUse-10006]
 	_ = x[ErrPasswordIncorrect-10007]
 	_ = x[ErrUserNotFound-10008]
 	_ = x[ErrRoleHasUser-10009]
+	_ = x[ErrMenuHasChild-10010]
+	_ = x[ErrMenuParentedNotFound-10011]
+	_ = x[ErrDeptHasChild-10012]
+	_ = x[ErrDeptHasUser-10013]
+	_ = x[ErrDeptParentNotFound-10014]
 }
 
 const (
@@ -24,12 +29,12 @@ const (
 	_ErrCode_name_1 = "Bad RequestUnauthorized"
 	_ErrCode_name_2 = "Not Found"
 	_ErrCode_name_3 = "Internal Server Error"
-	_ErrCode_name_4 = "The email is already in useThe password is incorrectThe user does not existThe role has users and cannot be deleted"
+	_ErrCode_name_4 = "The email is already in useThe password is incorrectThe user does not existThe role has users and cannot be deletedThe menu has children and cannot be deletedThe parent menu not foundThe menu has children and cannot be deletedThe menu has user and cannot be deletedThe parent dept not found"
 )
 
 var (
 	_ErrCode_index_1 = [...]uint8{0, 11, 23}
-	_ErrCode_index_4 = [...]uint8{0, 27, 52, 75, 115}
+	_ErrCode_index_4 = [...]uint16{0, 27, 52, 75, 115, 158, 183, 226, 265, 290}
 )
 
 func (i ErrCode) String() string {
@@ -43,7 +48,7 @@ func (i ErrCode) String() string {
 		return _ErrCode_name_2
 	case i == 500:
 		return _ErrCode_name_3
-	case 10006 <= i && i <= 10009:
+	case 10006 <= i && i <= 10014:
 		i -= 10006
 		return _ErrCode_name_4[_ErrCode_index_4[i]:_ErrCode_index_4[i+1]]
 	default:

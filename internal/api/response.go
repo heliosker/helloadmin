@@ -36,7 +36,7 @@ func Error(ctx *gin.Context, httpCode int, err error) {
 		c = c.Code()
 		m = c.String()
 	default:
-		c = ecode.ErrInternalServerError
+		c = ecode.ErrInternalServer
 		m = err.Error()
 	}
 	resp := Response{Code: c.Int(), Message: m}

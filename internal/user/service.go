@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"golang.org/x/crypto/bcrypt"
+	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
 	"helloadmin/pkg/helper/generate"
 	"helloadmin/pkg/helper/sid"
@@ -13,25 +14,26 @@ import (
 type Service interface {
 	Register(ctx context.Context, req *RegisterRequest) error
 	Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error)
-	GetProfile(ctx context.Context, userId string) (*GetProfileResponseData, error)
+	GetProfile(ctx context.Context, userId string) (*ProfileData, error)
 	UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error
+	Search(ctx context.Context, request *FindRequest) (*Response, error)
 }
 
 func NewService(sid *sid.Sid, jwt *jwt.JWT, repo Repository) Service {
-	return &service{
+	return &userService{
 		repo: repo,
 		sid:  sid,
 		jwt:  jwt,
 	}
 }
 
-type service struct {
+type userService struct {
 	repo Repository
 	sid  *sid.Sid
 	jwt  *jwt.JWT
 }
 
-func (s *service) Register(ctx context.Context, req *RegisterRequest) error {
+func (s *userService) Register(ctx context.Context, req *RegisterRequest) error {
 	// check username
 	if user, err := s.repo.GetByEmail(ctx, req.Email); err == nil && user != nil {
 		return ecode.ErrEmailAlreadyUse
@@ -66,7 +68,35 @@ func (s *service) Register(ctx context.Context, req *RegisterRequest) error {
 	return nil
 }
 
-func (s *service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
+func (s *userService) Search(ctx context.Context, req *FindRequest) (*Response, error) {
+	var response Response
+	total, items, err := s.repo.Search(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	response.Items = make([]ProfileData, 0)
+	if total > 0 {
+		for _, item := range *items {
+			response.Items = append(response.Items, ProfileData{
+				UserId:    item.UserId,
+				Nickname:  item.Nickname,
+				Email:     item.Email,
+				RoleId:    item.RoleId,
+				DeptId:    item.DeptId,
+				CreatedAt: item.CreatedAt.Format(time.RFC3339),
+				UpdatedAt: item.UpdatedAt.Format(time.RFC3339),
+			})
+		}
+	}
+	response.Pagination = api.Pagination{
+		Page:  req.Page,
+		Size:  req.Size,
+		Count: int(total),
+	}
+	return &response, nil
+}
+
+func (s *userService) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
 	user, err := s.repo.GetByEmail(ctx, req.Email)
 	if err != nil || user == nil {
 		return nil, ecode.ErrUserNotFound
@@ -86,32 +116,35 @@ func (s *service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse,
 	}, nil
 }
 
-func (s *service) GetProfile(ctx context.Context, userId string) (*GetProfileResponseData, error) {
+func (s *userService) GetProfile(ctx context.Context, userId string) (*ProfileData, error) {
 	user, err := s.repo.GetByID(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	return &GetProfileResponseData{
+	return &ProfileData{
 		UserId:    user.UserId,
 		Nickname:  user.Nickname,
 		Email:     user.Email,
+		RoleId:    user.RoleId,
+		DeptId:    user.DeptId,
 		CreatedAt: user.CreatedAt.Format(time.DateTime),
+		UpdatedAt: user.UpdatedAt.Format(time.DateTime),
 	}, nil
 }
 
-func (s *service) UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error {
+func (s *userService) UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error {
 	user, err := s.repo.GetByID(ctx, userId)
 	if err != nil {
 		return err
 	}
-
 	user.Email = req.Email
 	user.Nickname = req.Nickname
-
+	user.RoleId = req.RoleId
+	user.DeptId = req.DeptId
+	user.UpdatedAt = time.Now()
 	if err = s.repo.Update(ctx, user); err != nil {
 		return err
 	}
-
 	return nil
 }

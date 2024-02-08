@@ -21,7 +21,7 @@ type FindRequest struct {
 	Size  int    `form:"size" binding:"required,min=1,max=100" example:"10"`
 }
 
-type LoginRecordItem struct {
+type Item struct {
 	Ip           string `json:"ip"`
 	Os           string `json:"os"`
 	Email        string `json:"email"`
@@ -34,6 +34,6 @@ type LoginRecordItem struct {
 }
 
 type Response struct {
-	Items          []LoginRecordItem `json:"items"`
+	Items          []Item `json:"items"`
 	api.Pagination `json:"pagination"`
 }

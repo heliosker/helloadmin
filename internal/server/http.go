@@ -61,51 +61,48 @@ func NewHTTPServer(
 		// No route group has permission
 		noAuthRouter := group.Group("/")
 		{
-			noAuthRouter.POST("/register", userHandler.Register)
 			noAuthRouter.POST("/login", userHandler.Login)
 		}
-		// Non-strict permission routing group
-		noStrictAuthRouter := group.Group("/").Use(middleware.NoStrictAuth(jwt, logger))
-		{
-			noStrictAuthRouter.GET("/user", userHandler.GetProfile)
-		}
-
 		// Strict permission routing group
-		strictAuthRouter := group.Group("/").Use(middleware.StrictAuth(jwt, logger))
+		userRouter := group.Group("/user").Use(middleware.StrictAuth(jwt, logger))
 		{
-			strictAuthRouter.PUT("/user", userHandler.UpdateProfile)
+			userRouter.GET("", userHandler.Search)
+			userRouter.GET("/profile", userHandler.GetProfile)
+			userRouter.POST("", userHandler.Store)
+			userRouter.PUT("", userHandler.UpdateProfile)
 		}
 
-		role := group.Group("/role").Use(middleware.StrictAuth(jwt, logger))
+		roleRouter := group.Group("/role").Use(middleware.StrictAuth(jwt, logger))
 		{
-			role.GET("", roleHandler.GetRole)
-			role.POST("", roleHandler.StoreRole)
-			role.GET("/:id", roleHandler.ShowRole)
-			role.PUT("/:id", roleHandler.UpdateRole)
-			role.PUT("/:id/menu", roleHandler.UpdateRoleMenu)
-			role.DELETE("/:id", roleHandler.DeleteRole)
+			roleRouter.GET("", roleHandler.GetRole)
+			roleRouter.POST("", roleHandler.StoreRole)
+			roleRouter.GET("/:id", roleHandler.ShowRole)
+			roleRouter.PUT("/:id", roleHandler.UpdateRole)
+			roleRouter.PUT("/:id/menu", roleHandler.UpdateRoleMenu)
+			roleRouter.DELETE("/:id", roleHandler.DeleteRole)
 		}
 
-		menu := group.Group("/menu").Use(middleware.StrictAuth(jwt, logger))
+		menuRouter := group.Group("/menu").Use(middleware.StrictAuth(jwt, logger))
 		{
-			menu.GET("", menuHandler.GetMenu)
-			menu.POST("", menuHandler.StoreMenu)
-			menu.GET("/:id", menuHandler.ShowMenu)
-			menu.PUT("/:id", menuHandler.UpdateMenu)
-			menu.DELETE("/:id", menuHandler.DeleteMenu)
+			menuRouter.GET("", menuHandler.GetMenu)
+			menuRouter.GET("/option", menuHandler.GetOption)
+			menuRouter.POST("", menuHandler.StoreMenu)
+			menuRouter.GET("/:id", menuHandler.ShowMenu)
+			menuRouter.PUT("/:id", menuHandler.UpdateMenu)
+			menuRouter.DELETE("/:id", menuHandler.DeleteMenu)
 		}
-		depart := group.Group("department").Use(middleware.StrictAuth(jwt, logger))
+		deptRouter := group.Group("department").Use(middleware.StrictAuth(jwt, logger))
 		{
-			depart.GET("", departHandler.GetDepartment)
-			depart.POST("", departHandler.StoreDepartment)
-			depart.GET("/:id", departHandler.ShowDepartment)
-			depart.PUT("/:id", departHandler.UpdateDepartment)
-			depart.DELETE("/:id", departHandler.DeleteDepartment)
+			deptRouter.GET("", departHandler.GetDepartment)
+			deptRouter.POST("", departHandler.StoreDepartment)
+			deptRouter.GET("/:id", departHandler.ShowDepartment)
+			deptRouter.PUT("/:id", departHandler.UpdateDepartment)
+			deptRouter.DELETE("/:id", departHandler.DeleteDepartment)
 		}
-		record := group.Group("/record").Use(middleware.StrictAuth(jwt, logger))
+		recordRouter := group.Group("/record").Use(middleware.StrictAuth(jwt, logger))
 		{
-			record.GET("login", loginRecordHandler.SearchLoginRecord)
-			record.GET("operation", loginRecordHandler.SearchLoginRecord)
+			recordRouter.GET("login", loginRecordHandler.SearchLoginRecord)
+			recordRouter.GET("operation", loginRecordHandler.SearchLoginRecord)
 		}
 
 	}

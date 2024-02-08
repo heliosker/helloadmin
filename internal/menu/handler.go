@@ -14,9 +14,9 @@ type Handler struct {
 	svc Service
 }
 
-func NewHandler(logger *log.Logger, svc Service) *Handler {
+func NewHandler(log *log.Logger, svc Service) *Handler {
 	return &Handler{
-		log: logger,
+		log: log,
 		svc: svc,
 	}
 }
@@ -39,7 +39,7 @@ func (m *Handler) StoreMenu(ctx *gin.Context) {
 		return
 	}
 	if err := m.svc.CreateMenu(ctx, req); err != nil {
-		m.log.WithContext(ctx).Error("menuService.CreateMenu error", zap.Error(err))
+		m.log.WithContext(ctx).Error("svc.CreateMenu error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -55,7 +55,7 @@ func (m *Handler) StoreMenu(ctx *gin.Context) {
 // @Produce json
 // @Security Bearer
 // @Param request query FindRequest true "params"
-// @Success 200 {object} api.Response
+// @Success 200 {object} Response
 // @Router /menu [get]
 func (m *Handler) GetMenu(ctx *gin.Context) {
 	req := new(FindRequest)
@@ -64,12 +64,38 @@ func (m *Handler) GetMenu(ctx *gin.Context) {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	menu, err := m.svc.SearchMenu(ctx, req)
-	if err != nil {
-		m.log.WithContext(ctx).Error("menuService.SearchMenu error", zap.Error(err))
+	if resp, err := m.svc.SearchMenu(ctx, req); err != nil {
+		m.log.WithContext(ctx).Error("svc.SearchMenu error", zap.Error(err))
+		api.Error(ctx, http.StatusInternalServerError, err)
+	} else {
+		api.Success(ctx, resp)
+	}
+}
+
+// GetOption godoc
+// @Summary 菜单选项
+// @Schemes
+// @Description 菜单下拉选项
+// @Tags 菜单模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request query OptionRequest true "params"
+// @Success 200 {object} []Option
+// @Router /menu/option [get]
+func (m *Handler) GetOption(ctx *gin.Context) {
+	req := new(OptionRequest)
+	if err := ctx.ShouldBindQuery(req); err != nil {
+		m.log.WithContext(ctx).Error("MenuHandler.Options error", zap.Error(err))
+		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	api.Success(ctx, menu)
+	if resp, err := m.svc.Options(ctx, req); err != nil {
+		m.log.WithContext(ctx).Error("svc.Options error", zap.Error(err))
+		api.Error(ctx, http.StatusInternalServerError, err)
+	} else {
+		api.Success(ctx, resp)
+	}
 }
 
 // ShowMenu godoc
@@ -86,7 +112,7 @@ func (m *Handler) GetMenu(ctx *gin.Context) {
 func (m *Handler) ShowMenu(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if menu, err := m.svc.GetMenuById(ctx, id); err != nil {
-		m.log.WithContext(ctx).Error("menuService.GetMenuById error", zap.Error(err))
+		m.log.WithContext(ctx).Error("svc.GetMenuById error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	} else {
@@ -115,7 +141,7 @@ func (m *Handler) UpdateMenu(ctx *gin.Context) {
 	}
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err := m.svc.UpdateMenu(ctx, id, req); err != nil {
-		m.log.WithContext(ctx).Error("menuService.UpdateMenu error", zap.Error(err))
+		m.log.WithContext(ctx).Error("svc.UpdateMenu error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -136,7 +162,7 @@ func (m *Handler) UpdateMenu(ctx *gin.Context) {
 func (m *Handler) DeleteMenu(ctx *gin.Context) {
 	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err := m.svc.DeleteMenu(ctx, id); err != nil {
-		m.log.WithContext(ctx).Error("menuService.DeleteMenu error", zap.Error(err))
+		m.log.WithContext(ctx).Error("svc.DeleteMenu error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
