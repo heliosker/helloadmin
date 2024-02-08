@@ -41,8 +41,8 @@ func (s *service) GetMenuById(ctx context.Context, id int64) (*ResponseItem, err
 		Component: menu.Component,
 		Sort:      menu.Sort,
 		Visible:   menu.Visible,
-		CreatedAt: menu.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: menu.UpdatedAt.Format(time.RFC3339),
+		CreatedAt: menu.CreatedAt.Format(time.DateTime),
+		UpdatedAt: menu.UpdatedAt.Format(time.DateTime),
 	}, nil
 }
 
@@ -80,12 +80,11 @@ func (s *service) Options(ctx context.Context, req *OptionRequest) ([]Option, er
 	if err != nil {
 		return nil, err
 	}
-
 	return buildOptions(*menus)
 }
 
 func buildOptions(menus []Model) ([]Option, error) {
-	var options []Option
+	options := make([]Option, 0)
 	if len(menus) > 0 {
 		for _, item := range menus {
 			options = append(options, Option{
@@ -99,7 +98,7 @@ func buildOptions(menus []Model) ([]Option, error) {
 }
 
 func buildMenuTree(menuList *[]Model, parentId uint) []ResponseItem {
-	var result []ResponseItem
+	result := make([]ResponseItem, 0)
 	for _, menuItem := range *menuList {
 		if menuItem.ParentId == parentId {
 			child := ResponseItem{
@@ -113,10 +112,9 @@ func buildMenuTree(menuList *[]Model, parentId uint) []ResponseItem {
 				Component: menuItem.Component,
 				Sort:      menuItem.Sort,
 				Visible:   menuItem.Visible,
-				CreatedAt: menuItem.CreatedAt.Format("2006-01-02 15:04:05"),
-				UpdatedAt: menuItem.UpdatedAt.Format("2006-01-02 15:04:05"),
+				CreatedAt: menuItem.CreatedAt.Format(time.DateTime),
+				UpdatedAt: menuItem.UpdatedAt.Format(time.DateTime),
 			}
-
 			// Recursively build the tree for child items
 			child.Children = buildMenuTree(menuList, menuItem.ID)
 			result = append(result, child)
@@ -126,6 +124,9 @@ func buildMenuTree(menuList *[]Model, parentId uint) []ResponseItem {
 }
 
 func (s *service) CreateMenu(ctx context.Context, req *CreateRequest) error {
+	if menu, _ := s.repo.GetById(ctx, int64(req.ParentId)); menu == nil {
+		return ecode.ErrMenuParentedNotFound
+	}
 	menu := Model{
 		Name:      req.Name,
 		Title:     req.Title,

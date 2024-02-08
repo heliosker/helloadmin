@@ -1,7 +1,6 @@
 package menu
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"helloadmin/internal/api"
@@ -95,8 +94,6 @@ func (m *Handler) GetOption(ctx *gin.Context) {
 		m.log.WithContext(ctx).Error("svc.Options error", zap.Error(err))
 		api.Error(ctx, http.StatusInternalServerError, err)
 	} else {
-		fmt.Println(resp)
-		fmt.Println("-------")
 		api.Success(ctx, resp)
 	}
 }

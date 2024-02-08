@@ -13,9 +13,9 @@ type Handler struct {
 	svc Service
 }
 
-func NewHandler(logger *log.Logger, svc Service) *Handler {
+func NewHandler(log *log.Logger, svc Service) *Handler {
 	return &Handler{
-		log: logger,
+		log: log,
 		svc: svc,
 	}
 }

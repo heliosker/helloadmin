@@ -6,11 +6,14 @@ import (
 	"gorm.io/gorm"
 	"helloadmin/internal/ecode"
 	"helloadmin/internal/repository"
+	"helloadmin/internal/user"
 )
 
 type Repository interface {
 	Find(ctx context.Context, request *FindRequest) (int64, *[]Model, error)
 	GetById(ctx context.Context, id int64) (*Model, error)
+	GetUserByDeptId(ctx context.Context, deptId int64) (*[]user.Model, error)
+	GetByParentId(ctx context.Context, id int64) (*[]Model, error)
 	Create(ctx context.Context, department *Model) error
 	Update(ctx context.Context, id int64, department *Model) error
 	Delete(ctx context.Context, id int64) error
@@ -33,9 +36,6 @@ func (r *departmentRepository) Find(ctx context.Context, req *FindRequest) (int6
 	if req.Name != "" {
 		query = query.Where("name = ?", req.Name)
 	}
-	if req.Page != 0 && req.Size != 0 {
-		query = query.Offset((req.Page - 1) * req.Size).Limit(req.Size)
-	}
 	query.Model(Model{}).Count(&count)
 	if err := query.Order("sort DESC").Find(&departments).Error; err != nil {
 		return count, nil, err
@@ -52,6 +52,28 @@ func (r *departmentRepository) GetById(ctx context.Context, id int64) (*Model, e
 		return nil, err
 	}
 	return &department, nil
+}
+
+func (r *departmentRepository) GetUserByDeptId(ctx context.Context, deptId int64) (*[]user.Model, error) {
+	var users []user.Model
+	if err := r.DB(ctx).Where("dept_id = ?", deptId).Find(&users).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &users, nil
+}
+
+func (r *departmentRepository) GetByParentId(ctx context.Context, id int64) (*[]Model, error) {
+	var departments []Model
+	if err := r.DB(ctx).Where("parent_id = ?", id).Find(&departments).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &departments, nil
 }
 
 func (r *departmentRepository) Create(ctx context.Context, department *Model) error {

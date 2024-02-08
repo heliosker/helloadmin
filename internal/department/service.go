@@ -2,7 +2,7 @@ package department
 
 import (
 	"context"
-	"helloadmin/internal/api"
+	"helloadmin/internal/ecode"
 	"time"
 )
 
@@ -31,44 +31,51 @@ func (s *service) GetDepartmentById(ctx context.Context, id int64) (*ResponseIte
 	}
 	return &ResponseItem{
 		ID:        department.ID,
-		UpdateAt:  department.UpdatedAt.Format(time.RFC3339),
 		Name:      department.Name,
 		ParentId:  department.ParentId,
 		Sort:      department.Sort,
 		Leader:    department.Leader,
-		CreatedAt: department.CreatedAt.Format(time.RFC3339),
+		CreatedAt: department.CreatedAt.Format(time.DateTime),
+		UpdateAt:  department.UpdatedAt.Format(time.DateTime),
 	}, nil
 }
 
 func (s *service) SearchDepartment(ctx context.Context, req *FindRequest) (*Response, error) {
 	var result Response
-	count, departs, err := s.repo.Find(ctx, req)
+	_, departs, err := s.repo.Find(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	if count > 0 {
-		result.Items = make([]ResponseItem, 0, req.Size)
-		for _, depart := range *departs {
-			tmp := ResponseItem{
-				ID:        depart.ID,
-				Name:      depart.Name,
-				ParentId:  depart.ParentId,
-				Sort:      depart.Sort,
-				Leader:    depart.Leader,
-				CreatedAt: depart.CreatedAt.Format(time.RFC3339),
-			}
-			result.Items = append(result.Items, tmp)
-		}
-	}
-	result.Pagination = api.Pagination{
-		Page:  req.Page,
-		Size:  req.Size,
-		Count: int(count),
-	}
+	result.Items = buildTree(departs, 0)
 	return &result, nil
 }
 
+func buildTree(deptList *[]Model, parentId uint) []ResponseItem {
+	result := make([]ResponseItem, 0)
+	if len(*deptList) > 0 {
+		for _, depart := range *deptList {
+			if depart.ParentId == parentId {
+				child := ResponseItem{
+					ID:        depart.ID,
+					Name:      depart.Name,
+					ParentId:  depart.ParentId,
+					Sort:      depart.Sort,
+					Leader:    depart.Leader,
+					CreatedAt: depart.CreatedAt.Format(time.DateTime),
+					UpdateAt:  depart.UpdatedAt.Format(time.DateTime),
+				}
+				child.Children = buildTree(deptList, depart.ID)
+				result = append(result, child)
+			}
+		}
+	}
+	return result
+}
+
 func (s *service) CreateDepartment(ctx context.Context, req *CreateRequest) error {
+	if dept, _ := s.repo.GetById(ctx, int64(req.ParentId)); dept == nil {
+		return ecode.ErrDeptParentNotFound
+	}
 	department := Model{
 		Name:      req.Name,
 		ParentId:  req.ParentId,
@@ -92,5 +99,11 @@ func (s *service) UpdateDepartment(ctx context.Context, id int64, req *UpdateReq
 }
 
 func (s *service) DeleteDepartment(ctx context.Context, id int64) error {
+	if users, _ := s.repo.GetUserByDeptId(ctx, id); len(*users) > 0 {
+		return ecode.ErrDeptHasUser
+	}
+	if departments, _ := s.repo.GetByParentId(ctx, id); len(*departments) > 0 {
+		return ecode.ErrDeptHasChild
+	}
 	return s.repo.Delete(ctx, id)
 }
