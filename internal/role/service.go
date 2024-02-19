@@ -17,13 +17,11 @@ type Service interface {
 func NewService(repo Repository) Service {
 	return &roleService{
 		repo: repo,
-		// userRepo: userRepo,
 	}
 }
 
 type roleService struct {
 	repo Repository
-	// userRepo user.Repository
 }
 
 func (s *roleService) GetRoleById(ctx context.Context, id int64) (*ResponseItem, error) {
