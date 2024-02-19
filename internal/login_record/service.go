@@ -2,8 +2,9 @@ package login_record
 
 import (
 	"context"
-	"helloadmin/internal/api"
 	"time"
+
+	"helloadmin/internal/api"
 )
 
 type Service interface {

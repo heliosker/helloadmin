@@ -1,24 +1,25 @@
 package user
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/mssola/user_agent"
 	"go.uber.org/zap"
 	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
-	login_log "helloadmin/internal/login_record"
+	logging "helloadmin/internal/login_record"
 	"helloadmin/pkg/jwt"
 	"helloadmin/pkg/log"
-	"net/http"
 )
 
 type Handler struct {
 	log *log.Logger
 	us  Service
-	rs  login_log.Service
+	rs  logging.Service
 }
 
-func NewHandler(log *log.Logger, us Service, rs login_log.Service) *Handler {
+func NewHandler(log *log.Logger, us Service, rs logging.Service) *Handler {
 	return &Handler{
 		log: log,
 		us:  us,
@@ -94,7 +95,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 	}
 	ua := user_agent.New(ctx.Request.UserAgent())
 	browser, _ := ua.Browser()
-	record := login_log.CreateRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
+	record := logging.CreateRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
 	resp, err := h.us.Login(ctx, &req)
 	if err != nil {
 		record.ErrorMessage = err.Error()

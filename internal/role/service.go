@@ -2,7 +2,6 @@ package role
 
 import (
 	"context"
-	"helloadmin/internal/ecode"
 	"time"
 )
 
@@ -18,11 +17,13 @@ type Service interface {
 func NewService(repo Repository) Service {
 	return &roleService{
 		repo: repo,
+		// userRepo: userRepo,
 	}
 }
 
 type roleService struct {
 	repo Repository
+	// userRepo user.Repository
 }
 
 func (s *roleService) GetRoleById(ctx context.Context, id int64) (*ResponseItem, error) {
@@ -92,8 +93,5 @@ func (s *roleService) UpdateRoleMenu(ctx context.Context, id int64, req *MenuReq
 }
 
 func (s *roleService) DeleteRole(ctx context.Context, id int64) error {
-	if s.repo.HasUser(ctx, id) > 0 {
-		return ecode.ErrRoleHasUser
-	}
 	return s.repo.Delete(ctx, id)
 }

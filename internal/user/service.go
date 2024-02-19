@@ -2,13 +2,14 @@ package user
 
 import (
 	"context"
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
 	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
 	"helloadmin/pkg/helper/generate"
 	"helloadmin/pkg/helper/sid"
 	"helloadmin/pkg/jwt"
-	"time"
 )
 
 type Service interface {
@@ -21,16 +22,16 @@ type Service interface {
 
 func NewService(sid *sid.Sid, jwt *jwt.JWT, repo Repository) Service {
 	return &userService{
-		repo: repo,
 		sid:  sid,
 		jwt:  jwt,
+		repo: repo,
 	}
 }
 
 type userService struct {
-	repo Repository
 	sid  *sid.Sid
 	jwt  *jwt.JWT
+	repo Repository
 }
 
 func (s *userService) Register(ctx context.Context, req *RegisterRequest) error {
@@ -78,13 +79,27 @@ func (s *userService) Search(ctx context.Context, req *FindRequest) (*Response, 
 	if total > 0 {
 		for _, item := range *items {
 			response.Items = append(response.Items, ProfileData{
-				UserId:    item.UserId,
-				Nickname:  item.Nickname,
-				Email:     item.Email,
+				UserId:   item.UserId,
+				Nickname: item.Nickname,
+				Email:    item.Email,
+				Department: struct {
+					Id   uint   `json:"id"`
+					Name string `json:"name"`
+				}{
+					Id:   item.Department.ID,
+					Name: item.Department.Name,
+				},
+				Role: struct {
+					Id   uint   `json:"id"`
+					Name string `json:"name"`
+				}{
+					Id:   item.Role.ID,
+					Name: item.Role.Name,
+				},
 				RoleId:    item.RoleId,
 				DeptId:    item.DeptId,
-				CreatedAt: item.CreatedAt.Format(time.RFC3339),
-				UpdatedAt: item.UpdatedAt.Format(time.RFC3339),
+				CreatedAt: item.CreatedAt.Format(time.DateTime),
+				UpdatedAt: item.UpdatedAt.Format(time.DateTime),
 			})
 		}
 	}
@@ -111,7 +126,7 @@ func (s *userService) Login(ctx context.Context, req *LoginRequest) (*LoginRespo
 	}
 	return &LoginResponse{
 		AccessToken: token,
-		ExpiresAt:   expiresAt.Format(time.RFC3339),
+		ExpiresAt:   expiresAt.Format(time.DateTime),
 		TokenType:   "Bearer",
 	}, nil
 }
@@ -123,11 +138,25 @@ func (s *userService) GetProfile(ctx context.Context, userId string) (*ProfileDa
 	}
 
 	return &ProfileData{
-		UserId:    user.UserId,
-		Nickname:  user.Nickname,
-		Email:     user.Email,
-		RoleId:    user.RoleId,
-		DeptId:    user.DeptId,
+		UserId:   user.UserId,
+		Nickname: user.Nickname,
+		Email:    user.Email,
+		RoleId:   user.RoleId,
+		DeptId:   user.DeptId,
+		Department: struct {
+			Id   uint   `json:"id"`
+			Name string `json:"name"`
+		}{
+			Id:   user.Department.ID,
+			Name: user.Department.Name,
+		},
+		Role: struct {
+			Id   uint   `json:"id"`
+			Name string `json:"name"`
+		}{
+			Id:   user.Role.ID,
+			Name: user.Role.Name,
+		},
 		CreatedAt: user.CreatedAt.Format(time.DateTime),
 		UpdatedAt: user.UpdatedAt.Format(time.DateTime),
 	}, nil

@@ -2,13 +2,14 @@ package log
 
 import (
 	"context"
+	"os"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"os"
-	"time"
 )
 
 const ctxLoggerKey = "zapLogger"
@@ -22,7 +23,7 @@ func NewLog(conf *viper.Viper) *Logger {
 	lp := conf.GetString("log.log_file_name")
 	lv := conf.GetString("log.log_level")
 	var level zapcore.Level
-	//debug<info<warn<error<fatal<panic
+	// debug<info<warn<error<fatal<panic
 	switch lv {
 	case "debug":
 		level = zap.DebugLevel
@@ -86,7 +87,7 @@ func NewLog(conf *viper.Viper) *Logger {
 }
 
 func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	//enc.AppendString(t.Format("2006-01-02 15:04:05"))
+	// enc.AppendString(t.Format("2006-01-02 15:04:05"))
 	enc.AppendString(t.Format("2006-01-02 15:04:05.000000000"))
 }
 

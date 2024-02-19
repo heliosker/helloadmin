@@ -2,9 +2,10 @@ package repository
 
 import (
 	"context"
-	"helloadmin/internal/user"
 	"testing"
 	"time"
+
+	"helloadmin/internal/user"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-redis/redismock/v9"

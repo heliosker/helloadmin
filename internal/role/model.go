@@ -1,8 +1,9 @@
 package role
 
 import (
-	"helloadmin/internal/menu"
 	"time"
+
+	"helloadmin/internal/menu"
 )
 
 type Model struct {

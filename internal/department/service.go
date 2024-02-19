@@ -2,8 +2,10 @@ package department
 
 import (
 	"context"
-	"helloadmin/internal/ecode"
+	//"helloadmin/internal/user"
 	"time"
+
+	"helloadmin/internal/ecode"
 )
 
 type Service interface {
@@ -73,8 +75,10 @@ func buildTree(deptList *[]Model, parentId uint) []ResponseItem {
 }
 
 func (s *service) CreateDepartment(ctx context.Context, req *CreateRequest) error {
-	if dept, _ := s.repo.GetById(ctx, int64(req.ParentId)); dept == nil {
-		return ecode.ErrDeptParentNotFound
+	if req.ParentId > 0 {
+		if dept, _ := s.repo.GetById(ctx, int64(req.ParentId)); dept == nil {
+			return ecode.ErrDeptParentNotFound
+		}
 	}
 	department := Model{
 		Name:      req.Name,
@@ -88,6 +92,11 @@ func (s *service) CreateDepartment(ctx context.Context, req *CreateRequest) erro
 }
 
 func (s *service) UpdateDepartment(ctx context.Context, id int64, req *UpdateRequest) error {
+	if req.ParentId > 0 {
+		if dept, _ := s.repo.GetById(ctx, int64(req.ParentId)); dept == nil {
+			return ecode.ErrDeptParentNotFound
+		}
+	}
 	department := Model{
 		Name:      req.Name,
 		ParentId:  req.ParentId,
@@ -99,9 +108,6 @@ func (s *service) UpdateDepartment(ctx context.Context, id int64, req *UpdateReq
 }
 
 func (s *service) DeleteDepartment(ctx context.Context, id int64) error {
-	if users, _ := s.repo.GetUserByDeptId(ctx, id); len(*users) > 0 {
-		return ecode.ErrDeptHasUser
-	}
 	if departments, _ := s.repo.GetByParentId(ctx, id); len(*departments) > 0 {
 		return ecode.ErrDeptHasChild
 	}

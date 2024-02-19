@@ -3,13 +3,14 @@ package repository
 import (
 	"context"
 	"fmt"
-	"helloadmin/pkg/log"
+	"time"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"helloadmin/pkg/log"
 	"moul.io/zapgorm2"
-	"time"
 )
 
 const ctxTxKey = "TxKey"
@@ -65,6 +66,7 @@ func NewDB(conf *viper.Viper, l *log.Logger) *gorm.DB {
 	db = db.Debug()
 	return db
 }
+
 func NewRedis(conf *viper.Viper) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     conf.GetString("data.redis.addr"),

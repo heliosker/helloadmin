@@ -2,10 +2,11 @@ package server
 
 import (
 	"context"
-	"github.com/go-co-op/gocron"
-	"helloadmin/pkg/log"
-	"go.uber.org/zap"
 	"time"
+
+	"github.com/go-co-op/gocron"
+	"go.uber.org/zap"
+	"helloadmin/pkg/log"
 )
 
 type Task struct {
@@ -18,6 +19,7 @@ func NewTask(log *log.Logger) *Task {
 		log: log,
 	}
 }
+
 func (t *Task) Start(ctx context.Context) error {
 	gocron.SetPanicHandler(func(jobName string, recoverData interface{}) {
 		t.log.Error("Task Panic", zap.String("job", jobName), zap.Any("recover", recoverData))
@@ -45,6 +47,7 @@ func (t *Task) Start(ctx context.Context) error {
 	t.scheduler.StartBlocking()
 	return nil
 }
+
 func (t *Task) Stop(ctx context.Context) error {
 	t.scheduler.Stop()
 	t.log.Info("Task stop...")

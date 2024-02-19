@@ -40,7 +40,7 @@ func NewHTTPServer(
 	docs.SwaggerInfo.BasePath = "/api"
 	s.GET("/swagger/*any", ginSwagger.WrapHandler(
 		swaggerfiles.Handler,
-		//ginSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", cfg.GetInt("http.port"))),
+		// ginSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", cfg.GetInt("http.port"))),
 		ginSwagger.DefaultModelsExpandDepth(-1),
 	))
 
@@ -48,7 +48,7 @@ func NewHTTPServer(
 		middleware.CORSMiddleware(),
 		middleware.ResponseLogMiddleware(logger),
 		middleware.RequestLogMiddleware(logger),
-		//middleware.SignMiddleware(log),
+		// middleware.SignMiddleware(log),
 	)
 	s.GET("/", func(ctx *gin.Context) {
 		api.Success(ctx, map[string]interface{}{

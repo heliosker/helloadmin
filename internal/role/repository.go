@@ -3,11 +3,11 @@ package role
 import (
 	"context"
 	"errors"
+
 	"gorm.io/gorm"
 	"helloadmin/internal/ecode"
 	"helloadmin/internal/menu"
 	"helloadmin/internal/repository"
-	"helloadmin/internal/user"
 )
 
 type Repository interface {
@@ -17,7 +17,6 @@ type Repository interface {
 	Update(ctx context.Context, id int64, role *Model) error
 	UpdateRoleMenu(ctx context.Context, id int64, req *MenuRequest) error
 	Delete(ctx context.Context, id int64) error
-	HasUser(ctx context.Context, id int64) int64
 }
 
 func NewRepository(r *repository.Repository) Repository {
@@ -38,7 +37,7 @@ func (r *roleRepository) Find(ctx context.Context, req *FindRequest) (int64, *[]
 		query = query.Where("name = ?", req.Name)
 	}
 	query.Model(Model{}).Count(&count)
-	if result := query.Order("id desc").Find(&role); result.Error != nil {
+	if result := query.Order("id desc").Preload("role").Find(&role); result.Error != nil {
 		return count, nil, result.Error
 	}
 	return count, &role, nil
@@ -89,14 +88,13 @@ func (r *roleRepository) UpdateRoleMenu(ctx context.Context, id int64, req *Menu
 }
 
 func (r *roleRepository) Delete(ctx context.Context, id int64) error {
+	var count int64
+	r.DB(ctx).Model(Model{}).Where("role_id = ?", id).Count(&count)
+	if count > 0 {
+		return ecode.ErrRoleHasUser
+	}
 	if err := r.DB(ctx).Delete(&Model{}, id).Error; err != nil {
 		return err
 	}
 	return nil
-}
-
-func (r *roleRepository) HasUser(ctx context.Context, id int64) int64 {
-	var count int64
-	r.DB(ctx).Model(user.Model{}).Where("role_id = ?", id).Count(&count)
-	return count
 }
