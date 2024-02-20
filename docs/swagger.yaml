@@ -1,0 +1,964 @@
+definitions:
+  api.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  department.CreateRequest:
+    properties:
+      leader:
+        description: 部门负责人
+        type: string
+      name:
+        description: 部门名称
+        type: string
+      parentId:
+        description: 上级部门
+        type: integer
+      sort:
+        description: 排序值，值越大，显示顺序越靠前
+        type: integer
+    required:
+    - name
+    - sort
+    type: object
+  department.Response:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/department.ResponseItem'
+        type: array
+    type: object
+  department.ResponseItem:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/department.ResponseItem'
+        type: array
+      createdAt:
+        type: string
+      id:
+        type: integer
+      leader:
+        type: string
+      name:
+        type: string
+      parentId:
+        type: integer
+      sort:
+        type: integer
+      updateAt:
+        type: string
+    type: object
+  department.UpdateRequest:
+    properties:
+      leader:
+        type: string
+      name:
+        type: string
+      parentId:
+        type: integer
+      sort:
+        type: integer
+    type: object
+  menu.CreateRequest:
+    properties:
+      component:
+        description: 组件路径
+        type: string
+      icon:
+        description: 菜单图标
+        maxLength: 128
+        type: string
+      name:
+        description: 菜单名称
+        maxLength: 128
+        type: string
+      parentId:
+        description: 上级菜单ID
+        minimum: 0
+        type: integer
+      path:
+        description: 菜单路径
+        maxLength: 255
+        type: string
+      sort:
+        description: 排序值，值越大越靠前
+        type: integer
+      title:
+        description: 菜单标题
+        maxLength: 128
+        type: string
+      type:
+        description: 菜单类型 目录D 菜单M 按钮B
+        type: string
+      visible:
+        description: 是否可见，Y可见 N不可见
+        type: string
+    required:
+    - title
+    - type
+    - visible
+    type: object
+  menu.Option:
+    properties:
+      label:
+        type: string
+      value:
+        type: integer
+    type: object
+  menu.Response:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/menu.ResponseItem'
+        type: array
+    type: object
+  menu.ResponseItem:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/menu.ResponseItem'
+        type: array
+      component:
+        type: string
+      createdAt:
+        type: string
+      icon:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parentId:
+        type: integer
+      path:
+        type: string
+      sort:
+        type: integer
+      title:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      visible:
+        type: string
+    type: object
+  menu.UpdateRequest:
+    properties:
+      component:
+        description: 组件路径
+        type: string
+      icon:
+        description: 菜单图标
+        type: string
+      name:
+        description: 菜单名称
+        type: string
+      parentId:
+        description: 上级菜单ID
+        type: integer
+      path:
+        description: 菜单路径
+        type: string
+      sort:
+        description: 排序值，值越大越靠前
+        type: integer
+      title:
+        description: 菜单标题
+        type: string
+      type:
+        description: 菜单类型 目录D 菜单M 按钮B
+        type: string
+      visible:
+        description: 是否可见，Y可见 N不可见
+        type: string
+    type: object
+  role.CreateRequest:
+    properties:
+      describe:
+        description: 角色描述
+        example: this is describe
+        maxLength: 255
+        type: string
+      name:
+        description: 角色名称
+        example: test
+        maxLength: 50
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  role.MenuRequest:
+    properties:
+      menuId:
+        description: 菜单ID
+        items:
+          type: integer
+        type: array
+        uniqueItems: true
+    required:
+    - menuId
+    type: object
+  role.UpdateRequest:
+    properties:
+      describe:
+        example: this is describe
+        maxLength: 255
+        type: string
+      name:
+        example: test
+        maxLength: 50
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  user.LoginRequest:
+    properties:
+      email:
+        description: 邮箱
+        example: admin@helloadmin.com
+        type: string
+      password:
+        description: 密码
+        example: "123456"
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  user.LoginResponse:
+    properties:
+      accessToken:
+        description: 访问令牌
+        type: string
+      expiresAt:
+        description: 过期日期
+        type: string
+      tokenType:
+        description: 令牌类型
+        type: string
+    type: object
+  user.ProfileData:
+    properties:
+      createdAt:
+        example: "2023-12-27 19:01:00"
+        type: string
+      department:
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+        type: object
+      deptId:
+        description: 员工部门ID
+        example: 1
+        type: integer
+      email:
+        description: 员工邮箱
+        example: admin@helloadmin.com
+        type: string
+      id:
+        description: 员工ID
+        example: 1
+        type: integer
+      nickname:
+        example: Hi admin
+        type: string
+      role:
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+        type: object
+      roleId:
+        description: 员工角色ID
+        example: 1
+        type: integer
+      updatedAt:
+        example: "2023-12-27 19:01:00"
+        type: string
+      userId:
+        description: 员工编码
+        example: "1"
+        type: string
+    type: object
+  user.RegisterRequest:
+    properties:
+      deptId:
+        description: 部门ID
+        example: 1
+        type: integer
+      email:
+        description: 邮箱
+        example: admin@helloadmin.com
+        type: string
+      nickname:
+        description: 员工名
+        example: admin
+        maxLength: 50
+        type: string
+      password:
+        description: 密码
+        example: "123456"
+        type: string
+      roleId:
+        description: 角色ID
+        example: 1
+        type: integer
+    required:
+    - email
+    - nickname
+    - password
+    type: object
+  user.UpdateRequest:
+    properties:
+      deptId:
+        description: 部门ID
+        example: 1
+        type: integer
+      email:
+        example: admin@helloadmin.com
+        type: string
+      nickname:
+        example: admin
+        type: string
+      roleId:
+        description: 角色ID
+        example: 1
+        type: integer
+    required:
+    - email
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample HelloAdmin API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: HelloAdmin API
+  version: 1.0.0
+paths:
+  /department:
+    get:
+      consumes:
+      - application/json
+      description: 查询部门列表
+      parameters:
+      - description: 部门名称
+        in: query
+        maxLength: 50
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/department.Response'
+      security:
+      - Bearer: []
+      summary: 部门列表
+      tags:
+      - 部门模块
+    post:
+      consumes:
+      - application/json
+      description: 创建部门
+      parameters:
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/department.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/department.Response'
+      security:
+      - Bearer: []
+      summary: 创建部门
+      tags:
+      - 部门模块
+  /department/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除单个部门
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/department.Response'
+      security:
+      - Bearer: []
+      summary: 删除部门
+      tags:
+      - 部门模块
+    get:
+      consumes:
+      - application/json
+      description: 查询单个部门信息
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/department.Response'
+      security:
+      - Bearer: []
+      summary: 查询部门
+      tags:
+      - 部门模块
+    put:
+      consumes:
+      - application/json
+      description: 修改单个部门信息
+      parameters:
+      - description: 部门ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/department.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/department.Response'
+      security:
+      - Bearer: []
+      summary: 修改部门
+      tags:
+      - 部门模块
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.LoginResponse'
+      summary: 员工登录
+      tags:
+      - 员工模块
+  /menu:
+    get:
+      consumes:
+      - application/json
+      description: 查询菜单列表
+      parameters:
+      - description: 菜单名称
+        in: query
+        name: name
+        type: string
+      - description: 是否可见，Y可见 N不可见
+        in: query
+        name: visible
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/menu.Response'
+      security:
+      - Bearer: []
+      summary: 菜单列表
+      tags:
+      - 菜单模块
+    post:
+      consumes:
+      - application/json
+      description: 创建菜单
+      parameters:
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/menu.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 创建菜单
+      tags:
+      - 菜单模块
+  /menu/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除单个菜单
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 删除菜单
+      tags:
+      - 菜单模块
+    get:
+      consumes:
+      - application/json
+      description: 查询单个菜单信息
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 查询菜单
+      tags:
+      - 菜单模块
+    put:
+      consumes:
+      - application/json
+      description: 修改单个菜单信息
+      parameters:
+      - description: 菜单ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/menu.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 修改菜单
+      tags:
+      - 菜单模块
+  /menu/option:
+    get:
+      consumes:
+      - application/json
+      description: 菜单下拉选项
+      parameters:
+      - description: 菜单类型 目录D 菜单M 按钮B
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/menu.Option'
+            type: array
+      security:
+      - Bearer: []
+      summary: 菜单选项
+      tags:
+      - 菜单模块
+  /record/login:
+    get:
+      consumes:
+      - application/json
+      description: 登录日志列表
+      parameters:
+      - in: query
+        maxLength: 50
+        name: email
+        type: string
+      - in: query
+        maxLength: 60
+        name: ip
+        type: string
+      - example: 1
+        in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - example: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 登录日志
+      tags:
+      - 日志模块
+  /role:
+    get:
+      consumes:
+      - application/json
+      description: 查询角色列表
+      parameters:
+      - description: 角色名称
+        example: test
+        in: query
+        maxLength: 50
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 角色列表
+      tags:
+      - 角色模块
+    post:
+      consumes:
+      - application/json
+      description: 创建角色
+      parameters:
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/role.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 创建角色
+      tags:
+      - 角色模块
+  /role/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除单个角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 删除角色
+      tags:
+      - 角色模块
+    get:
+      consumes:
+      - application/json
+      description: 查询单个角色信息
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 查询角色
+      tags:
+      - 角色模块
+    put:
+      consumes:
+      - application/json
+      description: 修改单个角色信息
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/role.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 修改角色
+      tags:
+      - 角色模块
+  /role/{id}/menu:
+    put:
+      consumes:
+      - application/json
+      description: 修改单个角色权限
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/role.MenuRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 修改角色权限
+      tags:
+      - 角色模块
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: 搜索员工
+      parameters:
+      - description: 部门ID
+        example: 1
+        in: query
+        name: deptId
+        type: integer
+      - description: 邮箱
+        example: admin@helloadmin.com
+        in: query
+        name: email
+        type: string
+      - description: 员工昵称
+        example: admin
+        in: query
+        name: nickname
+        type: string
+      - description: 页码
+        example: 1
+        in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - description: 角色ID
+        example: 1
+        in: query
+        name: roleId
+        type: integer
+      - description: 每页条数
+        example: 10
+        in: query
+        minimum: 1
+        name: size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 搜索员工
+      tags:
+      - 员工模块
+    post:
+      consumes:
+      - application/json
+      description: 添加员工
+      parameters:
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 添加员工
+      tags:
+      - 员工模块
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ProfileData'
+      security:
+      - Bearer: []
+      summary: 获取员工信息
+      tags:
+      - 员工模块
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 修改员工信息
+      tags:
+      - 员工模块
+  /user/profile:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ProfileData'
+      security:
+      - Bearer: []
+      summary: 登录账号信息
+      tags:
+      - 员工模块
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
