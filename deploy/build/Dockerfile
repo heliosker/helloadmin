@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine3.16 AS builder
+FROM golang:1.22 AS builder
 RUN set -eux && sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 
 ARG APP_RELATIVE_PATH

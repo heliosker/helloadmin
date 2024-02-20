@@ -38,10 +38,11 @@ type UpdateRequest struct {
 }
 
 type ProfileData struct {
-	Email  string `json:"email" example:"admin@helloadmin.com"`
-	UserId string `json:"userId" example:"1"` // 用户ID
-	RoleId uint   `json:"roleId" example:"1"` // 角色ID
-	DeptId uint   `json:"deptId" example:"1"` // 部门ID
+	Id     uint   `json:"id" example:"1"`                       // 员工ID
+	Email  string `json:"email" example:"admin@helloadmin.com"` // 员工邮箱
+	UserId string `json:"userId" example:"1"`                   // 员工编码
+	RoleId uint   `json:"roleId" example:"1"`                   // 员工角色ID
+	DeptId uint   `json:"deptId" example:"1"`                   // 员工部门ID
 	Role   struct {
 		Id   uint   `json:"id"`
 		Name string `json:"name"`

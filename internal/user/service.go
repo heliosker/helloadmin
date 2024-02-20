@@ -80,6 +80,7 @@ func (s *userService) Search(ctx context.Context, req *FindRequest) (*Response, 
 	if total > 0 {
 		for _, item := range *items {
 			response.Items = append(response.Items, ProfileData{
+				Id:       item.ID,
 				UserId:   item.UserId,
 				Nickname: item.Nickname,
 				Email:    item.Email,
@@ -172,6 +173,7 @@ func profile(m *Model) *ProfileData {
 		return nil
 	}
 	return &ProfileData{
+		Id:       m.ID,
 		UserId:   m.UserId,
 		Nickname: m.Nickname,
 		Email:    m.Email,

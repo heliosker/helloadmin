@@ -1,3 +1,5 @@
+<p align="center"><a href="https://demo.helloadmin.cn" target="_blank"><img src="https://raw.githubusercontent.com/heliosker/helloadmin/main/images/logo.png" alt="HelloAdmin Logo"></a></p>
+
 # HelloAdmin
 
 HelloAdmin 是一个基于 Gin + Ant Design Vue UI 的前后端分离管理系统，前端使用 Ant Design Vue UI，后端使用 Gin 框架。
