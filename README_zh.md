@@ -1,4 +1,4 @@
-<p align="center"><a href="https://demo.helloadmin.cn" target="_blank"><img src="https://raw.githubusercontent.com/heliosker/helloadmin/main/images/logo.png" alt="HelloAdmin Logo"></a></p>
+<p align="center"><a href="https://demo.helloadmin.cn" target="_blank"><img src="https://raw.githubusercontent.com/heliosker/helloadmin/main/images/logo.png" width="400" alt="HelloAdmin Logo"></a></p>
 
 # HelloAdmin
 
@@ -11,7 +11,6 @@ HelloAdmin 是一个基于 Gin + Ant Design Vue UI 的前后端分离管理系�
 - [x] 菜单管理
 - [x] 部门管理
 - [x] 操作日志
-- [] Cabin 权限管理
 
 体验地址: [http://demo.helloadmin.cn](http://demo.helloadmin.cn)
 

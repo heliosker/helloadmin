@@ -1,5 +1,5 @@
 
-<p align="center"><a href="https://demo.helloadmin.cn" target="_blank"><img src="https://raw.githubusercontent.com/heliosker/helloadmin/main/images/logo.png" alt="HelloAdmin Logo"></a></p>
+<p align="center"><a href="https://demo.helloadmin.cn" target="_blank"><img src="https://raw.githubusercontent.com/heliosker/helloadmin/main/images/logo.png" width="400"  alt="HelloAdmin Logo"></a></p>
 
 # HelloAdmin
 
@@ -14,7 +14,6 @@ HelloAdmin is a front-end and back-end separation management system based on Gin
 - [x] Menu Management
 - [x] Department Management
 - [x] Operation Log
-- [] Cabin Permission Management
 
 Experience it at: [http://demo.helloadmin.cn](http://demo.helloadmin.cn)
 
