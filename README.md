@@ -1,5 +1,5 @@
 
-<p align="center"><a href="https://demo.helloadmin.cn" target="_blank"><img src="https://raw.githubusercontent.com/heliosker/helloadmin/main/images/logo.png" width="400"  alt="HelloAdmin Logo"></a></p>
+<p align="center"><a href="https://demo.helloadmin.cn" target="_blank"><img src="https://raw.githubusercontent.com/heliosker/helloadmin/main/images/logo.png" width="100"  alt="HelloAdmin Logo"></a></p>
 
 # HelloAdmin
 
