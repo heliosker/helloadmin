@@ -15,8 +15,9 @@ import (
 type Service interface {
 	Register(ctx context.Context, req *RegisterRequest) error
 	Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error)
-	GetProfile(ctx context.Context, userId string) (*ProfileData, error)
-	UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error
+	GetProfileByUserId(ctx context.Context, userId string) (*ProfileData, error)
+	GetProfileById(ctx context.Context, id int64) (*ProfileData, error)
+	Update(ctx context.Context, id int64, req *UpdateRequest) error
 	Search(ctx context.Context, request *FindRequest) (*Response, error)
 }
 
@@ -131,49 +132,66 @@ func (s *userService) Login(ctx context.Context, req *LoginRequest) (*LoginRespo
 	}, nil
 }
 
-func (s *userService) GetProfile(ctx context.Context, userId string) (*ProfileData, error) {
-	user, err := s.repo.GetByID(ctx, userId)
+func (s *userService) GetProfileByUserId(ctx context.Context, userId string) (*ProfileData, error) {
+	user, err := s.repo.GetByUserId(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
-
-	return &ProfileData{
-		UserId:   user.UserId,
-		Nickname: user.Nickname,
-		Email:    user.Email,
-		RoleId:   user.RoleId,
-		DeptId:   user.DeptId,
-		Department: struct {
-			Id   uint   `json:"id"`
-			Name string `json:"name"`
-		}{
-			Id:   user.Department.ID,
-			Name: user.Department.Name,
-		},
-		Role: struct {
-			Id   uint   `json:"id"`
-			Name string `json:"name"`
-		}{
-			Id:   user.Role.ID,
-			Name: user.Role.Name,
-		},
-		CreatedAt: user.CreatedAt.Format(time.DateTime),
-		UpdatedAt: user.UpdatedAt.Format(time.DateTime),
-	}, nil
+	return profile(user), nil
 }
 
-func (s *userService) UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error {
-	user, err := s.repo.GetByID(ctx, userId)
+func (s *userService) GetProfileById(ctx context.Context, id int64) (*ProfileData, error) {
+	user, err := s.repo.GetById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return profile(user), nil
+}
+
+func (s *userService) Update(ctx context.Context, id int64, req *UpdateRequest) error {
+	user, err := s.repo.GetById(ctx, id)
 	if err != nil {
 		return err
 	}
+	if user.RoleId == 0 && req.RoleId != 0 {
+		return ecode.ErrAdminUserCanNotModify
+	}
 	user.Email = req.Email
 	user.Nickname = req.Nickname
-	user.RoleId = req.RoleId
-	user.DeptId = req.DeptId
+	user.RoleId = uint(req.RoleId)
+	user.DeptId = uint(req.DeptId)
 	user.UpdatedAt = time.Now()
 	if err = s.repo.Update(ctx, user); err != nil {
 		return err
 	}
 	return nil
+}
+
+func profile(m *Model) *ProfileData {
+	if m == nil {
+		return nil
+	}
+	return &ProfileData{
+		UserId:   m.UserId,
+		Nickname: m.Nickname,
+		Email:    m.Email,
+		RoleId:   m.RoleId,
+		DeptId:   m.DeptId,
+		Department: struct {
+			Id   uint   `json:"id"`
+			Name string `json:"name"`
+		}{
+			Id:   m.Department.ID,
+			Name: m.Department.Name,
+		},
+		Role: struct {
+			Id   uint   `json:"id"`
+			Name string `json:"name"`
+		}{
+			Id:   m.Role.ID,
+			Name: m.Role.Name,
+		},
+		CreatedAt: m.CreatedAt.Format(time.DateTime),
+		UpdatedAt: m.UpdatedAt.Format(time.DateTime),
+	}
 }

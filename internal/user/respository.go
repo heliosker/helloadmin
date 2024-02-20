@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"errors"
-
 	"gorm.io/gorm"
 	"helloadmin/internal/ecode"
 	"helloadmin/internal/repository"
@@ -12,7 +11,8 @@ import (
 type Repository interface {
 	Create(ctx context.Context, user *Model) error
 	Update(ctx context.Context, user *Model) error
-	GetByID(ctx context.Context, id string) (*Model, error)
+	GetById(ctx context.Context, id int64) (*Model, error)
+	GetByUserId(ctx context.Context, id string) (*Model, error)
 	GetByEmail(ctx context.Context, email string) (*Model, error)
 	Search(ctx context.Context, request *FindRequest) (int64, *[]Model, error)
 }
@@ -41,7 +41,18 @@ func (r *userRepository) Update(ctx context.Context, user *Model) error {
 	return nil
 }
 
-func (r *userRepository) GetByID(ctx context.Context, userId string) (*Model, error) {
+func (r *userRepository) GetById(ctx context.Context, id int64) (*Model, error) {
+	var user Model
+	if err := r.DB(ctx).Preload("Role").Preload("Department").Where("id = ?", id).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ecode.ErrNotFound
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepository) GetByUserId(ctx context.Context, userId string) (*Model, error) {
 	var user Model
 	if err := r.DB(ctx).Preload("Role").Preload("Department").Where("user_id = ?", userId).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

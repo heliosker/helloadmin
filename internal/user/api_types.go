@@ -30,11 +30,11 @@ type LoginResponse struct {
 	TokenType   string `json:"tokenType"`   // 令牌类型
 }
 
-type UpdateProfileRequest struct {
+type UpdateRequest struct {
 	Nickname string `json:"nickname" example:"admin"`
 	Email    string `json:"email" binding:"required,email" example:"admin@helloadmin.com"`
-	RoleId   uint   `json:"roleId" example:"1"` // 角色ID
-	DeptId   uint   `json:"deptId" example:"1"` // 部门ID
+	RoleId   int64  `json:"roleId" example:"1"` // 角色ID
+	DeptId   int64  `json:"deptId" example:"1"` // 部门ID
 }
 
 type ProfileData struct {

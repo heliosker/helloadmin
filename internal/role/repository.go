@@ -47,7 +47,7 @@ func (r *roleRepository) GetById(ctx context.Context, id int64) (*Model, error) 
 	var role Model
 	if err := r.DB(ctx).Where("id = ?", id).Preload("Menus").First(&role).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ecode.ErrNotFound
+			return nil, ecode.ErrRoleNotFound
 		}
 		return nil, err
 	}

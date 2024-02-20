@@ -46,7 +46,7 @@ func (r *departmentRepository) GetById(ctx context.Context, id int64) (*Model, e
 	var department Model
 	if err := r.DB(ctx).Where("id = ?", id).First(&department).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ecode.ErrNotFound
+			return nil, ecode.ErrDeptNotFound
 		}
 		return nil, err
 	}

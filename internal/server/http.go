@@ -67,9 +67,10 @@ func NewHTTPServer(
 		userRouter := group.Group("/user").Use(middleware.StrictAuth(jwt, logger))
 		{
 			userRouter.GET("", userHandler.Search)
+			userRouter.GET("/:id", userHandler.Show)
 			userRouter.GET("/profile", userHandler.GetProfile)
 			userRouter.POST("", userHandler.Store)
-			userRouter.PUT("", userHandler.UpdateProfile)
+			userRouter.PUT("/:id", userHandler.Update)
 		}
 
 		roleRouter := group.Group("/role").Use(middleware.StrictAuth(jwt, logger))
