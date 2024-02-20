@@ -54,10 +54,17 @@ func (s *roleService) SearchRole(ctx context.Context, req *FindRequest) (*Respon
 	result.Items = make([]ResponseItem, 0)
 	if count > 0 {
 		for _, role := range *roles {
+			menuIds := make([]uint, 0)
+			if len(role.Menus) > 0 {
+				for _, menu := range role.Menus {
+					menuIds = append(menuIds, menu.ID)
+				}
+			}
 			tmp := ResponseItem{
 				Id:        role.ID,
 				Name:      role.Name,
 				Describe:  role.Describe,
+				MenuId:    menuIds,
 				UpdatedAt: role.UpdatedAt.Format(time.DateTime),
 				CreatedAt: role.CreatedAt.Format(time.DateTime),
 			}
