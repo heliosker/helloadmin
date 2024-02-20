@@ -1,15 +1,16 @@
 package middleware
 
 import (
+	"net/http"
+	"sort"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
 	"helloadmin/pkg/helper/md5"
 	"helloadmin/pkg/log"
-	"net/http"
-	"sort"
-	"strings"
 )
 
 func SignMiddleware(logger *log.Logger, conf *viper.Viper) gin.HandlerFunc {

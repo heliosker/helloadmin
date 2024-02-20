@@ -1,8 +1,8 @@
 package sid
 
 import (
-	"helloadmin/pkg/helper/convert"
 	"github.com/sony/sonyflake"
+	"helloadmin/pkg/helper/convert"
 )
 
 type Sid struct {
@@ -16,6 +16,7 @@ func NewSid() *Sid {
 	}
 	return &Sid{sf}
 }
+
 func (s Sid) GenString() (string, error) {
 	id, err := s.sf.NextID()
 	if err != nil {
@@ -23,6 +24,7 @@ func (s Sid) GenString() (string, error) {
 	}
 	return convert.IntToBase62(int(id)), nil
 }
+
 func (s Sid) GenUint64() (uint64, error) {
 	return s.sf.NextID()
 }

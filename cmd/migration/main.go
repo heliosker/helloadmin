@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"flag"
+
 	"helloadmin/cmd/migration/wire"
 	"helloadmin/pkg/config"
 	"helloadmin/pkg/log"
 )
 
 func main() {
-	var envConf = flag.String("conf", "config/local.yml", "config path, eg: -conf ./config/local.yml")
+	envConf := flag.String("conf", "config/local.yml", "config path, eg: -conf ./config/local.yml")
 	flag.Parse()
 	conf := config.NewConfig(*envConf)
 

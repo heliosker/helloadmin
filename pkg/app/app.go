@@ -2,11 +2,12 @@ package app
 
 import (
 	"context"
-	"helloadmin/pkg/server"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"helloadmin/pkg/server"
 )
 
 type App struct {

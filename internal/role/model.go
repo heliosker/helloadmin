@@ -1,8 +1,9 @@
 package role
 
 import (
-	"helloadmin/internal/menu"
 	"time"
+
+	"helloadmin/internal/menu"
 )
 
 type Model struct {
@@ -11,7 +12,7 @@ type Model struct {
 	Describe  string       `json:"describe" gorm:"type:varchar(255);not null;default:'';comment:角色描述"`
 	CreatedAt time.Time    `json:"created_at,omitempty" gorm:"default:null;comment:创建于"`
 	UpdatedAt time.Time    `json:"updated_at,omitempty" gorm:"default:null;comment:更新于"`
-	Menus     []menu.Model `json:"_" gorm:"many2many:role_menu;"`
+	Menus     []menu.Model `json:"_" gorm:"many2many:role_menu"`
 }
 
 func (m *Model) TableName() string {

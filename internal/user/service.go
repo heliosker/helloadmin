@@ -2,35 +2,37 @@ package user
 
 import (
 	"context"
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
 	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
 	"helloadmin/pkg/helper/generate"
 	"helloadmin/pkg/helper/sid"
 	"helloadmin/pkg/jwt"
-	"time"
 )
 
 type Service interface {
 	Register(ctx context.Context, req *RegisterRequest) error
 	Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error)
-	GetProfile(ctx context.Context, userId string) (*ProfileData, error)
-	UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error
+	GetProfileByUserId(ctx context.Context, userId string) (*ProfileData, error)
+	GetProfileById(ctx context.Context, id int64) (*ProfileData, error)
+	Update(ctx context.Context, id int64, req *UpdateRequest) error
 	Search(ctx context.Context, request *FindRequest) (*Response, error)
 }
 
 func NewService(sid *sid.Sid, jwt *jwt.JWT, repo Repository) Service {
 	return &userService{
-		repo: repo,
 		sid:  sid,
 		jwt:  jwt,
+		repo: repo,
 	}
 }
 
 type userService struct {
-	repo Repository
 	sid  *sid.Sid
 	jwt  *jwt.JWT
+	repo Repository
 }
 
 func (s *userService) Register(ctx context.Context, req *RegisterRequest) error {
@@ -78,13 +80,28 @@ func (s *userService) Search(ctx context.Context, req *FindRequest) (*Response, 
 	if total > 0 {
 		for _, item := range *items {
 			response.Items = append(response.Items, ProfileData{
-				UserId:    item.UserId,
-				Nickname:  item.Nickname,
-				Email:     item.Email,
+				Id:       item.ID,
+				UserId:   item.UserId,
+				Nickname: item.Nickname,
+				Email:    item.Email,
+				Department: struct {
+					Id   uint   `json:"id"`
+					Name string `json:"name"`
+				}{
+					Id:   item.Department.ID,
+					Name: item.Department.Name,
+				},
+				Role: struct {
+					Id   uint   `json:"id"`
+					Name string `json:"name"`
+				}{
+					Id:   item.Role.ID,
+					Name: item.Role.Name,
+				},
 				RoleId:    item.RoleId,
 				DeptId:    item.DeptId,
-				CreatedAt: item.CreatedAt.Format(time.RFC3339),
-				UpdatedAt: item.UpdatedAt.Format(time.RFC3339),
+				CreatedAt: item.CreatedAt.Format(time.DateTime),
+				UpdatedAt: item.UpdatedAt.Format(time.DateTime),
 			})
 		}
 	}
@@ -111,40 +128,72 @@ func (s *userService) Login(ctx context.Context, req *LoginRequest) (*LoginRespo
 	}
 	return &LoginResponse{
 		AccessToken: token,
-		ExpiresAt:   expiresAt.Format(time.RFC3339),
+		ExpiresAt:   expiresAt.Format(time.DateTime),
 		TokenType:   "Bearer",
 	}, nil
 }
 
-func (s *userService) GetProfile(ctx context.Context, userId string) (*ProfileData, error) {
-	user, err := s.repo.GetByID(ctx, userId)
+func (s *userService) GetProfileByUserId(ctx context.Context, userId string) (*ProfileData, error) {
+	user, err := s.repo.GetByUserId(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
-
-	return &ProfileData{
-		UserId:    user.UserId,
-		Nickname:  user.Nickname,
-		Email:     user.Email,
-		RoleId:    user.RoleId,
-		DeptId:    user.DeptId,
-		CreatedAt: user.CreatedAt.Format(time.DateTime),
-		UpdatedAt: user.UpdatedAt.Format(time.DateTime),
-	}, nil
+	return profile(user), nil
 }
 
-func (s *userService) UpdateProfile(ctx context.Context, userId string, req *UpdateProfileRequest) error {
-	user, err := s.repo.GetByID(ctx, userId)
+func (s *userService) GetProfileById(ctx context.Context, id int64) (*ProfileData, error) {
+	user, err := s.repo.GetById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return profile(user), nil
+}
+
+func (s *userService) Update(ctx context.Context, id int64, req *UpdateRequest) error {
+	user, err := s.repo.GetById(ctx, id)
 	if err != nil {
 		return err
 	}
+	if user.RoleId == 0 && req.RoleId != 0 {
+		return ecode.ErrAdminUserCanNotModify
+	}
 	user.Email = req.Email
 	user.Nickname = req.Nickname
-	user.RoleId = req.RoleId
-	user.DeptId = req.DeptId
+	user.RoleId = uint(req.RoleId)
+	user.DeptId = uint(req.DeptId)
 	user.UpdatedAt = time.Now()
 	if err = s.repo.Update(ctx, user); err != nil {
 		return err
 	}
 	return nil
+}
+
+func profile(m *Model) *ProfileData {
+	if m == nil {
+		return nil
+	}
+	return &ProfileData{
+		Id:       m.ID,
+		UserId:   m.UserId,
+		Nickname: m.Nickname,
+		Email:    m.Email,
+		RoleId:   m.RoleId,
+		DeptId:   m.DeptId,
+		Department: struct {
+			Id   uint   `json:"id"`
+			Name string `json:"name"`
+		}{
+			Id:   m.Department.ID,
+			Name: m.Department.Name,
+		},
+		Role: struct {
+			Id   uint   `json:"id"`
+			Name string `json:"name"`
+		}{
+			Id:   m.Role.ID,
+			Name: m.Role.Name,
+		},
+		CreatedAt: m.CreatedAt.Format(time.DateTime),
+		UpdatedAt: m.UpdatedAt.Format(time.DateTime),
+	}
 }

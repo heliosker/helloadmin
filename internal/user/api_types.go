@@ -30,18 +30,27 @@ type LoginResponse struct {
 	TokenType   string `json:"tokenType"`   // 令牌类型
 }
 
-type UpdateProfileRequest struct {
+type UpdateRequest struct {
 	Nickname string `json:"nickname" example:"admin"`
 	Email    string `json:"email" binding:"required,email" example:"admin@helloadmin.com"`
-	RoleId   uint   `json:"roleId" example:"1"` // 角色ID
-	DeptId   uint   `json:"deptId" example:"1"` // 部门ID
+	RoleId   int64  `json:"roleId" example:"1"` // 角色ID
+	DeptId   int64  `json:"deptId" example:"1"` // 部门ID
 }
 
 type ProfileData struct {
-	Email     string `json:"email" example:"admin@helloadmin.com"`
-	UserId    string `json:"userId" example:"1"` // 用户ID
-	RoleId    uint   `json:"roleId" example:"1"` // 角色ID
-	DeptId    uint   `json:"deptId" example:"1"` // 部门ID
+	Id     uint   `json:"id" example:"1"`                       // 员工ID
+	Email  string `json:"email" example:"admin@helloadmin.com"` // 员工邮箱
+	UserId string `json:"userId" example:"1"`                   // 员工编码
+	RoleId uint   `json:"roleId" example:"1"`                   // 员工角色ID
+	DeptId uint   `json:"deptId" example:"1"`                   // 员工部门ID
+	Role   struct {
+		Id   uint   `json:"id"`
+		Name string `json:"name"`
+	} `json:"role"`
+	Department struct {
+		Id   uint   `json:"id"`
+		Name string `json:"name"`
+	} `json:"department"`
 	Nickname  string `json:"nickname" example:"Hi admin"`
 	CreatedAt string `json:"createdAt" example:"2023-12-27 19:01:00"`
 	UpdatedAt string `json:"updatedAt" example:"2023-12-27 19:01:00"`

@@ -1,28 +1,33 @@
 package user
 
 import (
+	"helloadmin/internal/department"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/mssola/user_agent"
 	"go.uber.org/zap"
 	"helloadmin/internal/api"
 	"helloadmin/internal/ecode"
-	login_log "helloadmin/internal/login_record"
+	logging "helloadmin/internal/login_record"
 	"helloadmin/pkg/jwt"
 	"helloadmin/pkg/log"
-	"net/http"
 )
 
 type Handler struct {
 	log *log.Logger
 	us  Service
-	rs  login_log.Service
+	rs  logging.Service
+	de  department.Service
 }
 
-func NewHandler(log *log.Logger, us Service, rs login_log.Service) *Handler {
+func NewHandler(log *log.Logger, us Service, rs logging.Service, de department.Service) *Handler {
 	return &Handler{
 		log: log,
 		us:  us,
 		rs:  rs,
+		de:  de,
 	}
 }
 
@@ -94,7 +99,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 	}
 	ua := user_agent.New(ctx.Request.UserAgent())
 	browser, _ := ua.Browser()
-	record := login_log.CreateRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
+	record := logging.CreateRequest{Ip: ctx.ClientIP(), UserName: "-", Email: req.Email, Browser: browser, Platform: ua.Platform(), Os: ua.OS()}
 	resp, err := h.us.Login(ctx, &req)
 	if err != nil {
 		record.ErrorMessage = err.Error()
@@ -106,8 +111,28 @@ func (h *Handler) Login(ctx *gin.Context) {
 	api.Success(ctx, resp)
 }
 
-// GetProfile godoc
+// Show godoc
 // @Summary 获取员工信息
+// @Schemes
+// @Description
+// @Tags 员工模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} ProfileData
+// @Router /user/{id} [get]
+func (h *Handler) Show(ctx *gin.Context) {
+	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	user, err := h.us.GetProfileById(ctx, id)
+	if err != nil {
+		api.Error(ctx, http.StatusBadRequest, err)
+		return
+	}
+	api.Success(ctx, user)
+}
+
+// GetProfile godoc
+// @Summary 登录账号信息
 // @Schemes
 // @Description
 // @Tags 员工模块
@@ -122,7 +147,7 @@ func (h *Handler) GetProfile(ctx *gin.Context) {
 		api.Error(ctx, http.StatusUnauthorized, ecode.ErrUnauthorized)
 		return
 	}
-	user, err := h.us.GetProfile(ctx, userId)
+	user, err := h.us.GetProfileByUserId(ctx, userId)
 	if err != nil {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
@@ -130,25 +155,29 @@ func (h *Handler) GetProfile(ctx *gin.Context) {
 	api.Success(ctx, user)
 }
 
-// UpdateProfile godoc
-// @Summary 更新员工信息
+// Update godoc
+// @Summary 修改员工信息
 // @Schemes
 // @Description
 // @Tags 员工模块
 // @Accept json
 // @Produce json
 // @Security Bearer
-// @Param request body UpdateProfileRequest true "params"
+// @Param request body UpdateRequest true "params"
 // @Success 200 {object} api.Response
-// @Router /user [put]
-func (h *Handler) UpdateProfile(ctx *gin.Context) {
-	userId := GetUserIdFromCtx(ctx)
-	var req UpdateProfileRequest
+// @Router /user/{id} [put]
+func (h *Handler) Update(ctx *gin.Context) {
+	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	var req UpdateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		api.Error(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := h.us.UpdateProfile(ctx, userId, &req); err != nil {
+	if _, err := h.de.GetDepartmentById(ctx, req.DeptId); err != nil {
+		api.Error(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if err := h.us.Update(ctx, id, &req); err != nil {
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}

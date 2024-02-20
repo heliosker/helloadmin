@@ -3,15 +3,16 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"helloadmin/api"
 	"helloadmin/internal/middleware"
 	"helloadmin/internal/role"
 	"helloadmin/test/mocks/service"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 var roleId int64 = 1

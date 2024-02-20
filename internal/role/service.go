@@ -2,7 +2,6 @@ package role
 
 import (
 	"context"
-	"helloadmin/internal/ecode"
 	"time"
 )
 
@@ -55,10 +54,17 @@ func (s *roleService) SearchRole(ctx context.Context, req *FindRequest) (*Respon
 	result.Items = make([]ResponseItem, 0)
 	if count > 0 {
 		for _, role := range *roles {
+			menuIds := make([]uint, 0)
+			if len(role.Menus) > 0 {
+				for _, menu := range role.Menus {
+					menuIds = append(menuIds, menu.ID)
+				}
+			}
 			tmp := ResponseItem{
 				Id:        role.ID,
 				Name:      role.Name,
 				Describe:  role.Describe,
+				MenuId:    menuIds,
 				UpdatedAt: role.UpdatedAt.Format(time.DateTime),
 				CreatedAt: role.CreatedAt.Format(time.DateTime),
 			}
@@ -92,8 +98,5 @@ func (s *roleService) UpdateRoleMenu(ctx context.Context, id int64, req *MenuReq
 }
 
 func (s *roleService) DeleteRole(ctx context.Context, id int64) error {
-	if s.repo.HasUser(ctx, id) > 0 {
-		return ecode.ErrRoleHasUser
-	}
 	return s.repo.Delete(ctx, id)
 }
