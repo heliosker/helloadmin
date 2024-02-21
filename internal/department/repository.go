@@ -3,7 +3,6 @@ package department
 import (
 	"context"
 	"errors"
-
 	"gorm.io/gorm"
 	"helloadmin/internal/ecode"
 	"helloadmin/internal/repository"
@@ -79,16 +78,6 @@ func (r *departmentRepository) Update(ctx context.Context, id int64, department 
 }
 
 func (r *departmentRepository) Delete(ctx context.Context, id int64) error {
-	var users []Model
-	if err := r.DB(ctx).Where("id = ?", id).Find(&users).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil
-		}
-		return err
-	}
-	if len(users) > 0 {
-		return ecode.ErrDeptHasUser
-	}
 	if err := r.DB(ctx).Delete(&Model{}, id).Error; err != nil {
 		return err
 	}
