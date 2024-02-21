@@ -80,7 +80,7 @@ func (r *departmentRepository) Update(ctx context.Context, id int64, department 
 
 func (r *departmentRepository) Delete(ctx context.Context, id int64) error {
 	var users []Model
-	if err := r.DB(ctx).Where("dept_id = ?", id).Find(&users).Error; err != nil {
+	if err := r.DB(ctx).Where("id = ?", id).Find(&users).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
 		}
