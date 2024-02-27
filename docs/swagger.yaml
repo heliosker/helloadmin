@@ -903,6 +903,21 @@ paths:
       tags:
       - 员工模块
   /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - Bearer: []
+      summary: 删除员工信息
+      tags:
+      - 员工模块
     get:
       consumes:
       - application/json

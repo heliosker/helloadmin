@@ -19,6 +19,7 @@ type Service interface {
 	GetProfileById(ctx context.Context, id int64) (*ProfileData, error)
 	Update(ctx context.Context, id int64, req *UpdateRequest) error
 	Search(ctx context.Context, request *FindRequest) (*Response, error)
+	Delete(ctx context.Context, id int64) error
 }
 
 func NewService(sid *sid.Sid, jwt *jwt.JWT, repo Repository) Service {
@@ -166,6 +167,10 @@ func (s *userService) Update(ctx context.Context, id int64, req *UpdateRequest) 
 		return err
 	}
 	return nil
+}
+
+func (s *userService) Delete(ctx context.Context, id int64) error {
+	return s.repo.Delete(ctx, id)
 }
 
 func profile(m *Model) *ProfileData {

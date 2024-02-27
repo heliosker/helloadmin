@@ -69,22 +69,45 @@ func (r *roleRepository) Update(ctx context.Context, id int64, role *Model) erro
 }
 
 func (r *roleRepository) UpdateRoleMenu(ctx context.Context, id int64, req *MenuRequest) error {
+	// 开启数据库事务
+	tx := r.DB(ctx).Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback() // 回滚事务
+		}
+	}()
+
 	var role Model
-	if err := r.DB(ctx).Preload("Menus").First(&role, id).Error; err != nil {
+	if err := tx.Preload("Menus").First(&role, id).Error; err != nil {
+		tx.Rollback() // 回滚事务
 		return err
 	}
+
 	// 清空角色原有的关联菜单
-	if err := r.DB(ctx).Model(&role).Association("Menus").Clear(); err != nil {
+	if err := tx.Model(&role).Association("Menus").Clear(); err != nil {
+		tx.Rollback() // 回滚事务
 		return err
 	}
-	var menus []menu.Model
-	if err := r.DB(ctx).Find(&menus, req.MenuId).Error; err != nil {
-		return err
+
+	if len(req.MenuId) > 0 {
+		var menus []menu.Model
+		if err := tx.Where("id IN (?)", req.MenuId).Find(&menus).Error; err != nil {
+			tx.Rollback() // 回滚事务
+			return err
+		}
+
+		// 将新的菜单关联到角色
+		if err := tx.Model(&role).Association("Menus").Append(menus); err != nil {
+			tx.Rollback() // 回滚事务
+			return err
+		}
 	}
-	if err := r.DB(ctx).Model(&role).Association("Menus").Append(menus); err != nil {
-		return err
-	}
-	return nil
+
+	// 提交事务
+	return tx.Commit().Error
 }
 
 func (r *roleRepository) Delete(ctx context.Context, id int64) error {

@@ -7,6 +7,7 @@ import (
 
 type Service interface {
 	GetRoleById(ctx context.Context, id int64) (*ResponseItem, error)
+	GetRoleMenuById(ctx context.Context, id int64) (*[]MenuItem, error)
 	SearchRole(ctx context.Context, request *FindRequest) (*Response, error)
 	CreateRole(ctx context.Context, request *CreateRequest) error
 	UpdateRole(ctx context.Context, id int64, request *UpdateRequest) error
@@ -43,6 +44,32 @@ func (s *roleService) GetRoleById(ctx context.Context, id int64) (*ResponseItem,
 		CreatedAt: role.CreatedAt.Format(time.DateTime),
 		MenuId:    menuIds,
 	}, nil
+}
+
+func (s *roleService) GetRoleMenuById(ctx context.Context, id int64) (*[]MenuItem, error) {
+	role, err := s.repo.GetById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	menuItem := make([]MenuItem, 0)
+	for _, menu := range role.Menus {
+		tmp := MenuItem{
+			ID:        menu.ID,
+			Title:     menu.Title,
+			Component: menu.Component,
+			Visible:   menu.Visible,
+			Name:      menu.Name,
+			Icon:      menu.Icon,
+			ParentId:  menu.ParentId,
+			Path:      menu.Path,
+			Type:      menu.Type,
+			Sort:      menu.Sort,
+			CreatedAt: menu.CreatedAt.Format(time.DateTime),
+			UpdatedAt: menu.UpdatedAt.Format(time.DateTime),
+		}
+		menuItem = append(menuItem, tmp)
+	}
+	return &menuItem, nil
 }
 
 func (s *roleService) SearchRole(ctx context.Context, req *FindRequest) (*Response, error) {

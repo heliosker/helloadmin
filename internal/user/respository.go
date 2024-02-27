@@ -15,6 +15,7 @@ type Repository interface {
 	GetByUserId(ctx context.Context, id string) (*Model, error)
 	GetByEmail(ctx context.Context, email string) (*Model, error)
 	Search(ctx context.Context, request *FindRequest) (int64, *[]Model, error)
+	Delete(ctx context.Context, id int64) error
 }
 
 func NewRepository(r *repository.Repository) Repository {
@@ -99,4 +100,11 @@ func (r *userRepository) Search(ctx context.Context, request *FindRequest) (int6
 		return total, nil, err
 	}
 	return total, &users, nil
+}
+
+func (r *userRepository) Delete(ctx context.Context, id int64) error {
+	if err := r.DB(ctx).Delete(&Model{}, id).Error; err != nil {
+		return err
+	}
+	return nil
 }
