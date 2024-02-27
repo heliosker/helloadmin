@@ -30,3 +30,18 @@ type ResponseItem struct {
 	UpdatedAt string `json:"updatedAt"`
 	MenuId    []uint `json:"menuId"`
 }
+
+type MenuItem struct {
+	ID        uint   `json:"id"`
+	Name      string `json:"name"`
+	Title     string `json:"title"`
+	Icon      string `json:"icon"`
+	Path      string `json:"path"`
+	Type      string `json:"type"`
+	ParentId  uint   `json:"parentId"`
+	Component string `json:"component"`
+	Sort      int    `json:"sort"`
+	Visible   string `json:"visible"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+}

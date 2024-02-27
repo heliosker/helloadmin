@@ -2,6 +2,7 @@ package user
 
 import (
 	"helloadmin/internal/department"
+	"helloadmin/internal/role"
 	"net/http"
 	"strconv"
 
@@ -20,14 +21,16 @@ type Handler struct {
 	us  Service
 	rs  logging.Service
 	de  department.Service
+	ro  role.Service
 }
 
-func NewHandler(log *log.Logger, us Service, rs logging.Service, de department.Service) *Handler {
+func NewHandler(log *log.Logger, us Service, rs logging.Service, de department.Service, ro role.Service) *Handler {
 	return &Handler{
 		log: log,
 		us:  us,
 		rs:  rs,
 		de:  de,
+		ro:  ro,
 	}
 }
 
@@ -149,10 +152,14 @@ func (h *Handler) GetProfile(ctx *gin.Context) {
 	}
 	user, err := h.us.GetProfileByUserId(ctx, userId)
 	if err != nil {
-		api.Error(ctx, http.StatusBadRequest, err)
+		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	api.Success(ctx, user)
+	menu, err := h.ro.GetRoleMenuById(ctx, int64(user.RoleId))
+	if err != nil {
+		api.Error(ctx, http.StatusInternalServerError, err)
+	}
+	api.Success(ctx, map[string]interface{}{"user": user, "menu": menu})
 }
 
 // Update godoc
@@ -178,6 +185,25 @@ func (h *Handler) Update(ctx *gin.Context) {
 		return
 	}
 	if err := h.us.Update(ctx, id, &req); err != nil {
+		api.Error(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	api.Success(ctx, nil)
+}
+
+// Delete godoc
+// @Summary 删除员工信息
+// @Schemes
+// @Description
+// @Tags 员工模块
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} api.Response
+// @Router /user/{id} [delete]
+func (h *Handler) Delete(ctx *gin.Context) {
+	id, _ := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err := h.us.Delete(ctx, id); err != nil {
 		api.Error(ctx, http.StatusInternalServerError, err)
 		return
 	}
