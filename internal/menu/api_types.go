@@ -30,7 +30,7 @@ type ResponseItem struct {
 	Visible   string         `json:"visible"`
 	CreatedAt string         `json:"createdAt"`
 	UpdatedAt string         `json:"updatedAt"`
-	Children  []ResponseItem `json:"children"`
+	Children  []ResponseItem `json:"children,omitempty"`
 }
 
 type OptionRequest struct {

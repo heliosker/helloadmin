@@ -48,7 +48,7 @@ func (r *menuRepository) Find(ctx context.Context, req *FindRequest) (int64, *[]
 		query = query.Where("visible = ?", req.Visible)
 	}
 	query.Model(&menu).Count(&count)
-	if err := query.Order("sort desc").Find(&menu).Error; err != nil {
+	if err := query.Order("sort asc").Find(&menu).Error; err != nil {
 		return 0, nil, err
 	}
 	return count, &menu, nil
