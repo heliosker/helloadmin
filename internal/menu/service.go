@@ -65,27 +65,23 @@ func (s *service) Options(ctx context.Context, req *OptionRequest) ([]Option, er
 	var err error
 	switch req.Type {
 	case TypeDirectory:
-		return []Option{
-			{
-				Label: "一级目录",
-				Value: 0,
-			},
-		}, nil
+		return []Option{{Label: "顶级", Value: 0}}, nil
 	case TypeMenu:
 		menus, err = s.repo.FindByType(ctx, TypeDirectory)
+		return buildOptions(*menus, true)
 	case TypeButton:
 		menus, err = s.repo.FindByType(ctx, TypeMenu)
+		return buildOptions(*menus, false)
 	default:
-		return nil, nil
-	}
-	if err != nil {
 		return nil, err
 	}
-	return buildOptions(*menus)
 }
 
-func buildOptions(menus []Model) ([]Option, error) {
-	options := make([]Option, 0)
+func buildOptions(menus []Model, top bool) ([]Option, error) {
+	options := make([]Option, 1)
+	if top {
+		options[0] = Option{Label: "顶级", Value: 0}
+	}
 	if len(menus) > 0 {
 		for _, item := range menus {
 			options = append(options, Option{
@@ -125,8 +121,10 @@ func buildMenuTree(menuList *[]Model, parentId uint) []ResponseItem {
 }
 
 func (s *service) CreateMenu(ctx context.Context, req *CreateRequest) error {
-	if menu, _ := s.repo.GetById(ctx, int64(req.ParentId)); menu == nil {
-		return ecode.ErrMenuParentedNotFound
+	if req.ParentId > 0 {
+		if menu, _ := s.repo.GetById(ctx, int64(req.ParentId)); menu == nil {
+			return ecode.ErrMenuParentedNotFound
+		}
 	}
 	menu := Model{
 		Name:      req.Name,
