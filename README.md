@@ -39,9 +39,13 @@ Experience it at: [http://demo.helloadmin.cn](http://demo.helloadmin.cn)
 
 ![Dashboard](https://raw.githubusercontent.com/heliosker/helloadmin/main/images/dashboard.png)
 
+![dept](https://raw.githubusercontent.com/heliosker/helloadmin/main/images/dept.png)
+
+![role](https://raw.githubusercontent.com/heliosker/helloadmin/main/images/role.png)
+
 ## Frontend Repository
 
-Link: [Helloadmin-ui](https://github.com/heliosker/helloadmin-ui)
+Link: [Helloadmin-ui](https://github.com/susie721/helloadmin-vue)
 
 ## License
 

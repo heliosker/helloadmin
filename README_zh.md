@@ -36,9 +36,13 @@ HelloAdmin 是一个基于 Gin + Ant Design Vue UI 的前后端分离管理系�
 
 ![Dashboard](https://raw.githubusercontent.com/heliosker/helloadmin/main/images/dashboard.png)
 
+![dept](https://raw.githubusercontent.com/heliosker/helloadmin/main/images/dept.png)
+
+![role](https://raw.githubusercontent.com/heliosker/helloadmin/main/images/role.png)
+
 ## 前端仓库
 
-Link：[Helloadmin-ui](https://github.com/heliosker/helloadmin-ui)
+Link：[Helloadmin-ui](https://github.com/susie721/helloadmin-vue)
 
 ## 许可证
 
